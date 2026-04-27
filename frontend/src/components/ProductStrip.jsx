@@ -91,8 +91,12 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
       margin: 0,
       color: brand.text,
       cursor: 'pointer',
-      height: '40px',
-      overflow: 'hidden'
+      display: '-webkit-box',
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: 'vertical',
+      overflow: 'hidden',
+      lineHeight: '1.4',
+      height: '45px'
     },
     desc: {
       fontSize: '13px',

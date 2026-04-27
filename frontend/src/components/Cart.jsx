@@ -16,7 +16,7 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
-  
+
   const handleApplyCoupon = () => {
     // Demo coupon logic
     if (promo.toUpperCase() === "HOMETIC10") {
@@ -86,17 +86,19 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
       alignItems: "center"
     },
     qtyBtn: {
-      width: "36px",
-      height: "36px",
-      borderRadius: "10px",
-      border: `1px solid ${brand.border}`,
-      backgroundColor: "white",
+      width: "32px",
+      height: "32px",
+      borderRadius: "8px",
+      border: `2px solid ${brand.primary}`, // Make border thicker and use primary color
+      backgroundColor: brand.white,
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
       cursor: "pointer",
       color: brand.primary,
-      transition: "0.2s"
+      transition: "0.2s",
+      padding: 0,
+      boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
     },
     emptyState: {
       textAlign: "center",
@@ -115,16 +117,16 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
           <ShoppingBag size={80} color={brand.border} strokeWidth={1} />
           <h2 style={{ fontSize: "28px", fontWeight: "800", color: brand.primary }}>Giỏ hàng trống</h2>
           <p style={{ color: brand.muted }}>Bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
-          <button 
+          <button
             onClick={() => setActiveTab("shop")}
-            style={{ 
-              padding: "16px 40px", 
-              backgroundColor: brand.secondary, 
-              color: "white", 
-              border: "none", 
-              borderRadius: "12px", 
-              fontWeight: "700", 
-              cursor: "pointer" 
+            style={{
+              padding: "16px 40px",
+              backgroundColor: brand.secondary,
+              color: "white",
+              border: "none",
+              borderRadius: "12px",
+              fontWeight: "700",
+              cursor: "pointer"
             }}
           >
             MUA SẮM NGAY
@@ -139,19 +141,31 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
       <div style={styles.wrapper}>
         <div style={styles.cartSection}>
           <h1 style={{ fontSize: "28px", fontWeight: "900", color: brand.primary, marginBottom: "30px" }}>Giỏ hàng của bạn</h1>
-          
+
           {cart.map((item) => (
             <div key={item.id} style={styles.item}>
-              <img 
-                src={item.image} 
-                alt={item.name} 
-                style={{ width: "100px", height: "100px", borderRadius: "15px", objectFit: "cover", backgroundColor: "#f8f8f8" }} 
+              <img
+                src={item.image}
+                alt={item.name}
+                style={{ width: "100px", height: "100px", borderRadius: "15px", objectFit: "cover", backgroundColor: "#f8f8f8" }}
               />
               <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "8px", color: brand.primary }}>{item.name}</h3>
+                <h3 style={{ 
+                  fontSize: "16px", 
+                  fontWeight: "700", 
+                  marginBottom: "8px", 
+                  color: brand.primary,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  lineHeight: "1.2"
+                }}>
+                  {item.name}
+                </h3>
                 <div style={{ fontSize: "18px", fontWeight: "800", color: brand.secondary }}>{formatVnd(item.price)}</div>
               </div>
-              
+
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <button style={styles.qtyBtn} onClick={() => updateQuantity(item.id, -1)}><Minus size={16} /></button>
                 <span style={{ fontWeight: "700", width: "20px", textAlign: "center" }}>{item.quantity || 1}</span>
@@ -164,7 +178,7 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
                 </div>
               )}
 
-              <button 
+              <button
                 onClick={() => removeFromCart(item.id)}
                 style={{ background: "none", border: "none", color: "#ff4d4d", cursor: "pointer", padding: "10px" }}
               >
@@ -176,12 +190,12 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
 
         <div style={styles.summarySection}>
           <h2 style={{ fontSize: "20px", fontWeight: "800", color: brand.primary, marginBottom: "25px" }}>Tổng đơn hàng</h2>
-          
+
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px", color: brand.muted }}>
             <span>Tạm tính</span>
             <span>{formatVnd(subtotal)}</span>
           </div>
-          
+
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "25px", color: brand.muted }}>
             <span>Phí vận chuyển</span>
             <span style={{ color: "#27ae60", fontWeight: "700" }}>Miễn phí</span>
@@ -197,7 +211,7 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
               value={promo}
               onChange={(e) => setPromo(e.target.value)}
             />
-            <button 
+            <button
               onClick={handleApplyCoupon}
               style={{
                 backgroundColor: brand.primary, color: "#fff", border: "none",
@@ -224,15 +238,15 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
             </div>
           </div>
 
-          <button style={{ 
-            width: "100%", 
-            padding: "18px", 
-            backgroundColor: brand.primary, 
-            color: "white", 
-            border: "none", 
-            borderRadius: "15px", 
-            fontWeight: "800", 
-            fontSize: "16px", 
+          <button style={{
+            width: "100%",
+            padding: "18px",
+            backgroundColor: brand.primary,
+            color: "white",
+            border: "none",
+            borderRadius: "15px",
+            fontWeight: "800",
+            fontSize: "16px",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -243,17 +257,17 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
             THANH TOÁN NGAY <ArrowRight size={20} />
           </button>
 
-          <button 
+          <button
             onClick={() => setActiveTab("shop")}
-            style={{ 
-              width: "100%", 
-              padding: "15px", 
-              backgroundColor: "transparent", 
-              color: brand.primary, 
-              border: `2px solid ${brand.primary}`, 
-              borderRadius: "15px", 
-              fontWeight: "700", 
-              cursor: "pointer" 
+            style={{
+              width: "100%",
+              padding: "15px",
+              backgroundColor: "transparent",
+              color: brand.primary,
+              border: `2px solid ${brand.primary}`,
+              borderRadius: "15px",
+              fontWeight: "700",
+              cursor: "pointer"
             }}
           >
             Tiếp tục mua sắm

@@ -1,35 +1,188 @@
-import React from "react";
+import React, { useState } from "react";
 import { Star } from "lucide-react";
 import { formatVnd } from "../constants";
 
 export default function ProductStrip({ title, items, addToCart, setActiveTab, setSelectedProduct }) {
+  const [hoveredBtn, setHoveredBtn] = useState(null);
+
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     setActiveTab("product_detail");
   };
 
+  const brand = {
+    bg: "#f9f5ed",
+    panel: "#e5e5e5",
+    primary: "#234a4a",
+    orange: "#da8f48",
+    white: "#ffffff",
+    text: "#1a1a1a",
+    muted: "#666"
+  };
+
+  const styles = {
+    section: {
+      padding: '40px 0',
+      fontFamily: '"Inter", sans-serif'
+    },
+    heading: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '25px',
+      borderLeft: `5px solid ${brand.orange}`,
+      paddingLeft: '15px'
+    },
+    title: {
+      fontSize: '24px',
+      fontWeight: '800',
+      margin: 0,
+      color: brand.primary,
+      textTransform: 'uppercase'
+    },
+    viewMore: {
+      background: 'none',
+      border: 'none',
+      color: brand.orange,
+      fontWeight: '600',
+      cursor: 'pointer',
+      textDecoration: 'underline'
+    },
+    grid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+      gap: '25px'
+    },
+    card: {
+      backgroundColor: brand.white,
+      borderRadius: '16px',
+      overflow: 'hidden',
+      position: 'relative',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+      transition: 'transform 0.3s ease'
+    },
+    img: {
+      width: '100%',
+      height: '220px',
+      objectFit: 'cover',
+      cursor: 'pointer'
+    },
+    ribbon: {
+      position: 'absolute',
+      top: '12px',
+      left: '12px',
+      backgroundColor: brand.orange,
+      color: brand.white,
+      padding: '4px 10px',
+      borderRadius: '6px',
+      fontSize: '11px',
+      fontWeight: '700',
+      zIndex: 1
+    },
+    body: {
+      padding: '18px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
+    },
+    prodName: {
+      fontSize: '16px',
+      fontWeight: '700',
+      margin: 0,
+      color: brand.text,
+      cursor: 'pointer',
+      height: '40px',
+      overflow: 'hidden'
+    },
+    desc: {
+      fontSize: '13px',
+      color: brand.muted
+    },
+    price: {
+      fontSize: '18px',
+      fontWeight: '800',
+      color: brand.primary,
+      margin: '5px 0'
+    },
+    buyBtn: (isHovered) => ({
+      width: '100%',
+      padding: '12px',
+      backgroundColor: isHovered ? brand.orange : brand.white,
+      color: isHovered ? brand.white : brand.orange,
+      border: `2px solid ${brand.orange}`,
+      borderRadius: '8px',
+      fontWeight: '700',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      marginTop: '10px'
+    }),
+    reviewLink: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '5px',
+      fontSize: '12px',
+      color: brand.muted,
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      marginTop: '5px'
+    }
+  };
+
   return (
-    <section className="product-section">
-      <div className="section-heading">
-        <h2>{title}</h2>
-        <button className="ghost">Xem thêm</button>
+    <section style={styles.section}>
+      <div style={styles.heading}>
+        <h2 style={styles.title}>{title}</h2>
+        <button style={styles.viewMore}>Xem thêm</button>
       </div>
-      <div className="product-grid">
-        {items.map((product, index) => (
-          <article className="product-card" key={product.viewKey || `${product.id}-${index}`}>
-            {product.sale_price && <div className="sale-ribbon">Giảm giá</div>}
-            <img src={product.image_url} alt={product.name} onClick={() => handleProductClick(product)} style={{ cursor: "pointer" }} />
-            <div className="product-body">
-              <h3 onClick={() => handleProductClick(product)} style={{ cursor: "pointer" }}>{product.name}</h3>
-              <span>{product.description || "Thiết bị gia dụng cao cấp"}</span>
-              <strong>{formatVnd(product.sale_price || product.price)}</strong>
-              <button onClick={() => addToCart(product)}>Mua ngay</button>
-              <button className="review-link" onClick={() => setActiveTab(`review:${product.id}`)}>
-                <Star size={13} fill="currentColor" /> Đánh giá
-              </button>
-            </div>
-          </article>
-        ))}
+
+      <div style={styles.grid}>
+        {items.map((product, index) => {
+          const productKey = product.viewKey || `${product.id}-${index}`;
+          return (
+            <article
+              style={styles.card}
+              key={productKey}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              {product.sale_price && <div style={styles.ribbon}>GIẢM GIÁ</div>}
+
+              <img
+                src={product.image_url}
+                alt={product.name}
+                onClick={() => handleProductClick(product)}
+                style={styles.img}
+              />
+
+              <div style={styles.body}>
+                <h3 onClick={() => handleProductClick(product)} style={styles.prodName}>
+                  {product.name}
+                </h3>
+                <span style={styles.desc}>{product.description || "Thiết bị gia dụng cao cấp"}</span>
+                <strong style={styles.price}>{formatVnd(product.sale_price || product.price)}</strong>
+
+                <button
+                  style={styles.buyBtn(hoveredBtn === productKey)}
+                  onMouseEnter={() => setHoveredBtn(productKey)}
+                  onMouseLeave={() => setHoveredBtn(null)}
+                  onClick={() => addToCart(product)}
+                >
+                  Mua ngay
+                </button>
+
+                <button
+                  style={styles.reviewLink}
+                  onClick={() => setActiveTab(`review:${product.id}`)}
+                >
+                  <Star size={13} fill={brand.orange} color={brand.orange} />
+                  <span style={{ borderBottom: '1px solid #ccc' }}>Đánh giá</span>
+                </button>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );

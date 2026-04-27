@@ -4,7 +4,7 @@ import { clearSession, getStoredUser } from "./services/api";
 import "./styles.css";
 
 // Import components từ barrel export
-import { Header, Footer, Shop, Auth, Cart, Orders, Admin, Reviews, CategoryDetail, ProductDetail } from "./components";
+import { Header, Footer, Shop, Auth, Cart, Orders, Admin, Reviews, CategoryDetail, ProductDetail, Profile } from "./components";
 
 // Import constants
 import { demoCategories, demoProducts } from "./constants";
@@ -135,6 +135,7 @@ function App() {
       {activeTab === "auth" && <Auth setUser={setUser} setActiveTab={setActiveTab} />}
       {activeTab === "cart" && <Cart cart={cart} user={user} setActiveTab={setActiveTab} clearCart={() => setCart([])} updateQuantity={(id, delta) => setCart(cart.map((item) => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item))} removeFromCart={(id) => setCart(cart.filter((item) => item.id !== id))} />}
       {activeTab === "orders" && <Orders />}
+      {activeTab === "profile" && <Profile user={user} />}
       {activeTab === "admin" && <Admin onLogout={logout} />}
       {reviewMatch && <Reviews productId={reviewMatch[1]} />}
       

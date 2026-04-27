@@ -121,6 +121,16 @@ npm install
 npm run dev
 ```
 
+### Account Test
+
+Admin: 
+    Mail: admin@hometic.com
+    Password: admin
+
+Customer: 
+    Mail: customer@hometic.com
+    Password: customer
+
 ## API chính
 
 - `POST /api/auth/register`

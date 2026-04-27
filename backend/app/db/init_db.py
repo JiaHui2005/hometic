@@ -12,7 +12,7 @@ def init_db() -> None:
                 User(
                     full_name="Admin Hometic",
                     email="admin@hometic.vn",
-                    hashed_password=hash_password("admin123"),
+                    password_hash=hash_password("admin123"),
                     role=UserRole.admin,
                 )
             )
@@ -21,7 +21,7 @@ def init_db() -> None:
                 User(
                     full_name="Khách hàng Hometic",
                     email="customer@hometic.vn",
-                    hashed_password=hash_password("customer123"),
+                    password_hash=hash_password("customer123"),
                     role=UserRole.customer,
                 )
             )

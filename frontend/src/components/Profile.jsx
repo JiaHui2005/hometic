@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { User, Package, ChevronRight, MapPin, Phone, Mail, Calendar, CreditCard, MessageSquare } from "lucide-react";
 import { formatVnd } from "../constants";
+import { orderService } from "../services/api";
 
-export default function Profile({ user, setActiveTab }) { // Thêm setActiveTab để chuyển hướng nếu cần
+export default function Profile({ user, setActiveTab }) {
   const [activeSubTab, setActiveSubTab] = useState("orders");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -13,32 +16,15 @@ export default function Profile({ user, setActiveTab }) { // Thêm setActiveTab 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Giả lập dữ liệu đơn hàng
-  const mockOrders = [
-    {
-      id: "ORD-2026-001",
-      date: "26/04/2026",
-      status: "Đang giao",
-      total: 3500000,
-      paymentMethod: "Chuyển khoản ngân hàng",
-      items: [
-        { id: 1, name: "Robot hút bụi Hometic Pro", price: 2500000, qty: 1, image: "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=200&q=80" },
-        { id: 2, name: "Máy lọc không khí PureAir", price: 1000000, qty: 1, image: "https://images.unsplash.com/photo-1626430451221-0f3f12289c43?auto=format&fit=crop&w=200&q=80" }
-      ],
-      address: "123 Đường Tôn Đức Thắng, Quận 1, TP. Hồ Chí Minh"
-    },
-    {
-      id: "ORD-2026-002",
-      date: "15/04/2026",
-      status: "Đã giao",
-      total: 1200000,
-      paymentMethod: "Thanh toán khi nhận hàng (COD)",
-      items: [
-        { id: 3, name: "Nồi cơm điện SmartCook", price: 1200000, qty: 1, image: "https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=200&q=80" }
-      ],
-      address: "456 Đường Lê Lợi, Quận Hải Châu, TP. Đà Nẵng"
+  useEffect(() => {
+    if (activeSubTab === "orders" && user) {
+      setLoading(true);
+      orderService.getMyOrders()
+        .then(setOrders)
+        .catch(err => console.error(err))
+        .finally(() => setLoading(false));
     }
-  ];
+  }, [activeSubTab, user]);
 
   const brand = {
     primary: "#234a4a",
@@ -59,22 +45,18 @@ export default function Profile({ user, setActiveTab }) { // Thêm setActiveTab 
     avatar: { width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.2)", display: "flex", justifyContent: "center", alignItems: "center", margin: "0 auto 15px", fontSize: "32px", fontWeight: "bold" },
     navItem: (active) => ({ padding: "15px 20px", borderRadius: "12px", backgroundColor: active ? brand.primary : brand.white, color: active ? brand.white : brand.text, display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", fontWeight: "700", transition: "0.2s", border: `1px solid ${brand.border}` }),
     orderCard: { padding: "20px", borderRadius: "16px", border: `1px solid ${brand.border}`, marginBottom: "15px", cursor: "pointer", transition: "0.2s" },
-    statusBadge: (status) => ({ padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", backgroundColor: status === "Đang giao" ? "#fff3e0" : "#e8f5e9", color: status === "Đang giao" ? "#ef6c00" : "#2e7d32" }),
-    orderDetailHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", borderBottom: `1px solid ${brand.border}`, paddingBottom: "15px" },
-    btnReview: {
-      padding: "8px 16px",
-      backgroundColor: brand.white,
-      color: brand.secondary,
-      border: `1px solid ${brand.secondary}`,
-      borderRadius: "8px",
-      fontSize: "13px",
-      fontWeight: "700",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-      transition: "0.2s"
-    }
+    statusBadge: (status) => {
+      const colors = {
+        "pending": { bg: "#fff3e0", text: "#ef6c00", label: "Chờ xử lý" },
+        "processing": { bg: "#e3f2fd", text: "#1976d2", label: "Đang xử lý" },
+        "shipped": { bg: "#f3e5f5", text: "#7b1fa2", label: "Đang giao" },
+        "delivered": { bg: "#e8f5e9", text: "#2e7d32", label: "Đã giao" },
+        "cancelled": { bg: "#ffebee", text: "#c62828", label: "Đã hủy" }
+      };
+      const conf = colors[status] || colors.pending;
+      return { padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", backgroundColor: conf.bg, color: conf.text, label: conf.label };
+    },
+    btnReview: { padding: "8px 16px", backgroundColor: brand.white, color: brand.secondary, border: `1px solid ${brand.secondary}`, borderRadius: "8px", fontSize: "13px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", transition: "0.2s" }
   };
 
   const renderOrderList = () => (
@@ -82,123 +64,106 @@ export default function Profile({ user, setActiveTab }) { // Thêm setActiveTab 
       <h2 style={{ fontSize: "22px", fontWeight: "800", color: brand.primary, marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
         <Package size={24} /> Lịch sử mua hàng
       </h2>
-      {mockOrders.map((order) => (
-        <div
-          key={order.id}
-          style={styles.orderCard}
-          onClick={() => setSelectedOrder(order)}
-          onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.05)"}
-          onMouseLeave={(e) => e.currentTarget.style.boxShadow = "none"}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-            <span style={{ fontWeight: "700", color: brand.primary }}>{order.id}</span>
-            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              {order.status === "Đã giao" && (
-                <button
-                  style={styles.btnReview}
-                  onClick={(e) => { e.stopPropagation(); /* Logic mở tab đánh giá */ }}
-                >
-                  <MessageSquare size={14} /> Đánh giá
-                </button>
-              )}
-              <span style={styles.statusBadge(order.status)}>{order.status}</span>
+      {loading ? <p>Đang tải đơn hàng...</p> : (
+        orders.length === 0 ? <p>Bạn chưa có đơn hàng nào.</p> :
+        orders.map((order) => {
+          const badge = styles.statusBadge(order.status);
+          return (
+            <div
+              key={order.id}
+              style={styles.orderCard}
+              onClick={() => setSelectedOrder(order)}
+              onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.05)"}
+              onMouseLeave={(e) => e.currentTarget.style.boxShadow = "none"}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                <span style={{ fontWeight: "700", color: brand.primary }}>{order.order_code}</span>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  {order.status === "delivered" && (
+                    <button style={styles.btnReview} onClick={(e) => { e.stopPropagation(); setActiveTab(`review:${order.items[0]?.product_id}`); }}>
+                      <MessageSquare size={14} /> Đánh giá
+                    </button>
+                  )}
+                  <span style={{ ...badge }}>{badge.label}</span>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: "14px", color: brand.muted }}>Ngày đặt: {new Date(order.created_at).toLocaleDateString("vi-VN")}</div>
+                  <div style={{ fontWeight: "800", marginTop: "5px", color: brand.secondary }}>{formatVnd(order.total_amount)}</div>
+                </div>
+                <ChevronRight size={20} color={brand.muted} />
+              </div>
             </div>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontSize: "14px", color: brand.muted }}>Ngày đặt: {order.date}</div>
-              <div style={{ fontWeight: "800", marginTop: "5px", color: brand.secondary }}>{formatVnd(order.total)}</div>
-            </div>
-            <ChevronRight size={20} color={brand.muted} />
-          </div>
-        </div>
-      ))}
+          );
+        })
+      )}
     </div>
   );
 
-  const renderOrderDetail = (order) => (
-    <div>
-      <div style={styles.orderDetailHeader}>
-        <button
-          onClick={() => setSelectedOrder(null)}
-          style={{ background: "none", border: "none", color: brand.primary, fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}
-        >
-          ← Quay lại
-        </button>
-        <span style={{ fontWeight: "800", color: brand.primary }}>Chi tiết đơn hàng: {order.id}</span>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "20px", marginBottom: "30px" }}>
-        <div style={{ padding: "20px", background: "#f8f8f8", borderRadius: "16px" }}>
-          <h4 style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}><MapPin size={18} /> Địa chỉ nhận hàng</h4>
-          <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{user?.full_name || "Khách hàng"}<br />{order.address}</p>
-        </div>
-        <div style={{ padding: "20px", background: "#f8f8f8", borderRadius: "16px" }}>
-          <h4 style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}><CreditCard size={18} /> Phương thức thanh toán</h4>
-          <p style={{ fontSize: "14px" }}>{order.paymentMethod}</p>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
-        <h4 style={{ margin: 0, fontWeight: "800" }}>Sản phẩm ({order.items.length})</h4>
-        {order.status === "Đã giao" && (
-          <button style={styles.btnReview} onClick={() => { /* Logic mở đánh giá */ }}>
-            <MessageSquare size={16} /> Đánh giá tất cả
+  const renderOrderDetail = (order) => {
+    const badge = styles.statusBadge(order.status);
+    return (
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", borderBottom: `1px solid ${brand.border}`, paddingBottom: "15px" }}>
+          <button
+            onClick={() => setSelectedOrder(null)}
+            style={{ background: "none", border: "none", color: brand.primary, fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}
+          >
+            ← Quay lại
           </button>
-        )}
-      </div>
+          <span style={{ fontWeight: "800", color: brand.primary }}>Chi tiết: {order.order_code}</span>
+        </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-        {order.items.map((item) => (
-          <div key={item.id} style={{ display: "flex", gap: "15px", alignItems: "center", paddingBottom: "15px", borderBottom: "1px solid #eee" }}>
-            <img src={item.image} style={{ width: "60px", height: "60px", borderRadius: "8px", objectFit: "cover" }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "14px", fontWeight: "700" }}>{item.name}</div>
-              <div style={{ fontSize: "13px", color: brand.muted }}>Số lượng: {item.qty}</div>
-            </div>
-            <div style={{ fontWeight: "700", textAlign: "right" }}>
-              <div>{formatVnd(item.price * item.qty)}</div>
-              {order.status === "Đã giao" && (
-                <div style={{ color: brand.secondary, fontSize: "11px", cursor: "pointer", marginTop: "4px" }}>Viết nhận xét</div>
-              )}
-            </div>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "20px", marginBottom: "30px" }}>
+          <div style={{ padding: "20px", background: "#f8f8f8", borderRadius: "16px" }}>
+            <h4 style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}><MapPin size={18} /> Địa chỉ nhận hàng</h4>
+            <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{order.recipient_name}<br />{order.shipping_address}<br />SĐT: {order.phone_number}</p>
           </div>
-        ))}
-      </div>
+          <div style={{ padding: "20px", background: "#f8f8f8", borderRadius: "16px" }}>
+            <h4 style={{ marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}><CreditCard size={18} /> Thanh toán & Trạng thái</h4>
+            <p style={{ fontSize: "14px" }}>
+              Phương thức: {order.payment_method === "cod" ? "Thanh toán khi nhận hàng" : "Chuyển khoản"}<br />
+              Trạng thái: <span style={{ color: badge.text, fontWeight: "700" }}>{badge.label}</span>
+            </p>
+          </div>
+        </div>
 
-      <div style={{ marginTop: "20px", textAlign: "right" }}>
-        <div style={{ fontSize: "14px", color: brand.muted, marginBottom: "5px" }}>Tổng tiền thanh toán</div>
-        <div style={{ fontSize: "24px", fontWeight: "900", color: brand.secondary }}>{formatVnd(order.total)}</div>
+        <h4 style={{ marginBottom: "15px", fontWeight: "800" }}>Sản phẩm ({order.items.length})</h4>
+        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+          {order.items.map((item) => (
+            <div key={item.id} style={{ display: "flex", gap: "15px", alignItems: "center", paddingBottom: "15px", borderBottom: "1px solid #eee" }}>
+              <img src={item.product?.image_url} style={{ width: "60px", height: "60px", borderRadius: "8px", objectFit: "cover" }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "14px", fontWeight: "700" }}>{item.product?.name}</div>
+                <div style={{ fontSize: "13px", color: brand.muted }}>Số lượng: {item.quantity}</div>
+              </div>
+              <div style={{ fontWeight: "700", textAlign: "right" }}>{formatVnd(item.price_at_purchase * item.quantity)}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: "20px", textAlign: "right" }}>
+          <div style={{ fontSize: "14px", color: brand.muted, marginBottom: "5px" }}>Tổng tiền thanh toán</div>
+          <div style={{ fontSize: "24px", fontWeight: "900", color: brand.secondary }}>{formatVnd(order.total_amount)}</div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div style={styles.container}>
       <div style={styles.layout}>
-        {/* Sidebar */}
         <div style={styles.sidebar}>
           <div style={styles.profileCard}>
             <div style={styles.avatar}>{user?.full_name?.charAt(0) || "U"}</div>
             <h3 style={{ margin: "0 0 5px", fontWeight: "800" }}>{user?.full_name || "Khách hàng"}</h3>
-            <p style={{ margin: 0, fontSize: "14px", opacity: 0.8 }}>{user?.email || "customer@hometic.com"}</p>
+            <p style={{ margin: 0, fontSize: "14px", opacity: 0.8 }}>{user?.email}</p>
           </div>
-
-          <div
-            style={styles.navItem(activeSubTab === "profile")}
-            onClick={() => { setActiveSubTab("profile"); setSelectedOrder(null); }}
-          >
-            <User size={20} /> Thông tin cá nhân
-          </div>
-          <div
-            style={styles.navItem(activeSubTab === "orders")}
-            onClick={() => { setActiveSubTab("orders"); }}
-          >
-            <Package size={20} /> Đơn hàng của tôi
-          </div>
+          <div style={styles.navItem(activeSubTab === "profile")} onClick={() => { setActiveSubTab("profile"); setSelectedOrder(null); }}><User size={20} /> Thông tin cá nhân</div>
+          <div style={styles.navItem(activeSubTab === "orders")} onClick={() => { setActiveSubTab("orders"); }}><Package size={20} /> Đơn hàng của tôi</div>
         </div>
 
-        {/* Main Content */}
         <div style={styles.mainContent}>
           {activeSubTab === "profile" ? (
             <div>
@@ -206,29 +171,17 @@ export default function Profile({ user, setActiveTab }) { // Thêm setActiveTab 
               <div style={{ display: "grid", gap: "20px" }}>
                 <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
                   <div style={{ width: "40px", height: "40px", background: brand.bg, borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center", color: brand.primary }}><Mail size={20} /></div>
-                  <div>
-                    <div style={{ fontSize: "12px", color: brand.muted }}>Email</div>
-                    <div style={{ fontWeight: "600" }}>{user?.email || "customer@hometic.com"}</div>
-                  </div>
+                  <div><div style={{ fontSize: "12px", color: brand.muted }}>Email</div><div style={{ fontWeight: "600" }}>{user?.email}</div></div>
                 </div>
                 <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
                   <div style={{ width: "40px", height: "40px", background: brand.bg, borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center", color: brand.primary }}><Phone size={20} /></div>
-                  <div>
-                    <div style={{ fontSize: "12px", color: brand.muted }}>Số điện thoại</div>
-                    <div style={{ fontWeight: "600" }}>090 123 4567</div>
-                  </div>
+                  <div><div style={{ fontSize: "12px", color: brand.muted }}>Số điện thoại</div><div style={{ fontWeight: "600" }}>{user?.phone || "Chưa cập nhật"}</div></div>
                 </div>
                 <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
                   <div style={{ width: "40px", height: "40px", background: brand.bg, borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center", color: brand.primary }}><Calendar size={20} /></div>
-                  <div>
-                    <div style={{ fontSize: "12px", color: brand.muted }}>Ngày tham gia</div>
-                    <div style={{ fontWeight: "600" }}>01/01/2026</div>
-                  </div>
+                  <div><div style={{ fontSize: "12px", color: brand.muted }}>Ngày sinh</div><div style={{ fontWeight: "600" }}>{user?.birthday || "Chưa cập nhật"}</div></div>
                 </div>
               </div>
-              <button style={{ marginTop: "40px", padding: "12px 25px", border: `2px solid ${brand.primary}`, background: "none", color: brand.primary, borderRadius: "10px", fontWeight: "700", cursor: "pointer" }}>
-                Chỉnh sửa thông tin
-              </button>
             </div>
           ) : (
             selectedOrder ? renderOrderDetail(selectedOrder) : renderOrderList()

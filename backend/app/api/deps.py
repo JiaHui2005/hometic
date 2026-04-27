@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -7,7 +8,7 @@ from app.db.session import get_db
 from app.models.entities import User, UserRole
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
@@ -23,4 +24,15 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != UserRole.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cần quyền quản trị")
+    return user
+
+def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Optional[User]:
+    if not token:
+        return None
+    
+    email = decode_token(token)
+    if not email:
+        return None
+        
+    user = db.query(User).filter(User.email == email).first()
     return user

@@ -45,19 +45,34 @@ class User(Base):
     reviews: Mapped[list["Review"]] = relationship(back_populates="user")
 
 
+# class Category(Base):
+#     __tablename__ = "categories"
+
+#     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+#     name: Mapped[str] = mapped_column(String(255))
+#     slug: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+#     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+#     image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+#     parent_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
+
+#     products: Mapped[list["Product"]] = relationship(back_populates="category")
+
 class Category(Base):
     __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(255))
-    slug: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    parent_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
+    parent_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
+    
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     products: Mapped[list["Product"]] = relationship(back_populates="category")
-
-
+    
 class Product(Base):
     __tablename__ = "products"
 

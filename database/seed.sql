@@ -1,47 +1,64 @@
--- 1. Seed Categories
-INSERT INTO categories (name, slug, description, image_url) VALUES 
-('Gia dụng Nhà bếp', 'nha-bep', 'Thiết bị nấu nướng thông minh', 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=600&q=80'),
-('Thiết bị vệ sinh', 've-sinh', 'Giải pháp làm sạch tự động', 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80'),
-('Tiện ích phòng ngủ', 'phong-ngu', 'Chăm sóc giấc ngủ và không khí', 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80');
+-- 1. Seed Categories (Cập nhật dựa trên hình ảnh)
+-- Sử dụng logic: Thiết bị nhà bếp (Cha) -> Nồi cơm điện (Con), v.v.
+INSERT INTO categories (name, slug, description, image_url, parent_id, is_active) VALUES
+('Thiết bị nhà bếp', 'thiet-bi-nha-bep', 'Các loại máy móc dùng trong bếp', 'kitchen-appliances.jpg', NULL, TRUE),
+('Dụng cụ làm bếp', 'dung-cu-lam-bep', 'Các bộ nồi, chảo và dao kéo', 'kitchen-tools.jpg', NULL, TRUE),
+('Nồi cơm điện', 'noi-com-dien', 'Nồi cơm điện cao tần, nắp gài', 'rice-cooker.jpg', 1, TRUE),
+('Bát đĩa', 'bat-dia', 'Bộ đồ ăn gốm sứ cao cấp', 'tableware.jpg', NULL, TRUE),
+('Hộp đựng thực phẩm', 'hop-dung-thuc-pham', 'Hộp nhựa, hộp thủy tinh bảo quản', 'food-containers.jpg', NULL, TRUE);
 
--- 2. Seed Users
-INSERT INTO users (email, password_hash, full_name, phone, birthday, gender, role) VALUES 
-('admin@hometic.com', '$2b$12$K8M6v6W8I6Z8L8N8P8R8T8V8X8Z8', 'Quản trị viên Jane', '0901234567', '1995-05-20', 'Nữ', 'admin'),
-('customer@hometic.com', '$2b$12$K8M6v6W8I6Z8L8N8P8R8T8V8X8Z8', 'Nguyễn Văn An', '0987654321', '1990-10-15', 'Nam', 'customer');
+-- 2. Seed Users (Giữ nguyên)
+INSERT INTO users (email, password_hash, full_name, phone, birthday, gender, role) VALUES
+('admin@hometic.com', '$2b$10$xyz...', 'Quản Trị Viên', '0901234567', '1990-01-01', 'Nam', 'admin'),
+('nguyenvana@gmail.com', '$2b$10$abc...', 'Nguyễn Văn A', '0912345678', '1995-05-20', 'Nam', 'customer'),
+('tran thị b@yahoo.com', '$2b$10$def...', 'Trần Thị B', '0988776655', '1998-12-12', 'Nữ', 'customer'),
+('lethic@outlook.com', '$2b$10$ghi...', 'Lê Thị C', '0333444555', '2000-03-15', 'Nữ', 'customer'),
+('phamvand@gmail.com', '$2b$10$jkl...', 'Phạm Văn D', '0777888999', '1992-08-30', 'Khác', 'customer');
 
--- 3. Seed Products (Basic Info)
-INSERT INTO products (id, category_id, name, slug, brand, price, sale_price, stock, image_url) VALUES 
-(1, 1, 'Nồi cơm điện SmartCook Pro', 'smartcook-pro', 'Hometic', 2490000, 2190000, 50, 'https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=520&q=80'),
-(2, 1, 'Bếp từ đôi Hometic Dual', 'hometic-dual-induction', 'Hometic', 8900000, NULL, 20, 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=520&q=80'),
-(3, 2, 'Robot hút bụi Hometic S9', 'hometic-s9-robot', 'Hometic', 7500000, 6900000, 30, 'https://images.unsplash.com/photo-1605648916361-9bc12ad6a569?auto=format&fit=crop&w=520&q=80'),
-(4, 2, 'Máy hút bụi cầm tay AirPure V1', 'airpure-v1-vacuum', 'Hometic', 1200000, NULL, 100, 'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=520&q=80'),
-(5, 3, 'Máy lọc không khí PureAir Pro', 'pureair-pro', 'Hometic', 3500000, 3200000, 40, 'https://images.unsplash.com/photo-1626430451221-0f3f12289c43?auto=format&fit=crop&w=520&q=80');
+-- 3. Seed Products (Sản phẩm khớp với Category mới)
+INSERT INTO products (category_id, name, slug, price, sale_price, stock, image_url) VALUES
+(3, 'Nồi cơm điện Cuckoo 1.8L', 'noi-com-dien-cuckoo-1-8l', 2500000, 2200000, 20, 'cuckoo-rice.jpg'),
+(1, 'Bếp từ đơn Hometic', 'bep-tu-don-hometic', 1200000, 990000, 15, 'induction-stove.jpg'),
+(5, 'Bộ 5 hộp nhựa Lock&Lock', 'bo-5-hop-nhua-lock-lock', 450000, NULL, 100, 'lock-lock-set.jpg'),
+(4, 'Bộ bát đĩa sứ Minh Long', 'bo-bat-dia-su-minh-long', 1800000, 1500000, 10, 'minh-long-set.jpg'),
+(2, 'Bộ nồi Inox 3 đáy', 'bo-noi-inox-3-day', 3500000, NULL, 8, 'inox-pot-set.jpg');
 
--- 3.1 Seed Product Details
-INSERT INTO product_details (product_id, description, content, specifications, gallery_urls) VALUES 
-(1, 'Nồi cơm điện cao tần thông minh 1.8L', '<p>Nồi cơm điện SmartCook Pro sử dụng công nghệ đốt nóng trong IH giúp cơm chín đều, thơm ngon...</p>', '{"Dung tích": "1.8L", "Công suất": "1200W", "Chống dính": "Có"}', '["img1.jpg", "img2.jpg"]'),
-(2, 'Bếp từ đôi công suất lớn', '<p>Thiết kế sang trọng, mặt kính chịu nhiệt cao cấp...</p>', '{"Vùng nấu": "02", "Công suất": "4000W"}', '[]'),
-(3, 'Robot hút bụi lau nhà LiDAR 3D', '<p>Tự động lập bản đồ, né tránh vật cản thông minh...</p>', '{"Lực hút": "4000Pa", "Pin": "5200mAh"}', '[]'),
-(4, 'Máy hút bụi cầm tay không dây', '<p>Nhỏ gọn, tiện lợi cho việc vệ sinh ô tô và góc hẹp...</p>', '{"Lực hút": "15000Pa", "Trọng lượng": "1.2kg"}', '[]'),
-(5, 'Máy lọc không khí HEPA H13', '<p>Loại bỏ 99.9% bụi mịn và vi khuẩn trong không khí...</p>', '{"Diện tích": "45m2", "Màng lọc": "HEPA H13"}', '[]');
+-- 4. Seed Product Details (Chi tiết sản phẩm)
+INSERT INTO product_details (product_id, description, content, specifications, gallery_urls, warranty_info) VALUES
+(1, 'Nồi cơm điện cao tần nhập khẩu Hàn Quốc', '<p>Nấu cơm ngon, giữ ấm lâu...</p>', '{"capacity": "1.8L", "power": "1200W"}', '["rc1.jpg", "rc2.jpg"]', '24 tháng'),
+(2, 'Bếp từ công suất lớn, mặt kính chịu nhiệt', '<p>Tiết kiệm điện năng...</p>', '{"power": "2000W", "type": "Đơn"}', '["stove1.jpg"]', '12 tháng'),
+(3, 'Hộp nhựa an toàn cho lò vi sóng', '<p>Chất liệu BPA Free...</p>', '{"material": "Nhựa PP", "quantity": 5}', '["box1.jpg"]', 'Không bảo hành'),
+(4, 'Sứ trắng cao cấp vẽ vàng', '<p>Sang trọng cho bàn ăn gia đình...</p>', '{"pieces": 22, "material": "Sứ"}', '["ceramic1.jpg"]', 'Đổi trả 7 ngày'),
+(5, 'Thép không gỉ 304 tiêu chuẩn châu Âu', '<p>Dùng được cho mọi loại bếp...</p>', '{"material": "Inox 304", "set": "3 món"}', '["pot1.jpg"]', '36 tháng');
 
--- 4. Seed Coupons
-INSERT INTO coupons (code, discount_type, discount_value, min_order_value, max_discount_value, is_active) VALUES 
-('HOMETIC10', 'percent', 10, 500000, 200000, TRUE),
-('WELCOME50', 'fixed', 50000, 0, NULL, TRUE),
-('GIAMGIAVIP', 'percent', 20, 2000000, 500000, TRUE);
+-- 5. Seed Coupons
+INSERT INTO coupons (code, discount_type, discount_value, min_order_value, max_discount_value, usage_limit) VALUES
+('KITCHEN2024', 'percent', 10, 500000, 200000, 50),
+('GIAM50K', 'fixed', 50000, 300000, NULL, 100),
+('FREESHIP', 'fixed', 30000, 1000000, NULL, 500),
+('HOMETIC5', 'percent', 5, 0, 50000, 200),
+('SALEKHUNG', 'percent', 30, 5000000, 1000000, 10);
 
--- 5. Seed Orders
-INSERT INTO orders (order_code, user_id, coupon_id, subtotal, discount_amount, total_amount, status, payment_method, recipient_name, phone_number, shipping_address) VALUES 
-('ORD-2026-001', 2, 1, 3500000, 200000, 3300000, 'shipped', 'banking', 'Nguyễn Văn An', '0987654321', '123 Đường Tôn Đức Thắng, Quận 1, TP. Hồ Chí Minh'),
-('ORD-2026-002', 2, NULL, 1200000, 0, 1200000, 'delivered', 'cod', 'Nguyễn Văn An', '0987654321', '456 Đường Lê Lợi, Quận Hải Châu, TP. Đà Nẵng');
+-- 6. Seed Orders
+INSERT INTO orders (order_code, user_id, coupon_id, subtotal, discount_amount, total_amount, status, payment_method, recipient_name, phone_number, shipping_address) VALUES
+('ORD-001', 2, 1, 2500000, 200000, 2300000, 'delivered', 'banking', 'Nguyễn Văn A', '0912345678', '123 Lê Lợi, Q1, HCM'),
+('ORD-002', 3, NULL, 450000, 0, 450000, 'processing', 'cod', 'Trần Thị B', '0988776655', '456 Nguyễn Huệ, Q1, HCM'),
+('ORD-003', 4, 2, 1800000, 50000, 1750000, 'pending', 'cod', 'Lê Thị C', '0333444555', '789 Trần Hưng Đạo, Q5, HCM'),
+('ORD-004', 5, NULL, 3500000, 0, 3500000, 'shipped', 'banking', 'Phạm Văn D', '0777888999', '101 Phan Chu Trinh, Đà Nẵng'),
+('ORD-005', 2, NULL, 1200000, 0, 1200000, 'cancelled', 'cod', 'Nguyễn Văn A', '0912345678', '123 Lê Lợi, Q1, HCM');
 
--- 5. Seed Order Items
-INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase) VALUES 
-(1, 5, 1, 3500000),
-(2, 4, 1, 1200000);
+-- 7. Seed Order Items
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase) VALUES
+(1, 1, 1, 2500000),
+(2, 3, 1, 450000),
+(3, 4, 1, 1800000),
+(4, 5, 1, 3500000),
+(5, 2, 1, 1200000);
 
--- 6. Seed Reviews
-INSERT INTO reviews (user_id, product_id, rating, comment) VALUES 
-(2, 5, 5, 'Máy chạy êm, lọc bụi rất nhanh, phòng thoáng hẳn.'),
-(2, 4, 4, 'Hút mạnh nhưng pin hơi nhanh hết, bù lại thiết kế đẹp.');
+-- 8. Seed Reviews
+INSERT INTO reviews (user_id, product_id, rating, comment) VALUES
+(2, 1, 5, 'Nồi nấu cơm rất ngon, chín đều.'),
+(3, 3, 4, 'Hộp chắc chắn, giao hàng hơi chậm xíu.'),
+(4, 4, 5, 'Bát đĩa đẹp xuất sắc, đóng gói kỹ.'),
+(5, 5, 4, 'Nồi dày dặn, dùng bếp từ bắt từ rất tốt.'),
+(2, 2, 3, 'Bếp dùng ổn nhưng quạt hơi ồn.');

@@ -4,10 +4,13 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
-    image_url VARCHAR(255) NULL, -- For homepage tiles
+    image_url VARCHAR(255) NULL,
     parent_id INT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE, -- Cột mới để hỗ trợ xóa tạm
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL
+    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL,
+    INDEX idx_category_slug (slug),
+    INDEX idx_category_is_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. Table Users
@@ -20,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
     birthday DATE NULL,
     gender ENUM('Nam', 'Nữ', 'Khác') NULL,
     role ENUM('customer', 'admin') DEFAULT 'customer',
-    provider VARCHAR(50) DEFAULT 'local',
+    provider VARCHAR(50) DEFAULT 'local',   
     avatar_url VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -121,3 +124,6 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE categories ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
+CREATE INDEX idx_category_is_active ON categories(is_active);

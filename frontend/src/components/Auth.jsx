@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { api, setSession } from "../services/api";
+import { authService, setSession } from "../services/api";
 import { Eye, EyeOff, Calendar, ChevronDown } from "lucide-react";
 
 export default function Auth({ setUser, setActiveTab }) {
@@ -11,7 +11,6 @@ export default function Auth({ setUser, setActiveTab }) {
   });
   const [error, setError] = useState("");
 
-  // Ref để kích hoạt mở lịch khi bấm vào icon
   const dateInputRef = useRef(null);
 
   useEffect(() => {
@@ -20,27 +19,44 @@ export default function Auth({ setUser, setActiveTab }) {
     return () => clearTimeout(timer);
   }, [isLogin]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (isLogin) {
-      // Giả lập logic đăng nhập
-      if (form.email === "admin@hometic.com" && form.password === "admin") {
-        const adminUser = { email: "admin@hometic.com", full_name: "Admin Jane", role: "admin" };
-        setSession("mock-admin-token", adminUser);
-        setUser(adminUser);
-        setActiveTab("admin");
-      } else if (form.email === "customer@hometic.com" && form.password === "customer") {
-        const customerUser = { email: "customer@hometic.com", full_name: "Khách hàng", role: "customer" };
-        setSession("mock-customer-token", customerUser);
-        setUser(customerUser);
-        setActiveTab("shop");
+    try {
+      if (isLogin) {
+        const data = await authService.login({
+          email: form.email,
+          password: form.password
+        });
+        
+        const tokens = { access_token: data.access_token, refresh_token: data.refresh_token };
+        setSession(tokens, data.user);
+        setUser(data.user);
+        
+        if (data.user.role === "admin") {
+          setActiveTab("admin");
+        } else {
+          setActiveTab("shop");
+        }
       } else {
-        setError("Email hoặc mật khẩu không đúng! (Hỗ trợ: customer@hometic.com / customer)");
+        const data = await authService.register({
+          email: form.email,
+          password: form.password,
+          full_name: form.full_name,
+          phone: form.phone,
+          birthday: form.birthday,
+          gender: form.gender
+        });
+        
+        const tokens = { access_token: data.access_token, refresh_token: data.refresh_token };
+        setSession(tokens, data.user);
+        setUser(data.user);
+        setActiveTab("shop");
+        alert("Đăng ký thành công!");
       }
-    } else {
-      setError("Tính năng đăng ký đang bảo trì. Vui lòng dùng tài khoản giả lập.");
+    } catch (err) {
+      setError(err.message || "Có lỗi xảy ra, vui lòng thử lại.");
     }
   };
 

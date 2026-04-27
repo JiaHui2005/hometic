@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { clearSession, getStoredUser } from "./services/api";
+import { clearSession, getStoredUser, catalogService } from "./services/api";
 import "./styles.css";
 
 // Import components từ barrel export
@@ -81,8 +81,6 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-
-
 function App() {
   const [user, setUser] = useState(getStoredUser());
   const [activeTab, setActiveTab] = useState("shop");
@@ -92,19 +90,24 @@ function App() {
   const [cart, setCart] = useState(() => JSON.parse(sessionStorage.getItem("hometic_cart") || "[]"));
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  useEffect(() => { sessionStorage.setItem("hometic_cart", JSON.stringify(cart)); }, [cart]);
   useEffect(() => { 
-    // Uncomment khi backend sẵn sàng
-    // api("/categories").then(setCategories).catch(() => setCategories(demoCategories));
-    setCategories(demoCategories);
+    sessionStorage.setItem("hometic_cart", JSON.stringify(cart)); 
+  }, [cart]);
+
+  useEffect(() => { 
+    catalogService.getCategories()
+      .then(setCategories)
+      .catch(() => setCategories(demoCategories));
   }, []);
+
   useEffect(() => {
     const params = new URLSearchParams();
     if (filters.q) params.set("q", filters.q);
     if (filters.category_id) params.set("category_id", filters.category_id);
-    // Uncomment khi backend sẵn sàng
-    // api(`/products?${params.toString()}`).then(setProducts).catch(() => setProducts(demoProducts));
-    setProducts(demoProducts);
+    
+    catalogService.getProducts(params.toString() ? `?${params.toString()}` : "")
+      .then(setProducts)
+      .catch(() => setProducts(demoProducts));
   }, [filters]);
 
   function addToCart(product) {
@@ -126,16 +129,33 @@ function App() {
   return (
     <div className="app-root">
       {activeTab !== "admin" && (
-        <Header user={user} cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} activeTab={activeTab} setActiveTab={setActiveTab} onLogout={logout} filters={filters} setFilters={setFilters} />
+        <Header 
+          user={user} 
+          cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          onLogout={logout} 
+          filters={filters} 
+          setFilters={setFilters} 
+        />
       )}
       
       {activeTab === "shop" && <Shop categories={categories} products={products} filters={filters} setFilters={setFilters} addToCart={addToCart} setActiveTab={setActiveTab} setSelectedProduct={setSelectedProduct} />}
       {activeTab === "category_detail" && <CategoryDetail products={products} addToCart={addToCart} setActiveTab={setActiveTab} setSelectedProduct={setSelectedProduct} />}
       {activeTab === "product_detail" && <ProductDetail product={selectedProduct} addToCart={addToCart} setActiveTab={setActiveTab} />}
       {activeTab === "auth" && <Auth setUser={setUser} setActiveTab={setActiveTab} />}
-      {activeTab === "cart" && <Cart cart={cart} user={user} setActiveTab={setActiveTab} clearCart={() => setCart([])} updateQuantity={(id, delta) => setCart(cart.map((item) => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item))} removeFromCart={(id) => setCart(cart.filter((item) => item.id !== id))} />}
+      {activeTab === "cart" && (
+        <Cart 
+          cart={cart} 
+          user={user} 
+          setActiveTab={setActiveTab} 
+          clearCart={() => setCart([])} 
+          updateQuantity={(id, delta) => setCart(cart.map((item) => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item))} 
+          removeFromCart={(id) => setCart(cart.filter((item) => item.id !== id))} 
+        />
+      )}
       {activeTab === "orders" && <Orders />}
-      {activeTab === "profile" && <Profile user={user} />}
+      {activeTab === "profile" && <Profile user={user} setActiveTab={setActiveTab} />}
       {activeTab === "admin" && <Admin onLogout={logout} />}
       {reviewMatch && <Reviews productId={reviewMatch[1]} />}
       

@@ -4,73 +4,88 @@ export const formatVnd = (value) =>
 
 // Demo dữ liệu
 export const demoCategories = [
-  { id: 1, name: "Nhà bếp thông minh" },
-  { id: 2, name: "Chăm sóc nhà cửa" },
-  { id: 3, name: "Điện gia dụng" },
+  { id: 1, name: "Gia dụng Nhà bếp", slug: "nha-bep" },
+  { id: 2, name: "Thiết bị vệ sinh", slug: "ve-sinh" },
+  { id: 3, name: "Tiện ích phòng ngủ", slug: "phong-ngu" },
 ];
 
 export const demoProducts = [
   {
     id: 1,
     category_id: 1,
-    name: "Nồi chiên không dầu SmartCook 6L",
-    description: "Điều khiển qua app, 12 chế độ nấu.",
+    name: "Nồi cơm điện SmartCook Pro",
+    description: "Nồi cơm điện cao tần thông minh, điều khiển qua App.",
     price: 2490000,
-    sale_price: 2190000,
-    stock: 40,
-    image_url: "https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=900&q=80",
-    category: demoCategories[0],
-    images: [
-      "https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1594385208974-2e75f9d8ad48?auto=format&fit=crop&w=900&q=80"
-    ],
+    stock: 50,
+    image: "https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=520&q=80",
+    images: ["https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=520&q=80"],
     details: [
-      { label: "Công suất", value: "1800W" },
-      { label: "Dung tích", value: "6.0 Lít" },
-      { label: "Chất liệu", value: "Thép không gỉ, nhựa ABS" },
-      { label: "Tính năng", value: "Điều khiển WiFi, 12 chế độ" }
+      { label: "Dung tích", value: "1.8L" },
+      { label: "Công suất", value: "1200W" },
+      { label: "Chất liệu", value: "Lòng nồi chống dính cao cấp" },
+      { label: "Tính năng", value: "Điều khiển qua Wifi/App" }
     ]
   },
   {
     id: 2,
-    category_id: 2,
-    name: "Robot hút bụi Hometic CleanBot X2",
-    description: "Lập bản đồ laser, lau hút 2 trong 1.",
-    price: 7990000,
-    sale_price: 6990000,
-    stock: 25,
-    image_url: "https://images.unsplash.com/photo-1605648916361-9bc12ad6a569?auto=format&fit=crop&w=900&q=80",
-    category: demoCategories[1],
-    images: [
-      "https://images.unsplash.com/photo-1605648916361-9bc12ad6a569?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=900&q=80"
-    ],
+    category_id: 1,
+    name: "Bếp từ đôi Hometic Dual",
+    description: "Bếp từ âm 2 vùng nấu, công suất mạnh mẽ.",
+    price: 8900000,
+    stock: 20,
+    image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=520&q=80",
+    images: ["https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=520&q=80"],
     details: [
-      { label: "Lực hút", value: "4000Pa" },
-      { label: "Pin", value: "5200mAh" },
-      { label: "Thời gian chạy", value: "180 phút" },
-      { label: "Cảm biến", value: "LiDAR 2.0" }
+      { label: "Vùng nấu", value: "02" },
+      { label: "Công suất", value: "4000W" },
+      { label: "Mặt kính", value: "Schott Ceran" },
+      { label: "Hẹn giờ", value: "99 phút" }
     ]
   },
   {
     id: 3,
-    category_id: 3,
-    name: "Máy lọc không khí AirJoy Pro",
-    description: "Lọc HEPA H13, cảm biến bụi mịn.",
-    price: 5290000,
-    sale_price: 4890000,
+    category_id: 2,
+    name: "Robot hút bụi Hometic S9",
+    description: "Robot hút bụi lau nhà thế hệ mới, cảm biến LiDAR.",
+    price: 7500000,
     stock: 30,
-    image_url: "https://images.unsplash.com/photo-1626430451221-0f3f12289c43?auto=format&fit=crop&w=900&q=80",
-    category: demoCategories[2],
-    images: [
-      "https://images.unsplash.com/photo-1626430451221-0f3f12289c43?auto=format&fit=crop&w=900&q=80",
-      "https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=900&q=80"
-    ],
+    image: "https://images.unsplash.com/photo-1605648916361-9bc12ad6a569?auto=format&fit=crop&w=520&q=80",
+    images: ["https://images.unsplash.com/photo-1605648916361-9bc12ad6a569?auto=format&fit=crop&w=520&q=80"],
     details: [
-      { label: "Diện tích lọc", value: "50m2" },
-      { label: "Màng lọc", value: "HEPA H13 3 lớp" },
-      { label: "Độ ồn", value: "< 30dB" },
-      { label: "Cảm biến", value: "PM2.5, VOCs" }
+      { label: "Lực hút", value: "4000Pa" },
+      { label: "Pin", value: "5200mAh" },
+      { label: "Thời gian chạy", value: "180 phút" },
+      { label: "Cảm biến", value: "LiDAR 3D" }
     ]
   },
+  {
+    id: 4,
+    category_id: 2,
+    name: "Máy hút bụi cầm tay AirPure V1",
+    description: "Thiết kế không dây, trọng lượng nhẹ, lực hút cực mạnh.",
+    price: 1200000,
+    stock: 100,
+    image: "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=520&q=80",
+    images: ["https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=520&q=80"],
+    details: [
+      { label: "Lực hút", value: "15000Pa" },
+      { label: "Trọng lượng", value: "1.2kg" },
+      { label: "Độ ồn", value: "<70dB" }
+    ]
+  },
+  {
+    id: 5,
+    category_id: 3,
+    name: "Máy lọc không khí PureAir Pro",
+    description: "Lọc sạch bụi mịn PM2.5, khử mùi hiệu quả.",
+    price: 3500000,
+    stock: 40,
+    image: "https://images.unsplash.com/photo-1626430451221-0f3f12289c43?auto=format&fit=crop&w=520&q=80",
+    images: ["https://images.unsplash.com/photo-1626430451221-0f3f12289c43?auto=format&fit=crop&w=520&q=80"],
+    details: [
+      { label: "Diện tích phòng", value: "45m2" },
+      { label: "Màng lọc", value: "HEPA H13" },
+      { label: "Tính năng", value: "Cảm biến chất lượng không khí" }
+    ]
+  }
 ];

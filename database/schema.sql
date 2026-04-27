@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
+    image_url VARCHAR(255) NULL, -- For homepage tiles
     parent_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL
@@ -13,11 +14,13 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NULL, -- Null for OAuth users
+    password_hash VARCHAR(255) NULL,
     full_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NULL,
+    birthday DATE NULL,
+    gender ENUM('Nam', 'Nữ', 'Khác') NULL,
     role ENUM('customer', 'admin') DEFAULT 'customer',
-    provider VARCHAR(50) DEFAULT 'local', -- 'local', 'google', 'facebook'
-    provider_id VARCHAR(255) NULL,
+    provider VARCHAR(50) DEFAULT 'local',
     avatar_url VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -29,8 +32,9 @@ CREATE TABLE IF NOT EXISTS products (
     category_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
-    description TEXT,
-    price DECIMAL(12, 2) NOT NULL DEFAULT 0,
+    brand VARCHAR(100) DEFAULT 'Hometic',
+    price DECIMAL(15, 2) NOT NULL DEFAULT 0,
+    sale_price DECIMAL(15, 2) NULL,
     stock INT NOT NULL DEFAULT 0,
     image_url VARCHAR(255) NULL,
     is_active BOOLEAN DEFAULT TRUE,
@@ -38,42 +42,61 @@ CREATE TABLE IF NOT EXISTS products (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
     INDEX idx_product_name (name),
-    INDEX idx_product_price (price)
+    INDEX idx_product_price (price),
+    INDEX idx_product_slug (slug)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 4. Table Cart
-CREATE TABLE IF NOT EXISTS carts (
+-- 4. Table Product Details
+CREATE TABLE IF NOT EXISTS product_details (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 5. Table Cart Items
-CREATE TABLE IF NOT EXISTS cart_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    cart_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT NOT NULL DEFAULT 1,
-    FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
+    product_id INT NOT NULL UNIQUE,
+    description TEXT, 
+    content LONGTEXT, 
+    specifications JSON NULL,
+    gallery_urls JSON NULL,
+    warranty_info VARCHAR(255) DEFAULT '12 tháng',
+    origin VARCHAR(100) DEFAULT 'Việt Nam',
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. Table Coupons
+CREATE TABLE IF NOT EXISTS coupons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    discount_type ENUM('fixed', 'percent') DEFAULT 'percent',
+    discount_value DECIMAL(15, 2) NOT NULL,
+    min_order_value DECIMAL(15, 2) DEFAULT 0,
+    max_discount_value DECIMAL(15, 2) NULL,
+    start_date TIMESTAMP NULL,
+    end_date TIMESTAMP NULL,
+    usage_limit INT DEFAULT 100,
+    used_count INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 6. Table Orders
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    order_code VARCHAR(50) UNIQUE NOT NULL,
     user_id INT NOT NULL,
-    total_amount DECIMAL(12, 2) NOT NULL,
+    coupon_id INT NULL,
+    subtotal DECIMAL(15, 2) NOT NULL,
+    discount_amount DECIMAL(15, 2) DEFAULT 0,
+    total_amount DECIMAL(15, 2) NOT NULL,
     status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
-    payment_method VARCHAR(50) DEFAULT 'cod', -- 'cod', 'card', 'paypal'
+    payment_method VARCHAR(50) DEFAULT 'cod',
     payment_status ENUM('pending', 'paid', 'failed') DEFAULT 'pending',
+    recipient_name VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
     shipping_address TEXT NOT NULL,
+    notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE SET NULL,
     INDEX idx_order_status (status),
-    INDEX idx_order_created (created_at)
+    INDEX idx_order_code (order_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. Table Order Items
@@ -82,7 +105,7 @@ CREATE TABLE IF NOT EXISTS order_items (
     order_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
-    price_at_purchase DECIMAL(12, 2) NOT NULL,
+    price_at_purchase DECIMAL(15, 2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

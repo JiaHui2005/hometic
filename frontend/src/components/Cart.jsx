@@ -11,7 +11,29 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const [promo, setPromo] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+
   const subtotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+  
+  const handleApplyCoupon = () => {
+    // Demo coupon logic
+    if (promo.toUpperCase() === "HOMETIC10") {
+      const amt = subtotal * 0.1;
+      setDiscount(amt);
+      setAppliedCoupon("HOMETIC10 (-10%)");
+      alert("Áp dụng mã giảm giá 10% thành công!");
+    } else if (promo.toUpperCase() === "WELCOME50") {
+      setDiscount(50000);
+      setAppliedCoupon("WELCOME50 (-50.000đ)");
+      alert("Áp dụng mã giảm giá 50.000đ thành công!");
+    } else {
+      alert("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
+    }
+  };
+
+  const total = subtotal - discount;
 
   const brand = {
     primary: "#234a4a",
@@ -165,11 +187,38 @@ export default function Cart({ cart, updateQuantity, removeFromCart, setActiveTa
             <span style={{ color: "#27ae60", fontWeight: "700" }}>Miễn phí</span>
           </div>
 
+          <div style={{ display: "flex", margin: "25px 0" }}>
+            <input
+              style={{
+                flex: 1, padding: "12px", border: `1px solid ${brand.border}`,
+                borderRadius: "10px 0 0 10px", outline: "none", fontSize: "14px"
+              }}
+              placeholder="Nhập mã giảm giá"
+              value={promo}
+              onChange={(e) => setPromo(e.target.value)}
+            />
+            <button 
+              onClick={handleApplyCoupon}
+              style={{
+                backgroundColor: brand.primary, color: "#fff", border: "none",
+                padding: "0 20px", cursor: "pointer", fontWeight: "600",
+                borderRadius: "0 10px 10px 0"
+              }}
+            >
+              Áp dụng
+            </button>
+          </div>
+
           <div style={{ borderTop: `1px solid ${brand.border}`, paddingTop: "20px", marginBottom: "30px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
               <span style={{ fontWeight: "700", color: brand.primary }}>Tổng cộng</span>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "24px", fontWeight: "900", color: brand.secondary }}>{formatVnd(subtotal)}</div>
+                {discount > 0 && (
+                  <div style={{ fontSize: "14px", color: "#e74c3c", fontWeight: "700", marginBottom: "5px" }}>
+                    Giảm giá: -{formatVnd(discount)}
+                  </div>
+                )}
+                <div style={{ fontSize: "24px", fontWeight: "900", color: brand.secondary }}>{formatVnd(total)}</div>
                 <div style={{ fontSize: "12px", color: brand.muted }}>(Đã bao gồm VAT)</div>
               </div>
             </div>

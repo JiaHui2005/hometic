@@ -85,8 +85,8 @@ Sửa tại `backend/.env` nếu MySQL của bạn có mật khẩu hoặc user 
 
 Backend tự seed dữ liệu khi khởi động lần đầu.
 
-- Admin: `admin@hometic.vn` / `admin123`
-- Khách hàng: `customer@hometic.vn` / `customer123`
+- Admin: `admin@hometic.com` / `admin`
+- Khách hàng: `customer@hometic.com` / `customer`
 
 ## Chạy thủ công
 
@@ -120,16 +120,6 @@ cp .env.example .env
 npm install
 npm run dev
 ```
-
-### Account Test
-
-Admin: 
-    Mail: admin@hometic.com
-    Password: admin
-
-Customer: 
-    Mail: customer@hometic.com
-    Password: customer
 
 ## API chính
 

@@ -89,10 +89,10 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({ q: "", category_id: "" });
-  const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem("hometic_cart") || "[]"));
+  const [cart, setCart] = useState(() => JSON.parse(sessionStorage.getItem("hometic_cart") || "[]"));
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  useEffect(() => { localStorage.setItem("hometic_cart", JSON.stringify(cart)); }, [cart]);
+  useEffect(() => { sessionStorage.setItem("hometic_cart", JSON.stringify(cart)); }, [cart]);
   useEffect(() => { 
     // Uncomment khi backend sẵn sàng
     // api("/categories").then(setCategories).catch(() => setCategories(demoCategories));

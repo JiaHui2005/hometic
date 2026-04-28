@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.api import auth, catalog, orders, reviews, admin
+from app.api import auth, catalog, orders, reviews, admin, coupons
 from app.core.config import get_settings
 from app.db.init_db import init_db
 
@@ -31,4 +31,5 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(catalog.router, prefix="/api")
 app.include_router(orders.router, prefix="/api")
 app.include_router(reviews.router, prefix="/api")
-app.include_router(admin.router, prefix="/api")
+app.include_router(admin.router, prefix="/api/admin")
+app.include_router(coupons.router, prefix="/api")

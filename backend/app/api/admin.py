@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.api.deps import require_admin, get_current_user
 from app.db.session import get_db
-from app.schemas.dto import DashboardOut, UserOut, UserUpdate
-from app.models.entities import User, Product, Order
+from app.schemas.dto import DashboardOut, UserOut, UserUpdate, AdminChartsOut, ChartDataPoint
+from app.models.entities import User, Product, Order, Category, OrderItem
 
 router = APIRouter(tags=["admin"])
 
@@ -18,7 +18,7 @@ def get_dashboard_stats(db: Session = Depends(get_db), _=Depends(require_admin))
 
     total_customers = db.query(func.count(User.id)).filter(User.role == "customer").scalar() or 0
 
-    total_revenue = db.query(func.sum(Order.total_price))\
+    total_revenue = db.query(func.sum(Order.total_amount))\
         .filter(Order.status != "cancelled")\
         .scalar() or 0.0
 
@@ -105,3 +105,46 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User 
         )
 
     return None
+
+@router.get("/charts", response_model=AdminChartsOut)
+def get_chart_data(db: Session = Depends(get_db), _=Depends(require_admin)):
+    """Lấy dữ liệu cho biểu đồ đường (doanh thu theo ngày) và biểu đồ tròn (doanh thu theo danh mục)"""
+    
+    # 1. Doanh thu theo ngày (30 ngày gần nhất)
+    revenue_query = db.query(
+        func.date(Order.created_at).label("day"),
+        func.sum(Order.total_amount).label("revenue")
+    ).filter(Order.status != "cancelled")\
+     .group_by(func.date(Order.created_at))\
+     .order_by(func.date(Order.created_at).desc())\
+     .limit(30)\
+     .all()
+    
+    revenue_by_day = [ChartDataPoint(label=str(r.day), value=float(r.revenue)) for r in reversed(revenue_query)]
+
+    # 2. Doanh thu theo danh mục
+    category_revenue = db.query(
+        Category.name,
+        func.sum(OrderItem.quantity * OrderItem.price_at_purchase).label("revenue")
+    ).join(Product, Product.category_id == Category.id)\
+     .join(OrderItem, OrderItem.product_id == Product.id)\
+     .join(Order, Order.id == OrderItem.order_id)\
+     .filter(Order.status != "cancelled")\
+     .group_by(Category.name)\
+     .all()
+    
+    revenue_by_category = [ChartDataPoint(label=c.name, value=float(c.revenue)) for c in category_revenue]
+
+    # 3. Phân bổ trạng thái đơn hàng
+    status_dist = db.query(
+        Order.status,
+        func.count(Order.id).label("count")
+    ).group_by(Order.status).all()
+    
+    order_status_distribution = [ChartDataPoint(label=s.status.value, value=float(s.count)) for s in status_dist]
+
+    return {
+        "revenue_by_day": revenue_by_day,
+        "revenue_by_category": revenue_by_category,
+        "order_status_distribution": order_status_distribution
+    }

@@ -5,7 +5,7 @@ from app.api.deps import require_admin, get_current_user
 from app.db.session import get_db
 from app.models.entities import User
 from app.schemas.dto import CheckoutIn, OrderOut, OrderStatusUpdate, CouponBase, CouponOut
-from app.models.entities import Product, Coupon, Order, OrderItem
+from app.models.entities import Product, Coupon, Order, OrderItem, UserCoupon
 from datetime import datetime
 
 router = APIRouter(tags=["orders"])
@@ -40,17 +40,37 @@ def create_order(payload: CheckoutIn, db: Session = Depends(get_db), current_use
 
     discount_amount = 0
     coupon_id = None
+    now = datetime.now()
     if payload.coupon_code:
+
         coupon = db.query(Coupon).filter(
             Coupon.code == payload.coupon_code, 
             Coupon.is_active == True,
             Coupon.start_date <= datetime.now(),
             Coupon.end_date >= datetime.now()
         ).first()
+
+        is_started = True if not coupon.start_date else (coupon.start_date <= now)
+        is_not_expired = True if not coupon.end_date else (coupon.end_date >= now)
+
+        if not (is_started and is_not_expired):
+            raise HTTPException(status_code=400, detail="Mã giảm giá đã hết hạn hoặc chưa đến thời gian sử dụng")
         
         if not coupon or coupon.used_count >= coupon.usage_limit:
             raise HTTPException(status_code=400, detail="Mã giảm giá không hợp lệ hoặc đã hết lượt dùng")
         
+        # Kiểm tra xem user có sở hữu mã này không
+        user_coupon = db.query(UserCoupon).filter(
+            UserCoupon.user_id == current_user.id,
+            UserCoupon.coupon_id == coupon.id
+        ).first()
+
+        if not user_coupon:
+            raise HTTPException(status_code=400, detail="Bạn không sở hữu mã giảm giá này")
+            
+        if user_coupon.is_used:
+            raise HTTPException(status_code=400, detail="Bạn đã sử dụng mã giảm giá này rồi")
+
         if subtotal < coupon.min_order_value:
             raise HTTPException(status_code=400, detail=f"Đơn hàng chưa đạt giá trị tối thiểu ({coupon.min_order_value}) để dùng mã này")
         
@@ -62,6 +82,9 @@ def create_order(payload: CheckoutIn, db: Session = Depends(get_db), current_use
             discount_amount = coupon.discount_value
             
         coupon_id = coupon.id
+        # Đánh dấu đã sử dụng
+        user_coupon.is_used = True
+        user_coupon.used_at = datetime.now()
 
     total_amount = max(subtotal - discount_amount, 0)
     

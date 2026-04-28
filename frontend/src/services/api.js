@@ -160,7 +160,14 @@ export const reviewService = {
 
 export const adminService = {
   getDashboard: () => api("/admin/dashboard"),
+  getCharts: () => api("/admin/charts"),
   getUsers: () => api("/admin/users"),
   updateUser: (id, data) => api(`/admin/users/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteUser: (id) => api(`/admin/users/${id}`, { method: "DELETE" }),
+};
+
+export const couponService = {
+  getMyCoupons: () => api("/coupons/my-coupons"),
+  checkCoupon: (code) => api(`/coupons/check/${code}`),
+  claimCoupon: (code) => api(`/coupons/claim/${code}`, { method: "POST" }),
 };

@@ -80,6 +80,24 @@ CREATE TABLE IF NOT EXISTS coupons (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 6. Table UserCoupons
+CREATE TABLE user_coupons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    coupon_id INT NOT NULL,
+    is_used BOOLEAN DEFAULT FALSE,
+    used_at DATETIME DEFAULT NULL,
+    assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Chỉ mục để tăng tốc độ tìm kiếm
+    INDEX idx_user_id (user_id),
+    INDEX idx_coupon_id (coupon_id),
+    
+    -- Ràng buộc khóa ngoại
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_coupon FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE CASCADE
+);
+
 -- 6. Table Orders
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,

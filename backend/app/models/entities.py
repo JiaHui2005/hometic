@@ -5,6 +5,7 @@ from sqlalchemy import DateTime, Date, Enum as SqlEnum, Float, ForeignKey, Integ
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from typing import List
 
 
 class UserRole(str, Enum):
@@ -45,6 +46,7 @@ class User(Base):
 
     orders: Mapped[list["Order"]] = relationship(back_populates="user")
     reviews: Mapped[list["Review"]] = relationship(back_populates="user")
+    coupons: Mapped[List["UserCoupon"]] = relationship("UserCoupon", back_populates="user")
 
 
 # class Category(Base):
@@ -111,6 +113,21 @@ class ProductDetail(Base):
 
     product: Mapped["Product"] = relationship(back_populates="detail")
 
+class UserCoupon(Base):
+    __tablename__ = "user_coupons"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    coupon_id: Mapped[int] = mapped_column(Integer, ForeignKey("coupons.id", ondelete="CASCADE"), index=True)
+    
+    # Trạng thái riêng của từng user đối với mã này
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    assigned_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+    # Relationships
+    user: Mapped["User"] = relationship("User", back_populates="coupons")
+    coupon: Mapped["Coupon"] = relationship("Coupon", back_populates="users")
 
 class Coupon(Base):
     __tablename__ = "coupons"
@@ -127,7 +144,7 @@ class Coupon(Base):
     used_count: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-
+    users: Mapped[List["UserCoupon"]] = relationship("UserCoupon", back_populates="coupon")
 
 class Order(Base):
     __tablename__ = "orders"

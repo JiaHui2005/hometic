@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { User, Package, Eye, EyeOff, Phone, Mail, Calendar, CreditCard, MessageSquare, Edit2, Save, X, Camera, ShieldCheck, Star, Send } from "lucide-react";
+import { User, Package, Eye, EyeOff, Phone, Mail, Calendar, CreditCard, MessageSquare, Edit2, Save, X, Camera, ShieldCheck, Star, Send, Ticket } from "lucide-react";
 import { formatVnd } from "../constants";
 import { orderService, authService } from "../services/api";
 import Reviews from "./Reviews";
@@ -149,7 +149,6 @@ export default function Profile({ user, setUser, setActiveTab }) {
     btnAction: (isPrimary) => ({ padding: "14px 28px", borderRadius: "15px", border: isPrimary ? "none" : `2px solid ${brand.border}`, backgroundColor: isPrimary ? brand.primary : "transparent", color: isPrimary ? "white" : brand.text, fontWeight: "700", fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", transition: "0.3s", minWidth: isMobile ? "100%" : "160px", boxShadow: isPrimary ? "0 4px 12px rgba(35, 74, 74, 0.2)" : "none" })
   };
 
-  // Màn hình Reviews
   if (viewingProductId) {
     return (
       <div style={{ position: 'relative' }}>
@@ -172,7 +171,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
             <div style={styles.avatarContainer}>
               <div style={styles.avatar}>
                 <img
-                  src={editForm.avatar_url ? `${editForm.avatar_url}?t=${new Date().getTime()}` : "https://www.w3schools.com/howto/img_avatar.png"}
+                  src={editForm.avatar_url ? `${editForm.avatar_url}` : "https://www.w3schools.com/howto/img_avatar.png"}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   alt="avatar"
                   onError={(e) => { e.target.onerror = null; e.target.src = "https://www.w3schools.com/howto/img_avatar.png"; }}
@@ -332,7 +331,33 @@ export default function Profile({ user, setUser, setActiveTab }) {
                         ))}
                       </tbody>
                     </table>
-                    <div style={{ padding: '20px', textAlign: 'right', backgroundColor: '#fdfcf9' }}><span style={{ color: brand.muted, marginRight: '10px' }}>Tổng thanh toán:</span><span style={{ fontSize: '22px', fontWeight: '900', color: brand.secondary }}>{formatVnd(selectedOrder.total_amount)}</span></div>
+
+                    {/* TỔNG KẾT ĐƠN HÀNG CÓ HIỆN MÃ GIẢM GIÁ */}
+                    <div style={{ padding: '20px', backgroundColor: '#fdfcf9', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-end' }}>
+                      <div style={{ display: 'flex', gap: '20px', fontSize: '14px' }}>
+                        <span style={{ color: brand.muted }}>Tạm tính:</span>
+                        <span style={{ fontWeight: '600', minWidth: '100px', textAlign: 'right' }}>{formatVnd(selectedOrder.subtotal || selectedOrder.total_amount + (selectedOrder.discount_amount || 0))}</span>
+                      </div>
+
+                      {selectedOrder.discount_amount > 0 && (
+                        <div style={{ display: 'flex', gap: '20px', fontSize: '14px', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: brand.secondary, fontWeight: '700' }}>
+                            <Ticket size={14} />
+                            Mã giảm giá {selectedOrder.coupon?.code ? `(${selectedOrder.coupon.code})` : ""}:
+                          </div>
+                          <span style={{ fontWeight: '600', color: brand.secondary, minWidth: '100px', textAlign: 'right' }}>
+                            -{formatVnd(selectedOrder.discount_amount)}
+                          </span>
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', gap: '20px', alignItems: 'center', borderTop: `1px solid ${brand.border}`, paddingTop: '10px', marginTop: '5px' }}>
+                        <span style={{ fontSize: '16px', fontWeight: '800', color: brand.primary }}>Tổng thanh toán:</span>
+                        <span style={{ fontSize: '24px', fontWeight: '900', color: brand.secondary, minWidth: '100px', textAlign: 'right' }}>
+                          {formatVnd(selectedOrder.total_amount)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : orders.length === 0 ? (

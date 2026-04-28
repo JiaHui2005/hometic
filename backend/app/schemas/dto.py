@@ -73,6 +73,18 @@ class CouponOut(CouponBase):
     class Config:
         from_attributes = True
 
+class UserCouponOut(BaseModel):
+    id: int
+    user_id: int
+    coupon_id: int
+    is_used: bool
+    used_at: datetime | None = None
+    assigned_at: datetime
+    coupon: CouponOut | None = None
+
+    class Config:
+        from_attributes = True
+
 # --- Category Schemas ---
 class CategoryBase(BaseModel):
     name: str
@@ -209,3 +221,13 @@ class DashboardOut(BaseModel):
     total_customers: int
     total_revenue: float
     recent_orders: list[OrderOut]
+
+# --- Admin Chart Schemas ---
+class ChartDataPoint(BaseModel):
+    label: str
+    value: float
+
+class AdminChartsOut(BaseModel):
+    revenue_by_day: list[ChartDataPoint]
+    revenue_by_category: list[ChartDataPoint]
+    order_status_distribution: list[ChartDataPoint]

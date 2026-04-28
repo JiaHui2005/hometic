@@ -34,6 +34,14 @@ INSERT INTO products (id, category_id, name, slug, brand, price, sale_price, sto
 (7, 12, 'Khóa cửa vân tay Xiaomi Smart Door Lock', 'khoa-cua-van-tay-xiaomi-smart-door-lock', 'Xiaomi', 6500000, 5990000, 15, 'https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=900&q=80', TRUE),
 (8, 13, 'Bóng đèn LED thông minh Philips Hue', 'bong-den-led-thong-minh-philips-hue', 'Philips', 1200000, 1050000, 60, 'https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=900&q=80', TRUE);
 
+INSERT INTO users (email, password_hash, full_name, phone, birthday, gender, role) VALUES
+('admin@hometic.com', '$2b$10$xyz...', 'Quản Trị Viên', '0901234567', '1990-01-01', 'Nam', 'admin'),
+('nguyenvana@gmail.com', '$2b$10$abc...', 'Nguyễn Văn A', '0912345678', '1995-05-20', 'Nam', 'customer'),
+('tran thị b@yahoo.com', '$2b$10$def...', 'Trần Thị B', '0988776655', '1998-12-12', 'Nữ', 'customer'),
+('lethic@outlook.com', '$2b$10$ghi...', 'Lê Thị C', '0333444555', '2000-03-15', 'Nữ', 'customer'),
+('phamvand@gmail.com', '$2b$10$jkl...', 'Phạm Văn D', '0777888999', '1992-08-30', 'Khác', 'customer');
+
+
 
 -- 4. Seed Product Details (Chi tiết sản phẩm)
 INSERT INTO product_details (product_id, description, content, specifications, gallery_urls, warranty_info) VALUES

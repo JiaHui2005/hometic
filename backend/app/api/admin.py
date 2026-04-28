@@ -5,6 +5,10 @@ from app.api.deps import require_admin, get_current_user
 from app.db.session import get_db
 from app.schemas.dto import DashboardOut, UserOut, UserUpdate, AdminChartsOut, ChartDataPoint
 from app.models.entities import User, Product, Order, Category, OrderItem
+import os
+import shutil
+from fastapi import File, UploadFile
+from pathlib import Path
 
 router = APIRouter(tags=["admin"])
 
@@ -110,7 +114,6 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User 
 def get_chart_data(db: Session = Depends(get_db), _=Depends(require_admin)):
     """Lấy dữ liệu cho biểu đồ đường (doanh thu theo ngày) và biểu đồ tròn (doanh thu theo danh mục)"""
     
-    # 1. Doanh thu theo ngày (30 ngày gần nhất)
     revenue_query = db.query(
         func.date(Order.created_at).label("day"),
         func.sum(Order.total_amount).label("revenue")
@@ -122,7 +125,6 @@ def get_chart_data(db: Session = Depends(get_db), _=Depends(require_admin)):
     
     revenue_by_day = [ChartDataPoint(label=str(r.day), value=float(r.revenue)) for r in reversed(revenue_query)]
 
-    # 2. Doanh thu theo danh mục
     category_revenue = db.query(
         Category.name,
         func.sum(OrderItem.quantity * OrderItem.price_at_purchase).label("revenue")
@@ -135,7 +137,6 @@ def get_chart_data(db: Session = Depends(get_db), _=Depends(require_admin)):
     
     revenue_by_category = [ChartDataPoint(label=c.name, value=float(c.revenue)) for c in category_revenue]
 
-    # 3. Phân bổ trạng thái đơn hàng
     status_dist = db.query(
         Order.status,
         func.count(Order.id).label("count")
@@ -148,3 +149,20 @@ def get_chart_data(db: Session = Depends(get_db), _=Depends(require_admin)):
         "revenue_by_category": revenue_by_category,
         "order_status_distribution": order_status_distribution
     }
+
+@router.post("/upload")
+async def upload_file(file: UploadFile = File(...), _=Depends(require_admin)):
+    """[Admin] Upload file ảnh lên server"""
+    upload_dir = Path("static/uploads")
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    
+    file_path = upload_dir / file.filename
+    
+    if file_path.exists():
+        import time
+        file_path = upload_dir / f"{int(time.time())}_{file.filename}"
+
+    with file_path.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    return {"url": f"http://localhost:8000/static/uploads/{file_path.name}"}

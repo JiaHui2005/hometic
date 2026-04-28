@@ -18,6 +18,17 @@ def list_categories(db: Session = Depends(get_db)):
     
     return db.query(Category).all()
 
+@router.get("/categories/{id}", response_model=CategoryOut)
+def get_category(id: int, db: Session = Depends(get_db)):
+    """Lấy thông tin chi tiết một danh mục theo ID"""
+    category = db.query(Category).filter(Category.id == id).first()
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Không tìm thấy danh mục này"
+        )
+    return category
+
 @router.post("/admin/categories", response_model=CategoryOut)
 def create_category(payload: CategoryBase, db: Session = Depends(get_db), _=Depends(require_admin)):
     """[Admin] Tạo danh mục mới"""

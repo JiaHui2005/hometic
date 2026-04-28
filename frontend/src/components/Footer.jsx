@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-export default function Footer() {
+export default function Footer({ setActiveTab, setStaticPage }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  const handlePageClick = (key) => {
+    setStaticPage(key);
+    setActiveTab("static_page");
+  };
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -109,30 +114,57 @@ export default function Footer() {
 
         <div>
           <h4 style={styles.heading}>Về Hometic</h4>
-          <span style={styles.link}>Câu chuyện Hometic</span>
-          <span style={styles.link}>Thông báo mới nhất</span>
-          <span style={styles.link}>Câu hỏi thường gặp</span>
+          <span style={styles.link} onClick={() => handlePageClick("about")}>Câu chuyện Hometic</span>
+          <span style={styles.link} onClick={() => handlePageClick("news")}>Thông báo mới nhất</span>
+          <span style={styles.link} onClick={() => handlePageClick("faq")}>Câu hỏi thường gặp</span>
         </div>
 
         <div>
           <h4 style={styles.heading}>Hỗ trợ khách hàng</h4>
-          <span style={styles.link}>Chính sách đổi trả</span>
-          <span style={styles.link}>Danh sách cửa hàng</span>
-          <span style={styles.link}>Hướng dẫn mua hàng</span>
+          <span style={styles.link} onClick={() => handlePageClick("returns")}>Chính sách đổi trả</span>
+          <span style={styles.link} onClick={() => handlePageClick("stores")}>Danh sách cửa hàng</span>
+          <span style={styles.link} onClick={() => handlePageClick("guide")}>Hướng dẫn mua hàng</span>
         </div>
 
         <div>
           <h4 style={styles.heading}>Dịch vụ trực tuyến</h4>
-          <span style={styles.link}>Chính sách bán lẻ</span>
-          <span style={styles.link}>Giao hàng & Lắp đặt</span>
-          <span style={styles.link}>Trung tâm bảo hành</span>
+          <span style={styles.link} onClick={() => handlePageClick("retail")}>Chính sách bán lẻ</span>
+          <span style={styles.link} onClick={() => handlePageClick("delivery")}>Giao hàng & Lắp đặt</span>
+          <span style={styles.link} onClick={() => handlePageClick("warranty")}>Trung tâm bảo hành</span>
         </div>
 
-        <div style={styles.newsletter}>
-          <p style={{ fontWeight: '700', margin: 0 }}>Đăng ký nhận tin từ Hometic</p>
-          <div style={styles.newsletterBox}>
-            <input style={styles.input} placeholder="Nhập địa chỉ email của bạn" />
-            <button style={styles.btn}>Gửi</button>
+        <div style={{ ...styles.newsletter, gap: '20px' }}>
+          <p style={{ fontWeight: '800', margin: 0, textTransform: 'uppercase', fontSize: '14px', letterSpacing: '1px' }}>Kết nối với chúng tôi</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+            {/* Facebook POPO Services */}
+            <a 
+              href="https://www.facebook.com/poposervicecompanylimited" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none', transition: 'transform 0.3s ease' }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <svg width="32" height="32" viewBox="0 0 24 24" fill={brand.primary}>
+                <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7h-2.54v-2.9h2.54V9.82c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-0.45 2.9h-2.33v7a10 10 0 008.44-9.9c0-5.53-4.5-10.02-10-10.02z"/>
+              </svg>
+            </a>
+
+            {/* PewPew Website */}
+            <a 
+              href="https://pewpew.company" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none', transition: 'transform 0.3s ease' }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <img 
+                src="/pewpew_logo.png" 
+                alt="PewPew Website" 
+                style={{ height: '40px', width: 'auto', borderRadius: '8px' }} 
+              />
+            </a>
           </div>
         </div>
       </div>

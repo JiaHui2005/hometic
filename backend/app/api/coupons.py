@@ -40,8 +40,6 @@ def check_coupon(code: str, db: Session = Depends(get_db), current_user: User = 
     ).first()
     
     if not user_coupon:
-        # Nếu hệ thống cho phép dùng mã chung, ta có thể tạo bản ghi UserCoupon ở đây hoặc chỉ cần trả về Coupon
-        # Nhưng theo yêu cầu là "lấy mã giảm giá theo id người dùng", nên ta giả định mã phải được gán.
         raise HTTPException(status_code=403, detail="Bạn không sở hữu mã giảm giá này")
 
     if user_coupon.is_used:
@@ -57,16 +55,13 @@ def claim_coupon(code: str, db: Session = Depends(get_db), current_user: User = 
     if not coupon:
         raise HTTPException(status_code=404, detail="Mã giảm giá không tồn tại")
         
-    # Kiểm tra thời gian
     now = datetime.now()
     if (coupon.start_date and coupon.start_date > now) or (coupon.end_date and coupon.end_date < now):
         raise HTTPException(status_code=400, detail="Mã giảm giá chưa đến hạn hoặc đã hết hạn")
         
-    # Kiểm tra lượt dùng tổng
     if coupon.used_count >= coupon.usage_limit:
         raise HTTPException(status_code=400, detail="Mã giảm giá này đã hết lượt sử dụng tổng hệ thống")
 
-    # Kiểm tra xem user đã sở hữu mã này chưa
     existing = db.query(UserCoupon).filter(
         UserCoupon.user_id == current_user.id,
         UserCoupon.coupon_id == coupon.id

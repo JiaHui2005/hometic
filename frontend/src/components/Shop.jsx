@@ -14,7 +14,7 @@ export default function Shop({ categories, products, addToCart, setActiveTab, se
   const displayProducts = Array.from({ length: 10 }, (_, index) => products[index % Math.max(products.length, 1)])
     .filter(Boolean)
     .map((product, index) => ({ ...product, viewKey: `${product.id}-${index}` }));
-  
+
   const sections = [
     ["Bộ sưu tập mới", displayProducts.slice(0, 5)],
     ["Bán chạy nhất", displayProducts.slice(5, 10)],
@@ -96,39 +96,65 @@ export default function Shop({ categories, products, addToCart, setActiveTab, se
       <section style={styles.hero}>
         <article style={styles.heroMain}>
           <div style={styles.heroCopy}>
-            <span style={{ textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800', fontSize: '13px', opacity: 0.8 }}>Premium Home Solution</span>
-            <h1 style={{ fontSize: isMobile ? '36px' : '48px', fontWeight: '900', margin: '15px 0', lineHeight: 1.1 }}>NÂNG TẦM KHÔNG GIAN SỐNG</h1>
-            <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '30px' }}>Khám phá hệ sinh thái thiết bị gia dụng thông minh, tinh tế và hiện đại nhất cho ngôi nhà của bạn.</p>
-            <button 
+            <span style={{ textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800', fontSize: '13px', opacity: 0.8 }}>Hometic x PewPew Special</span>
+            <h1 style={{ fontSize: isMobile ? '36px' : '48px', fontWeight: '900', margin: '15px 0', lineHeight: 1.1 }}>SIÊU TIỆC CÔNG NGHỆ GIA ĐÌNH</h1>
+            <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '30px' }}>Săn ngay các thiết bị thông minh với ưu đãi chưa từng có cùng anh PewPew. Nâng tầm cuộc sống hiện đại chỉ với một chạm.</p>
+            <button
               style={{ backgroundColor: brand.secondary, color: 'white', padding: '15px 30px', borderRadius: '10px', fontSize: '16px', fontWeight: '800', border: 'none', cursor: 'pointer' }}
               onClick={() => setActiveTab("category_detail")}
             >
               Mua sắm ngay
             </button>
           </div>
-          <img 
-            style={{ width: isMobile ? '80%' : '40%', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.3))' }} 
-            src="https://images.unsplash.com/photo-1605648916361-9bc12ad6a569?auto=format&fit=crop&w=700&q=80" 
-            alt="Robot" 
+          <img
+            style={{ width: isMobile ? '80%' : '45%', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))', borderRadius: '20px' }}
+            src="/pewpew_banner_1.png"
+            alt="PewPew Banner 1"
           />
         </article>
 
         <div style={styles.heroSide}>
           <article style={styles.sideCard}>
             <div>
-              <h3 style={{ fontSize: '18px', margin: '0 0 5px 0', color: brand.primary }}>Dòng SmartCook</h3>
-              <p style={{ fontSize: '13px', color: '#666', margin: '0 0 15px 0' }}>Nấu nướng đỉnh cao</p>
-              <strong style={{ fontSize: '20px', color: brand.secondary }}>{formatVnd(2490000)}</strong>
+              <h3 style={{ fontSize: '18px', margin: '0 0 5px 0', color: brand.primary }}>Gội là mê - Mượt là ghiền x Pewpew</h3>
+              <p style={{ fontSize: '13px', color: '#666', margin: '0 0 15px 0' }}>Không cần quảng cáo nhiều - tóc bạn sẽ tự nói lên tất cả!</p>
+              <strong style={{ fontSize: '20px', color: brand.secondary }}>Chỉ từ {formatVnd(99000)}</strong>
             </div>
-            <img style={{ width: '100px', height: '100px', objectFit: 'contain' }} src="https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=300&q=80" alt="Cooker" />
+            <img style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '12px' }} src="/pewpew_banner_3.png" alt="Cooker" />
           </article>
-          <article style={styles.sideCard}>
-            <div>
-              <h3 style={{ fontSize: '18px', margin: '0 0 5px 0', color: brand.primary }}>AirPure Pro</h3>
-              <p style={{ fontSize: '13px', color: '#666', margin: '0 0 15px 0' }}>Không khí sạch sẽ</p>
-              <button style={{ backgroundColor: brand.bg, color: brand.primary, border: `1px solid ${brand.border}`, padding: '8px 20px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>Khám phá</button>
+          <article
+            style={{
+              ...styles.sideCard,
+              cursor: 'pointer',
+              border: `2px solid #ff0050`,
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onClick={() => window.open("https://www.tiktok.com/@realpewpew", "_blank")}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff0f3'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+          >
+            <div style={{ zIndex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
+                <div style={{ width: '8px', height: '8px', backgroundColor: '#ff0050', borderRadius: '50%', animation: 'pulse 1.5s infinite' }}></div>
+                <span style={{ fontSize: '12px', fontWeight: '900', color: '#ff0050', letterSpacing: '1px' }}>LIVE NOW</span>
+              </div>
+              <h3 style={{ fontSize: '18px', margin: '0 0 5px 0', color: brand.primary }}>Mega Live x PewPew</h3>
+              <p style={{ fontSize: '13px', color: '#666', margin: '0 0 10px 0' }}>Săn deal độc quyền tại TikTok</p>
+              <span style={{ color: '#ff0050', fontWeight: '800', fontSize: '14px', textDecoration: 'underline' }}>Xem ngay →</span>
             </div>
-            <img style={{ width: '100px', height: '100px', objectFit: 'contain' }} src="https://images.unsplash.com/photo-1626430451221-0f3f12289c43?auto=format&fit=crop&w=300&q=80" alt="Purifier" />
+            <img
+              style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px' }}
+              src="/pewpew_banner_2.png"
+              alt="PewPew Live"
+            />
+            <style>{`
+              @keyframes pulse {
+                0% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.4; transform: scale(1.2); }
+                100% { opacity: 1; transform: scale(1); }
+              }
+            `}</style>
           </article>
         </div>
       </section>
@@ -147,9 +173,9 @@ export default function Shop({ categories, products, addToCart, setActiveTab, se
             ["Thiết bị vệ sinh", "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80"],
             ["Tiện ích phòng ngủ", "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80"]
           ].map(([label, img]) => (
-            <article 
-              key={label} 
-              style={styles.categoryTile} 
+            <article
+              key={label}
+              style={styles.categoryTile}
               onClick={() => setActiveTab("category_detail")}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}

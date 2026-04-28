@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { clearSession, getStoredUser, catalogService } from "./services/api";
 import "./styles.css";
 
-import { Header, Footer, Shop, Auth, Cart, Orders, Admin, Reviews, CategoryDetail, ProductDetail, Profile } from "./components";
+import { Header, Footer, Shop, Auth, Cart, Orders, Admin, Reviews, CategoryDetail, ProductDetail, Profile, StaticPages } from "./components";
 import { demoCategories, demoProducts } from "./constants";
 
 class ErrorBoundary extends React.Component {
@@ -52,7 +52,10 @@ class ErrorBoundary extends React.Component {
 
 function App() {
   const [user, setUser] = useState(getStoredUser());
-  const [activeTab, setActiveTab] = useState("shop");
+  const [activeTab, setActiveTab] = useState(() => {
+    const u = getStoredUser();
+    return u && u.role === "admin" ? "admin" : "shop";
+  });
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({ q: "", category_slug: "" });
@@ -63,6 +66,7 @@ function App() {
   });
 
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [staticPage, setStaticPage] = useState("");
 
   useEffect(() => {
     localStorage.setItem("hometic_cart", JSON.stringify(cart));
@@ -139,6 +143,7 @@ function App() {
 
         {activeTab === "category_detail" && (
           <CategoryDetail
+            categories={categories}
             filters={filters}
             products={products}
             addToCart={addToCart}
@@ -188,10 +193,19 @@ function App() {
         {activeTab === "admin" && (
           <Admin onLogout={logout} />
         )}
+
+        {activeTab === "static_page" && (
+          <StaticPages pageKey={staticPage} />
+        )}
       </main>
 
       {/* Footer ẩn khi ở trang Admin */}
-      {activeTab !== "admin" && <Footer />}
+      {activeTab !== "admin" && (
+        <Footer 
+          setActiveTab={setActiveTab} 
+          setStaticPage={setStaticPage} 
+        />
+      )}
     </div>
   );
 }

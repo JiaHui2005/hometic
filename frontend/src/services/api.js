@@ -124,6 +124,7 @@ export const authService = {
 
 export const catalogService = {
   getCategories: () => api("/categories"),
+  getCategory: (id) => api(`/categories/${id}`),
   getProducts: (params = "") => api(`/products${params}`),
   getProduct: (id) => api(`/products/${id}`),
   getProductsByCategory: (slug) => api(`/products/category/${slug}`),
@@ -164,6 +165,21 @@ export const adminService = {
   getUsers: () => api("/admin/users"),
   updateUser: (id, data) => api(`/admin/users/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteUser: (id) => api(`/admin/users/${id}`, { method: "DELETE" }),
+  uploadImage: async (file) => {
+    const accessToken = localStorage.getItem("hometic_access_token");
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(`${API_URL}/admin/upload`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${accessToken}` },
+      body: formData
+    });
+
+    if (!response.ok) throw new Error("Upload failed");
+    return response.json();
+  }
 };
 
 export const couponService = {

@@ -64,7 +64,6 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
     <section style={styles.section}>
       <div style={styles.heading}>
         <h2 style={styles.title}>{title}</h2>
-        <button style={styles.viewMore}>Xem thêm</button>
       </div>
 
       <div style={styles.grid}>

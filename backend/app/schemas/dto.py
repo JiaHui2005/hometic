@@ -46,6 +46,13 @@ class ChangePasswordIn(BaseModel):
     old_password: str
     new_password: str = Field(..., min_length=6)
 
+class ForgotPasswordIn(BaseModel):
+    email: EmailStr
+
+class ResetPasswordIn(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=6)
+
 # --- Coupon Schemas ---
 class CouponBase(BaseModel):
     code: str

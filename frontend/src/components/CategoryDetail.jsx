@@ -15,13 +15,11 @@ export default function CategoryDetail({ filters, addToCart, setActiveTab, setSe
     orange: "#da8f48",
     white: "#ffffff",
     text: "#1a1a1a",
-    muted: "#666",
-    border: "#d1cec7"
+    muted: "#71717a",
+    border: "#e5e1d8"
   };
 
-  // Hiệu ứng gọi API khi slug thay đổi
   useEffect(() => {
-    // Nếu không có slug thì không gọi API và reset danh sách
     if (!filters?.category_slug) {
       setProducts([]);
       setCategoryName("Cửa hàng");
@@ -31,24 +29,18 @@ export default function CategoryDetail({ filters, addToCart, setActiveTab, setSe
     const fetchProductsByCategory = async () => {
       setLoading(true);
       try {
-        // Gọi API dựa trên category_slug truyền từ Header
-        // Endpoint: /products/category/{slug}
         const data = await catalogService.getProducts(`/category/${filters.category_slug}`);
-
         setProducts(data || []);
 
-        // Cập nhật tên danh mục hiển thị từ dữ liệu trả về
         if (data && data.length > 0 && data[0].category) {
           setCategoryName(data[0].category.name);
         } else {
-          // Nếu mảng rỗng, có thể lấy tên từ chính slug (format lại) hoặc giữ mặc định
           setCategoryName("Danh mục sản phẩm");
         }
       } catch (error) {
         console.error("Lỗi khi lấy sản phẩm theo danh mục:", error);
         setProducts([]);
       } finally {
-        // Quan trọng: Luôn tắt loading kể cả khi lỗi
         setLoading(false);
       }
     };
@@ -70,13 +62,12 @@ export default function CategoryDetail({ filters, addToCart, setActiveTab, setSe
       fontFamily: '"Inter", sans-serif'
     },
     title: {
-      fontSize: '36px',
+      fontSize: '32px',
       fontWeight: '900',
       color: brand.primary,
       marginBottom: '40px',
       textAlign: 'center',
-      textTransform: 'uppercase',
-      letterSpacing: '1px'
+      textTransform: 'uppercase'
     },
     grid: {
       display: 'grid',
@@ -86,22 +77,35 @@ export default function CategoryDetail({ filters, addToCart, setActiveTab, setSe
     },
     card: {
       backgroundColor: brand.white,
-      borderRadius: '16px',
-      padding: '15px',
+      borderRadius: '20px',
+      padding: '20px',
       border: `1px solid ${brand.border}`,
       display: 'flex',
       flexDirection: 'column',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       cursor: 'pointer',
-      position: 'relative'
+      position: 'relative',
+      boxShadow: '0 4px 15px rgba(35, 74, 74, 0.03)'
+    },
+    ribbon: {
+      position: 'absolute',
+      top: '25px',
+      left: '25px',
+      backgroundColor: brand.orange,
+      color: brand.white,
+      padding: '4px 10px',
+      borderRadius: '8px',
+      fontSize: '11px',
+      fontWeight: '800',
+      zIndex: 1
     },
     imageContainer: {
       width: '100%',
       aspectRatio: '1/1',
-      borderRadius: '10px',
+      borderRadius: '14px',
       overflow: 'hidden',
       marginBottom: '15px',
-      backgroundColor: '#f5f5f5'
+      backgroundColor: '#f8f8f8'
     },
     image: {
       width: '100%',
@@ -110,29 +114,40 @@ export default function CategoryDetail({ filters, addToCart, setActiveTab, setSe
       transition: 'transform 0.5s ease'
     },
     productName: {
-      fontSize: '15px',
-      fontWeight: '600',
+      fontSize: '16px',
+      fontWeight: '700',
       color: brand.text,
       marginBottom: '8px',
       lineHeight: '1.4',
-      height: '42px',
+      height: '45px',
       display: '-webkit-box',
       WebkitLineClamp: 2,
       WebkitBoxOrient: 'vertical',
       overflow: 'hidden'
     },
-    priceValue: {
-      fontSize: '18px',
-      fontWeight: '800',
-      color: brand.orange,
-      marginBottom: '15px'
+    // STYLE GIÁ ĐỒNG BỘ
+    priceContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '2px',
+      marginBottom: '20px'
+    },
+    activePrice: {
+      fontSize: '20px',
+      fontWeight: '900',
+      color: brand.primary
+    },
+    oldPrice: {
+      fontSize: '13px',
+      color: brand.muted,
+      textDecoration: 'line-through'
     },
     btn: (isHovered) => ({
       width: '100%',
-      padding: '12px',
-      borderRadius: '8px',
-      fontWeight: '700',
-      fontSize: '13px',
+      padding: '14px',
+      borderRadius: '12px',
+      fontWeight: '800',
+      fontSize: '14px',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
       border: `2px solid ${brand.orange}`,
@@ -147,26 +162,24 @@ export default function CategoryDetail({ filters, addToCart, setActiveTab, setSe
     }
   };
 
-  // 1. Trạng thái đang tải
   if (loading) {
     return (
       <div style={{ ...styles.container, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ border: `4px solid ${brand.border}`, borderTop: `4px solid ${brand.orange}`, borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 20px' }}></div>
-          <p style={{ fontWeight: '600', color: brand.primary }}>Đang tìm sản phẩm tốt nhất cho bạn...</p>
+          <p style={{ fontWeight: '600', color: brand.primary }}>Đang tìm sản phẩm cho bạn...</p>
         </div>
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
-  // 2. Trạng thái chưa chọn danh mục
   if (!filters?.category_slug) {
     return (
       <div style={styles.container}>
         <div style={styles.emptyState}>
-          <h2>Chào mừng bạn đến với Hometic</h2>
-          <p>Vui lòng chọn một danh mục phía trên để xem các sản phẩm gia dụng thông minh.</p>
+          <h2 style={{ color: brand.primary }}>Chào mừng bạn đến với Hometic</h2>
+          <p>Vui lòng chọn một danh mục để xem các thiết bị thông minh.</p>
         </div>
       </div>
     );
@@ -180,42 +193,57 @@ export default function CategoryDetail({ filters, addToCart, setActiveTab, setSe
         <div style={styles.grid}>
           {products.map((product) => {
             const isHovered = hoveredId === product.id;
+            const hasSale = !!product.sale_price;
+
             return (
               <div
                 key={product.id}
                 style={{
                   ...styles.card,
                   transform: isHovered ? 'translateY(-10px)' : 'none',
-                  boxShadow: isHovered ? '0 20px 40px rgba(0,0,0,0.08)' : 'none'
+                  boxShadow: isHovered ? '0 20px 40px rgba(35, 74, 74, 0.1)' : '0 4px 15px rgba(35, 74, 74, 0.03)'
                 }}
                 onMouseEnter={() => setHoveredId(product.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => handleProductClick(product)}
               >
+                {hasSale && <div style={styles.ribbon}>SALE</div>}
+
                 <div style={styles.imageContainer}>
                   <img
                     src={product.image_url || "https://via.placeholder.com/300?text=Hometic"}
                     alt={product.name}
                     style={{
                       ...styles.image,
-                      transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+                      transform: isHovered ? 'scale(1.08)' : 'scale(1)'
                     }}
                   />
                 </div>
 
                 <div style={{ flex: 1 }}>
                   <div style={styles.productName}>{product.name}</div>
-                  <div style={styles.priceValue}>{formatVnd(product.price)}</div>
+
+                  {/* PHẦN GIÁ ĐỒNG BỘ: HIỆN CẢ 2 GIÁ NẾU CÓ SALE */}
+                  <div style={styles.priceContainer}>
+                    <div style={styles.activePrice}>
+                      {formatVnd(product.sale_price || product.price)}
+                    </div>
+                    {hasSale && (
+                      <div style={styles.oldPrice}>
+                        {formatVnd(product.price)}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <button
                   style={styles.btn(isHovered)}
                   onClick={(e) => {
-                    e.stopPropagation(); // Ngăn việc nhảy vào trang chi tiết khi bấm nút mua
+                    e.stopPropagation();
                     addToCart(product);
                   }}
                 >
-                  Thêm vào giỏ
+                  Mua ngay
                 </button>
               </div>
             );
@@ -223,13 +251,17 @@ export default function CategoryDetail({ filters, addToCart, setActiveTab, setSe
         </div>
       ) : (
         <div style={styles.emptyState}>
-          <h3>Ôi! Danh mục này hiện chưa có sản phẩm.</h3>
-          <p>Bạn hãy thử quay lại sau hoặc xem các danh mục khác nhé.</p>
+          <h3>Danh mục này hiện chưa có sản phẩm.</h3>
           <button
             onClick={() => setActiveTab("shop")}
-            style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: brand.primary, color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+            style={{
+              marginTop: '20px', padding: '15px 30px',
+              backgroundColor: brand.primary, color: 'white',
+              border: 'none', borderRadius: '12px',
+              fontWeight: '700', cursor: 'pointer'
+            }}
           >
-            Quay lại cửa hàng
+            QUAY LẠI CỬA HÀNG
           </button>
         </div>
       )}

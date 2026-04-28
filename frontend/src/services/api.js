@@ -112,6 +112,14 @@ export const authService = {
     method: "PUT",
     body: JSON.stringify(data)
   }),
+  forgotPassword: (data) => api("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(data)
+  }),
+  resetPassword: (data) => api("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(data)
+  }),
 };
 
 export const catalogService = {

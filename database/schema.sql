@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS users (
     role ENUM('customer', 'admin') DEFAULT 'customer',
     provider VARCHAR(50) DEFAULT 'local',   
     avatar_url VARCHAR(255) NULL,
+    reset_otp VARCHAR(6) DEFAULT NULL,
+    otp_expiry TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -127,3 +129,6 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 -- ALTER TABLE categories ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
 -- CREATE INDEX idx_category_is_active ON categories(is_active);
+
+-- ALTER TABLE users ADD COLUMN reset_otp VARCHAR(6) DEFAULT NULL;
+-- ALTER TABLE users ADD COLUMN otp_expiry TIMESTAMP DEFAULT CURRENT_TIMESTAMP;

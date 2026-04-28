@@ -1,12 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from app.api.deps import get_current_user
-from app.core.security import create_access_token, create_refresh_token, decode_token, hash_password, verify_password
+from app.core.security import (
+    create_access_token, 
+    create_refresh_token, 
+    create_reset_token,
+    decode_token, 
+    hash_password, 
+    verify_password
+)
 from app.db.session import get_db
 from app.models.entities import User, UserRole
-from app.schemas.dto import TokenOut, UserCreate, UserLogin, UserOut, UserUpdate, RefreshTokenIn, ChangePasswordIn
+from app.schemas.dto import (
+    TokenOut, UserCreate, UserLogin, UserOut, UserUpdate, 
+    RefreshTokenIn, ChangePasswordIn, ForgotPasswordIn, ResetPasswordIn
+)
+from app.utils.email import send_reset_password_email
 import os
 import shutil
+import random
+from datetime import datetime, timedelta, timezone
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -142,3 +155,51 @@ def change_password(
     db.commit()
     
     return {"message": "Đổi mật khẩu thành công"}
+
+@router.post("/forgot-password")
+def forgot_password(payload: ForgotPasswordIn, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Email không tồn tại trong hệ thống")
+    
+    # 1. Tạo mã 6 số ngẫu nhiên
+    otp_code = str(random.randint(100000, 999999))
+    
+    # 2. Lưu vào DB và set hết hạn sau 15 phút
+    user.reset_otp = otp_code
+    user.otp_expiry = datetime.now(timezone.utc) + timedelta(minutes=15)
+    db.commit()
+    
+    # 3. Gửi email chứa mã 6 số
+    success = send_reset_password_email(user.email, otp_code)
+    
+    if not success:
+        raise HTTPException(status_code=500, detail="Lỗi gửi mail, vui lòng thử lại sau")
+    
+    return {"message": "Mã xác nhận đã được gửi đến email của bạn"}
+
+# --- API ĐẶT LẠI MẬT KHẨU MỚI ---
+@router.post("/reset-password")
+def reset_password(payload: ResetPasswordIn, db: Session = Depends(get_db)):
+    # payload.token lúc này là mã 6 số mà User nhập từ giao diện
+    user = db.query(User).filter(User.reset_otp == payload.token).first()
+    
+    # 1. Kiểm tra mã OTP có tồn tại không
+    if not user:
+        raise HTTPException(status_code=400, detail="Mã xác nhận không chính xác")
+    
+    # 2. Kiểm tra thời gian hết hạn
+    # Đảm bảo so sánh cùng múi giờ UTC
+    current_time = datetime.now(timezone.utc)
+    if user.otp_expiry.replace(tzinfo=timezone.utc) < current_time:
+        raise HTTPException(status_code=400, detail="Mã xác nhận đã hết hạn")
+    
+    # 3. Cập nhật mật khẩu mới và xóa dấu vết OTP
+    user.password_hash = hash_password(payload.new_password)
+    user.reset_otp = None
+    user.otp_expiry = None
+    
+    db.add(user)
+    db.commit()
+    
+    return {"message": "Mật khẩu đã được thay đổi thành công"}

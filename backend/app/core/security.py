@@ -32,6 +32,14 @@ def create_refresh_token(subject: str) -> str:
     return jwt.encode(payload, settings.secret_key, algorithm="HS256")
 
 
+def create_reset_token(otp_code: str) -> str:
+    """Mã hóa mã OTP vào JWT để gửi đi (hoặc kiểm tra sau này)"""
+    expires_delta = timedelta(minutes=15)
+    expire = datetime.now(timezone.utc) + expires_delta
+    payload = {"sub": otp_code, "exp": expire, "type": "reset"}
+    return jwt.encode(payload, settings.secret_key, algorithm="HS256")
+
+
 def decode_token(token: str, token_type: str = "access") -> str | None:
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])

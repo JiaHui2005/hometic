@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from enum import Enum
 
-from sqlalchemy import DateTime, Date, Enum as SqlEnum, Float, ForeignKey, Integer, String, Text, func, JSON, Boolean
+from sqlalchemy import DateTime, Date, Enum as SqlEnum, Float, ForeignKey, Integer, String, Text, func, JSON, Boolean, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
@@ -40,6 +40,8 @@ class User(Base):
     avatar_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+    reset_otp = Column(String(6), nullable=True)
+    otp_expiry = Column(DateTime, nullable=True)
 
     orders: Mapped[list["Order"]] = relationship(back_populates="user")
     reviews: Mapped[list["Review"]] = relationship(back_populates="user")

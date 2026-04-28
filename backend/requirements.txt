@@ -5,7 +5,8 @@ pymysql==1.1.1
 python-dotenv==1.0.1
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
-bcrypt>=4.0.0
+bcrypt==3.1.7; sys_platform == 'darwin'
+bcrypt>=4.0.0; sys_platform == 'win32'
 cryptography
 pydantic-settings==2.7.1
 email-validator==2.2.0

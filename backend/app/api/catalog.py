@@ -21,7 +21,6 @@ def list_categories(db: Session = Depends(get_db)):
 @router.post("/admin/categories", response_model=CategoryOut)
 def create_category(payload: CategoryBase, db: Session = Depends(get_db), _=Depends(require_admin)):
     """[Admin] Tạo danh mục mới"""
-    # 1. Kiểm tra slug đã tồn tại chưa
     existing_category = db.query(Category).filter(Category.slug == payload.slug).first()
     if existing_category:
         raise HTTPException(
@@ -29,7 +28,6 @@ def create_category(payload: CategoryBase, db: Session = Depends(get_db), _=Depe
             detail=f"Slug '{payload.slug}' đã tồn tại. Vui lòng chọn slug khác."
         )
 
-    # 2. Kiểm tra danh mục cha (nếu có parent_id)
     if payload.parent_id:
         parent = db.query(Category).filter(Category.id == payload.parent_id).first()
         if not parent:
@@ -38,7 +36,6 @@ def create_category(payload: CategoryBase, db: Session = Depends(get_db), _=Depe
                 detail=f"Danh mục cha với ID {payload.parent_id} không tồn tại."
             )
 
-    # 3. Tạo instance mới
     new_category = Category(
         name=payload.name,
         slug=payload.slug,
@@ -47,7 +44,6 @@ def create_category(payload: CategoryBase, db: Session = Depends(get_db), _=Depe
         parent_id=payload.parent_id
     )
 
-    # 4. Lưu vào cơ sở dữ liệu
     try:
         db.add(new_category)
         db.commit()
@@ -64,7 +60,6 @@ def create_category(payload: CategoryBase, db: Session = Depends(get_db), _=Depe
 @router.put("/admin/categories/{category_id}", response_model=CategoryOut)
 def update_category(category_id: int, payload: CategoryBase, db: Session = Depends(get_db), _=Depends(require_admin)):
     """[Admin] Cập nhật danh mục"""
-    # 1. Tìm danh mục cần sửa
     category = db.query(Category).filter(Category.id == category_id).first()
     if not category:
         raise HTTPException(
@@ -72,7 +67,6 @@ def update_category(category_id: int, payload: CategoryBase, db: Session = Depen
             detail="Danh mục không tồn tại"
         )
 
-    # 2. Kiểm tra slug mới có bị trùng với danh mục khác không
     if payload.slug != category.slug:
         existing_slug = db.query(Category).filter(Category.slug == payload.slug).first()
         if existing_slug:
@@ -81,16 +75,13 @@ def update_category(category_id: int, payload: CategoryBase, db: Session = Depen
                 detail=f"Slug '{payload.slug}' đã được sử dụng bởi danh mục khác"
             )
 
-    # 3. Kiểm tra logic parent_id
     if payload.parent_id:
-        # Không cho phép danh mục chọn chính nó làm cha
         if payload.parent_id == category_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Một danh mục không thể làm cha của chính nó"
             )
         
-        # Kiểm tra danh mục cha có tồn tại không
         parent_exists = db.query(Category).filter(Category.id == payload.parent_id).first()
         if not parent_exists:
             raise HTTPException(
@@ -98,8 +89,6 @@ def update_category(category_id: int, payload: CategoryBase, db: Session = Depen
                 detail="Danh mục cha không tồn tại"
             )
 
-    # 4. Cập nhật dữ liệu
-    # Dùng model_dump() để lấy các trường từ payload
     update_data = payload.model_dump()
     for key, value in update_data.items():
         setattr(category, key, value)
@@ -119,7 +108,6 @@ def update_category(category_id: int, payload: CategoryBase, db: Session = Depen
 @router.delete("/admin/categories/{category_id}")
 def delete_category(category_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
     """[Admin] Xoá danh mục"""
-    # 1. Tìm danh mục
     category = db.query(Category).filter(Category.id == category_id).first()
     
     if not category:
@@ -128,7 +116,6 @@ def delete_category(category_id: int, db: Session = Depends(get_db), _=Depends(r
             detail="Danh mục không tồn tại"
         )
 
-    # 2. Kiểm tra xem danh mục có danh mục con (sub-categories) đang hoạt động không
     sub_categories = db.query(Category).filter(Category.parent_id == category_id).first()
     if sub_categories:
         raise HTTPException(
@@ -136,8 +123,6 @@ def delete_category(category_id: int, db: Session = Depends(get_db), _=Depends(r
             detail="Không thể ẩn danh mục này vì vẫn còn các danh mục con bên trong."
         )
 
-    # 3. Kiểm tra xem còn sản phẩm nào đang hoạt động thuộc danh mục này không
-    # Điều này giúp tránh việc sản phẩm bị "mồ côi" danh mục trên giao diện người dùng
     active_product = db.query(Product).filter(
         Product.category_id == category_id, 
         Product.is_active == True
@@ -148,25 +133,12 @@ def delete_category(category_id: int, db: Session = Depends(get_db), _=Depends(r
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Không thể ẩn danh mục vì vẫn còn sản phẩm đang kinh doanh thuộc danh mục này."
         )
-
-    # 4. Thực hiện xóa tạm
-    # LƯU Ý: Bạn cần chạy lệnh SQL sau nếu chưa có cột: 
-    # ALTER TABLE categories ADD COLUMN is_active BOOLEAN DEFAULT TRUE;
-    
-    # Nếu bạn đã thêm cột is_active vào Model:
-    # category.is_active = False 
-    
-    # Nếu chưa muốn sửa DB, một cách "mẹo" là đổi tên/slug để ẩn (không khuyến khích):
-    # category.slug = f"deleted-{category.slug}-{category_id}"
     
     try:
-        # Giả sử bạn dùng cột is_active
         if hasattr(category, 'is_active'):
             category.is_active = False
             db.commit()
         else:
-            # Nếu chưa kịp thêm cột, ta có thể dùng db.delete(category) 
-            # nhưng bạn yêu cầu xóa tạm nên hãy ưu tiên thêm cột is_active nhé.
             raise HTTPException(
                 status_code=500, 
                 detail="Hệ thống chưa hỗ trợ cột is_active cho danh mục. Hãy cập nhật Database."
@@ -220,7 +192,11 @@ def list_products(
     return products
 
 @router.get("/products/{product_id}", response_model=ProductOut)
-def get_product(product_id: int, db: Session = Depends(get_db)):
+def get_product(
+    product_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_current_user_optional) # Thêm cái này
+):
     """Lấy chi tiết một sản phẩm"""
     product = (
         db.query(Product)
@@ -233,12 +209,47 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
     )
 
     if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Sản phẩm có ID {product_id} không tồn tại"
-        )
+        raise HTTPException(status_code=404, detail="Sản phẩm không tồn tại")
+
+    if not product.is_active:
+        if not current_user or current_user.role != 'admin':
+            raise HTTPException(status_code=404, detail="Sản phẩm này đã ngừng kinh doanh")
 
     return product
+
+@router.get("/products/category/{category_slug}", response_model=List[ProductOut])
+def get_products_by_category(
+    category_slug: str,
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_current_user_optional)
+):
+    """Lấy danh sách sản phẩm theo danh mục (bao gồm cả danh mục con)"""
+    
+    category = db.query(Category).filter(Category.slug == category_slug).first()
+    if not category:
+        raise HTTPException(status_code=404, detail="Danh mục không tồn tại")
+
+    category_ids = [category.id]
+    
+    sub_categories = db.query(Category.id).filter(Category.parent_id == category.id).all()
+    sub_ids = [c.id for c in sub_categories]
+    category_ids.extend(sub_ids)
+    
+    if sub_ids:
+        grandchild_categories = db.query(Category.id).filter(Category.parent_id.in_(sub_ids)).all()
+        category_ids.extend([c.id for c in grandchild_categories])
+
+    query = db.query(Product).options(
+        joinedload(Product.category),
+        joinedload(Product.detail)
+    ).filter(Product.category_id.in_(category_ids))
+
+    if not current_user or current_user.role != 'admin':
+        query = query.filter(Product.is_active == True)
+
+    products = query.order_by(Product.created_at.desc()).all()
+    
+    return products
 
 @router.post("/admin/products", response_model=ProductOut)
 def create_product(payload: ProductCreate, db: Session = Depends(get_db), _=Depends(require_admin)):

@@ -42,6 +42,10 @@ class TokenOut(BaseModel):
 class RefreshTokenIn(BaseModel):
     refresh_token: str
 
+class ChangePasswordIn(BaseModel):
+    old_password: str
+    new_password: str = Field(..., min_length=6)
+
 # --- Coupon Schemas ---
 class CouponBase(BaseModel):
     code: str

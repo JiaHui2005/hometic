@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
 from app.api import auth, catalog, orders, reviews, admin
 from app.core.config import get_settings
 from app.db.init_db import init_db
@@ -23,6 +23,8 @@ def on_startup():
 @app.get("/api/health")
 def health():
     return {"status": "ok", "service": settings.app_name}
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Registering Routers
 app.include_router(auth.router, prefix="/api")

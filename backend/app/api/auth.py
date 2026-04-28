@@ -1,12 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from app.api.deps import get_current_user
 from app.core.security import create_access_token, create_refresh_token, decode_token, hash_password, verify_password
 from app.db.session import get_db
 from app.models.entities import User, UserRole
-from app.schemas.dto import TokenOut, UserCreate, UserLogin, UserOut, UserUpdate, RefreshTokenIn
+from app.schemas.dto import TokenOut, UserCreate, UserLogin, UserOut, UserUpdate, RefreshTokenIn, ChangePasswordIn
+import os
+import shutil
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/register", response_model=TokenOut)
 def register(payload: UserCreate, db: Session = Depends(get_db)):
@@ -95,3 +101,44 @@ def update_me(payload: UserUpdate, db: Session = Depends(get_db), current_user: 
     db.commit()
     db.refresh(current_user)
     return current_user
+
+@router.post("/upload-avatar")
+def upload_avatar(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
+    if not os.path.exists(UPLOAD_DIR):
+        os.makedirs(UPLOAD_DIR)
+
+    file_extension = os.path.splitext(file.filename)[1]
+    file_name = f"avatar_user_{current_user.id}{file_extension}"
+    
+    physical_path = os.path.join(UPLOAD_DIR, file_name)
+
+    with open(physical_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return {"url": f"http://localhost:8000/static/uploads/{file_name}"}
+
+@router.put("/change-password")
+def change_password(
+    payload: ChangePasswordIn, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    """Đổi mật khẩu người dùng"""
+    if not verify_password(payload.old_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mật khẩu hiện tại không chính xác"
+        )
+    
+    if verify_password(payload.new_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mật khẩu mới không được trùng với mật khẩu cũ"
+        )
+
+    current_user.password_hash = hash_password(payload.new_password)
+    
+    db.add(current_user)
+    db.commit()
+    
+    return {"message": "Đổi mật khẩu thành công"}

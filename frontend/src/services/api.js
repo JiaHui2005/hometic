@@ -70,7 +70,7 @@ export async function api(path, options = {}) {
       response = await makeRequest(newToken);
     } catch (err) {
       // Refresh failed or no refresh token
-      return response; 
+      return response;
     }
   }
 
@@ -88,18 +88,43 @@ export const authService = {
   register: (userData) => api("/auth/register", { method: "POST", body: JSON.stringify(userData) }),
   getMe: () => api("/auth/me"),
   updateMe: (data) => api("/auth/me", { method: "PUT", body: JSON.stringify(data) }),
+  uploadAvatar: async (formData) => {
+    const accessToken = localStorage.getItem("hometic_access_token");
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+
+    const response = await fetch(`${API_URL}/auth/upload-avatar`, {
+      method: "POST",
+      headers: {
+        // TUYỆT ĐỐI KHÔNG để Content-Type ở đây
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: formData // Truyền trực tiếp, trình duyệt sẽ tự xử lý Content-Type
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || "Không thể tải ảnh lên");
+    }
+
+    return response.json();
+  },
+  changePassword: (data) => api("/auth/change-password", {
+    method: "PUT",
+    body: JSON.stringify(data)
+  }),
 };
 
 export const catalogService = {
   getCategories: () => api("/categories"),
   getProducts: (params = "") => api(`/products${params}`),
   getProduct: (id) => api(`/products/${id}`),
-  
+  getProductsByCategory: (slug) => api(`/products/category/${slug}`),
+
   // Admin Product CRUD
   createProduct: (data) => api("/admin/products", { method: "POST", body: JSON.stringify(data) }),
   updateProduct: (id, data) => api(`/admin/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteProduct: (id) => api(`/admin/products/${id}`, { method: "DELETE" }),
-  
+
   // Admin Category CRUD
   createCategory: (data) => api("/admin/categories", { method: "POST", body: JSON.stringify(data) }),
   updateCategory: (id, data) => api(`/admin/categories/${id}`, { method: "PUT", body: JSON.stringify(data) }),
@@ -110,7 +135,7 @@ export const orderService = {
   checkout: (data) => api("/checkout", { method: "POST", body: JSON.stringify(data) }),
   getMyOrders: () => api("/my-orders"),
   getMyOrder: (id) => api(`/my-orders/${id}`),
-  
+
   // Admin
   getAllOrders: () => api("/admin/orders"),
   updateOrderStatus: (id, status) => api(`/admin/orders/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),

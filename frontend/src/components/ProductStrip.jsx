@@ -176,13 +176,13 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
                   Mua ngay
                 </button>
 
-                <button
+                {/* <button
                   style={styles.reviewLink}
                   onClick={() => setActiveTab(`review:${product.id}`)}
                 >
                   <Star size={13} fill={brand.orange} color={brand.orange} />
                   <span style={{ borderBottom: '1px solid #ccc' }}>Đánh giá</span>
-                </button>
+                </button> */}
               </div>
             </article>
           );

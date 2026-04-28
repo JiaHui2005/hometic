@@ -86,15 +86,15 @@ function App() {
   const [activeTab, setActiveTab] = useState("shop");
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [filters, setFilters] = useState({ q: "", category_id: "" });
+  const [filters, setFilters] = useState({ q: "", category_slug: "" });
   const [cart, setCart] = useState(() => JSON.parse(sessionStorage.getItem("hometic_cart") || "[]"));
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  useEffect(() => { 
-    sessionStorage.setItem("hometic_cart", JSON.stringify(cart)); 
+  useEffect(() => {
+    sessionStorage.setItem("hometic_cart", JSON.stringify(cart));
   }, [cart]);
 
-  useEffect(() => { 
+  useEffect(() => {
     catalogService.getCategories()
       .then(setCategories)
       .catch(() => setCategories(demoCategories));
@@ -103,8 +103,8 @@ function App() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (filters.q) params.set("q", filters.q);
-    if (filters.category_id) params.set("category_id", filters.category_id);
-    
+    if (filters.category_id) params.set("category_slug", filters.category_slug);
+
     catalogService.getProducts(params.toString() ? `?${params.toString()}` : "")
       .then(setProducts)
       .catch(() => setProducts(demoProducts));
@@ -129,36 +129,36 @@ function App() {
   return (
     <div className="app-root">
       {activeTab !== "admin" && (
-        <Header 
-          user={user} 
-          cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-          onLogout={logout} 
-          filters={filters} 
-          setFilters={setFilters} 
+        <Header
+          user={user}
+          cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onLogout={logout}
+          filters={filters}
+          setFilters={setFilters}
         />
       )}
-      
+
       {activeTab === "shop" && <Shop categories={categories} products={products} filters={filters} setFilters={setFilters} addToCart={addToCart} setActiveTab={setActiveTab} setSelectedProduct={setSelectedProduct} />}
-      {activeTab === "category_detail" && <CategoryDetail products={products} addToCart={addToCart} setActiveTab={setActiveTab} setSelectedProduct={setSelectedProduct} />}
+      {activeTab === "category_detail" && <CategoryDetail filters={filters} products={products} addToCart={addToCart} setActiveTab={setActiveTab} setSelectedProduct={setSelectedProduct} />}
       {activeTab === "product_detail" && <ProductDetail product={selectedProduct} addToCart={addToCart} setActiveTab={setActiveTab} />}
       {activeTab === "auth" && <Auth setUser={setUser} setActiveTab={setActiveTab} />}
       {activeTab === "cart" && (
-        <Cart 
-          cart={cart} 
-          user={user} 
-          setActiveTab={setActiveTab} 
-          clearCart={() => setCart([])} 
-          updateQuantity={(id, delta) => setCart(cart.map((item) => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item))} 
-          removeFromCart={(id) => setCart(cart.filter((item) => item.id !== id))} 
+        <Cart
+          cart={cart}
+          user={user}
+          setActiveTab={setActiveTab}
+          clearCart={() => setCart([])}
+          updateQuantity={(id, delta) => setCart(cart.map((item) => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item))}
+          removeFromCart={(id) => setCart(cart.filter((item) => item.id !== id))}
         />
       )}
       {activeTab === "orders" && <Orders />}
-      {activeTab === "profile" && <Profile user={user} setActiveTab={setActiveTab} />}
+      {activeTab === "profile" && <Profile user={user} setUser={setUser} setActiveTab={setActiveTab} />}
       {activeTab === "admin" && <Admin onLogout={logout} />}
       {reviewMatch && <Reviews productId={reviewMatch[1]} />}
-      
+
       {activeTab !== "admin" && <Footer />}
     </div>
   );

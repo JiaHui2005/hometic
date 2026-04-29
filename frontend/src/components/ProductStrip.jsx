@@ -52,11 +52,19 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
     oldPrice: { fontSize: '13px', color: brand.muted, textDecoration: 'line-through', fontWeight: '500' },
 
     buyBtn: (isHovered) => ({
-      width: '100%', padding: '12px',
-      backgroundColor: isHovered ? brand.orange : brand.white,
-      color: isHovered ? brand.white : brand.orange,
-      border: `2px solid ${brand.orange}`,
-      borderRadius: '8px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.3s ease', marginTop: '10px'
+      width: '100%',
+      padding: '12px',
+      // Default: Nền cam, chữ trắng, viền cam
+      // Hover: Nền trong suốt, chữ trắng, viền trắng
+      backgroundColor: isHovered ? '#3A3939' : brand.orange,
+      color: brand.white,
+      border: `2px solid ${isHovered ? brand.white : brand.orange}`,
+      borderRadius: '8px',
+      fontWeight: '700',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      marginTop: '10px',
+      outline: 'none'
     })
   };
 

@@ -160,6 +160,26 @@ def delete_category(category_id: int, db: Session = Depends(get_db), _=Depends(r
 
     return None
 
+@router.patch("/admin/categories/{category_id}/restore")
+def restore_category(category_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    """[Admin] Khôi phục danh mục"""
+    category = db.query(Category).filter(Category.id == category_id).first()
+    
+    if not category:
+        raise HTTPException(status_code=404, detail="Danh mục không tồn tại")
+    
+    if hasattr(category, 'is_active'):
+        category.is_active = True
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise HTTPException(status_code=500, detail="Lỗi khi khôi phục danh mục")
+    else:
+        raise HTTPException(status_code=500, detail="Database chưa hỗ trợ cột is_active cho danh mục.")
+
+    return {"message": "Đã khôi phục danh mục thành công"}
+
 # --- Products ---
 
 @router.get("/products", response_model=List[ProductOut])
@@ -378,3 +398,33 @@ def delete_product(product_id: int, db: Session = Depends(get_db), _=Depends(req
         )
 
     return None
+
+@router.patch("/admin/products/{product_id}/restore")
+def restore_product(product_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    """[Admin] Mở khóa (cho bán lại) sản phẩm"""
+    product = db.query(Product).filter(Product.id == product_id).first()
+    
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Sản phẩm không tồn tại"
+        )
+    
+    if product.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Sản phẩm này hiện đang ở trạng thái bán rồi"
+        )
+
+    product.is_active = True
+    
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Lỗi hệ thống khi cập nhật trạng thái sản phẩm"
+        )
+
+    return {"message": "Đã khôi phục sản phẩm thành công"}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { LogOut, Search, ShoppingCart, Menu, X, ChevronDown, User as UserIcon } from "lucide-react"; // Import thêm UserIcon
+import { LogOut, Search, ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import { catalogService } from "../services/api";
 
 export default function Header({ user, cartCount, activeTab, setActiveTab, onLogout, filters, setFilters }) {
@@ -7,8 +7,9 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(filters?.q || "");
+  const [expandedMobileCats, setExpandedMobileCats] = useState({});
 
-  // Link ảnh mặc định nếu user chưa có avatar
   const defaultAvatar = "https://www.w3schools.com/howto/img_avatar.png";
 
   useEffect(() => {
@@ -34,10 +35,23 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
   const parentCategories = categories.filter(cat => cat.parent_id === null);
   const getSubCategories = (parentId) => categories.filter(cat => cat.parent_id === parentId);
 
+  const handleSearch = (e) => {
+    if (e.key === "Enter" || e.type === "click") {
+      setFilters(prev => ({ ...prev, q: searchTerm, category_slug: "" }));
+      setActiveTab("shop");
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  const toggleMobileCat = (id) => {
+    setExpandedMobileCats(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const brand = {
     primary: "#008481",
     secondary: "#ed7f1a",
     text: "#133b3b",
+    black: "#000000ff",
     muted: "#4b5563",
     glass: "rgba(155, 201, 199, 0.95)"
   };
@@ -49,8 +63,14 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
       padding: isMobile ? '0 20px' : '0 40px', height: '80px', width: '100%',
       boxShadow: '0 2px 10px rgba(0,0,0,0.05)', boxSizing: 'border-box'
     },
-    brand: { display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: brand.primary },
-    logoText: { fontSize: isMobile ? '22px' : '26px', fontWeight: '800', letterSpacing: '-0.02em', margin: 0 },
+    // Khuôn logo chứa cả icon và chữ
+    brandContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      cursor: 'pointer',
+      height: '100%'
+    },
     nav: { display: isMobile ? 'none' : 'flex', height: '100%', gap: '5px' },
     navItem: { position: 'relative', display: 'flex', alignItems: 'center', height: '100%' },
     navBtn: (active) => ({
@@ -59,9 +79,9 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
       backgroundColor: active ? 'rgba(255,255,255,0.2)' : 'transparent', transition: '0.2s'
     }),
     megaMenu: {
-      position: 'absolute', top: '80px', left: '50%', transform: 'translateX(-50%)',
-      width: 'max-content', minWidth: '250px', background: 'white', borderRadius: '0 0 16px 16px',
-      padding: '25px', display: 'none', gridTemplateColumns: '1fr', gap: '10px',
+      position: 'absolute', top: '80px', left: '0',
+      width: 'max-content', minWidth: '400px', background: 'white', borderRadius: '0 0 16px 16px',
+      padding: '30px', display: 'none', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '30px',
       boxShadow: '0 20px 40px rgba(0,0,0,0.1)', border: '1px solid #e0e0e0', zIndex: 1001
     },
     actions: { display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '20px' },
@@ -75,7 +95,6 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
       position: 'absolute', top: '-5px', right: '-5px', background: brand.secondary, color: 'white',
       fontSize: '10px', minWidth: '18px', height: '18px', borderRadius: '10px', display: 'grid', placeItems: 'center', fontWeight: '800'
     },
-    // Style mới cho Avatar Container
     userActions: { display: 'flex', alignItems: 'center', gap: '12px' },
     avatarWrapper: {
       width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden',
@@ -94,7 +113,7 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
 
   const handleCategoryClick = (slug) => {
     if (setFilters) {
-      setFilters(prev => ({ ...prev, category_slug: slug }));
+      setFilters(prev => ({ ...prev, category_slug: slug, q: "" }));
       setActiveTab("category_detail");
       setIsMobileMenuOpen(false);
     }
@@ -103,13 +122,40 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
   return (
     <>
       <header style={styles.header}>
-        {/* Logo */}
-        <div style={styles.brand} onClick={() => setActiveTab("shop")}>
-          <svg width="35" height="35" viewBox="0 0 40 40" fill="none">
-            <path d="M20 5L5 18V35H35V18L20 5Z" fill={brand.primary} />
-            <path d="M12 22H28V30H12V22Z" fill={brand.secondary} />
-          </svg>
-          <h1 style={styles.logoText}>Hometic</h1>
+        {/* LOGO BOX: logo1 bên trái logo2 */}
+        <div style={{ ...styles.brandContainer, gap: '15px' }} onClick={() => setActiveTab("shop")}>
+          {/* Logo 1: Biểu tượng ngôi nhà - Tăng từ 40px lên 52px */}
+          <div style={{
+            position: 'relative',
+            width: isMobile ? '35px' : '52px',
+            height: isMobile ? '35px' : '52px',
+            flexShrink: 0,
+            transition: 'transform 0.3s ease' // Thêm hiệu ứng mượt khi hover
+          }}>
+            <img
+              src="/logo1.png"
+              alt="Hometic Icon"
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </div>
+
+          {/* Logo 2: Chữ Hometic - Tăng chiều cao từ 28px lên 38px để nhìn rõ hơn */}
+          <div style={{
+            height: isMobile ? '24px' : '38px',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            <img
+              src="/logo2.png"
+              alt="Hometic Brand"
+              style={{
+                height: '100%',
+                width: 'auto',
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.05))' // Thêm đổ bóng nhẹ cho chữ nổi bật
+              }}
+            />
+          </div>
         </div>
 
         {/* Desktop Navigation */}
@@ -123,30 +169,45 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
                 {cat.name}
               </button>
               <div className="mega-menu-inline" style={styles.megaMenu}>
-                <div>
-                  <h4 style={{ color: brand.primary, fontSize: '14px', marginBottom: '12px', borderBottom: '2px solid #f0f0f0', paddingBottom: '5px' }}>
-                    Tất cả {cat.name}
-                  </h4>
-                  {getSubCategories(cat.id).map((sub) => (
-                    <span key={sub.id} style={{ display: 'block', fontSize: '13px', color: '#666', marginBottom: '10px', cursor: 'pointer' }}
-                      onMouseEnter={(e) => e.target.style.color = brand.secondary}
-                      onMouseLeave={(e) => e.target.style.color = '#666'}
+                {getSubCategories(cat.id).map((sub) => (
+                  <div key={sub.id}>
+                    <h4
+                      style={{ color: brand.black, fontSize: '15px', fontWeight: '800', marginBottom: '15px', cursor: 'pointer' }}
                       onClick={() => handleCategoryClick(sub.slug)}
                     >
                       {sub.name}
-                    </span>
-                  ))}
-                </div>
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {getSubCategories(sub.id).map((grandSub) => (
+                        <span
+                          key={grandSub.id}
+                          style={{ fontSize: '13px', color: brand.black, cursor: 'pointer', transition: '0.2s' }}
+                          onMouseEnter={(e) => e.target.style.color = brand.secondary}
+                          onMouseLeave={(e) => e.target.style.color = '#666'}
+                          onClick={(e) => { e.stopPropagation(); handleCategoryClick(grandSub.slug); }}
+                        >
+                          {grandSub.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
         </nav>
 
-        {/* Actions (Search, Cart, User) */}
+        {/* Actions */}
         <div style={styles.actions}>
           <div style={styles.search}>
-            <Search size={16} color={brand.muted} />
-            <input style={styles.searchInput} placeholder="Tìm kiếm..." />
+            <Search size={16} color={brand.muted} style={{ cursor: 'pointer' }} onClick={handleSearch} />
+            <input
+              style={styles.searchInput}
+              placeholder="Tìm kiếm sản phẩm..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearch}
+            />
           </div>
 
           <button style={styles.cartBtn} onClick={() => setActiveTab("cart")}>
@@ -154,26 +215,17 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
             {cartCount > 0 && <span style={styles.badge}>{cartCount}</span>}
           </button>
 
-          {/* PHẦN HIỂN THỊ USER ĐÃ ĐƯỢC CẬP NHẬT */}
           {user ? (
             <div style={styles.userActions}>
-              {/* Avatar tròn, click để vào Profile */}
               <div style={styles.avatarWrapper} onClick={() => setActiveTab("profile")}>
                 <img
-                  // Sử dụng avatar của user, nếu không có thì dùng defaultAvatar
                   src={user.avatar_url || defaultAvatar}
                   alt={user.full_name || "User"}
                   style={styles.avatarImg}
-                  // Xử lý lỗi nếu link ảnh die
                   onError={(e) => { e.target.src = defaultAvatar; }}
                 />
               </div>
-              {/* Nút Logout */}
-              <button
-                onClick={onLogout}
-                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: brand.secondary, display: 'flex', alignItems: 'center' }}
-                title="Đăng xuất"
-              >
+              <button onClick={onLogout} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: brand.secondary, display: 'flex', alignItems: 'center' }} title="Đăng xuất">
                 <LogOut size={20} />
               </button>
             </div>
@@ -194,7 +246,6 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
 
       {/* Mobile Menu Overlay */}
       <div style={styles.mobileMenu}>
-        {/* Hiển thị User trên Mobile Menu nếu đã đăng nhập */}
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '10px 5px', borderBottom: '1px solid #eee', marginBottom: '10px' }} onClick={() => { setActiveTab("profile"); setIsMobileMenuOpen(false); }}>
             <div style={{ ...styles.avatarWrapper, width: '50px', height: '50px' }}>
@@ -208,16 +259,68 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', background: '#f5f5f5', borderRadius: '12px', padding: '12px 15px', marginBottom: '10px' }}>
-          <Search size={18} color="#999" />
-          <input style={{ border: 'none', background: 'transparent', outline: 'none', paddingLeft: '10px', width: '100%', fontSize: '15px' }} placeholder="Bạn cần tìm gì?" />
+          <Search size={18} color="#999" onClick={handleSearch} />
+          <input
+            style={{ border: 'none', background: 'transparent', outline: 'none', paddingLeft: '10px', width: '100%', fontSize: '15px' }}
+            placeholder="Bạn cần tìm gì?"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearch}
+          />
         </div>
 
-        {parentCategories.map((cat) => (
+        {!loading && parentCategories.map((cat) => (
           <div key={cat.id} style={{ borderBottom: '1px solid #eee' }}>
-            <button style={{ width: '100%', background: 'none', border: 'none', padding: '15px 5px', textAlign: 'left', fontSize: '16px', fontWeight: '700', color: brand.text, display: 'flex', justifyContent: 'space-between' }} onClick={() => handleCategoryClick(cat.slug)}>
-              {cat.name}
-              <ChevronDown size={18} />
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <button
+                style={{ flex: 1, background: 'none', border: 'none', padding: '15px 5px', textAlign: 'left', fontSize: '16px', fontWeight: '700', color: brand.text }}
+                onClick={() => handleCategoryClick(cat.slug)}
+              >
+                {cat.name}
+              </button>
+              <button
+                style={{ background: 'none', border: 'none', padding: '10px' }}
+                onClick={() => toggleMobileCat(cat.id)}
+              >
+                <ChevronDown size={20} style={{ transform: expandedMobileCats[cat.id] ? 'rotate(180deg)' : 'rotate(0)', transition: '0.3s' }} />
+              </button>
+            </div>
+
+            {expandedMobileCats[cat.id] && (
+              <div style={{ paddingLeft: '20px', paddingBottom: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {getSubCategories(cat.id).map(sub => (
+                  <div key={sub.id}>
+                    <div
+                      style={{ fontWeight: '700', fontSize: '15px', color: brand.primary, padding: '5px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                      onClick={() => handleCategoryClick(sub.slug)}
+                    >
+                      {sub.name}
+                      {getSubCategories(sub.id).length > 0 && (
+                        <button
+                          style={{ background: 'none', border: 'none' }}
+                          onClick={(e) => { e.stopPropagation(); toggleMobileCat(sub.id); }}
+                        >
+                          <ChevronDown size={16} style={{ transform: expandedMobileCats[sub.id] ? 'rotate(180deg)' : 'rotate(0)' }} />
+                        </button>
+                      )}
+                    </div>
+                    {expandedMobileCats[sub.id] && (
+                      <div style={{ paddingLeft: '15px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
+                        {getSubCategories(sub.id).map(grandSub => (
+                          <span
+                            key={grandSub.id}
+                            style={{ fontSize: '14px', color: '#666', padding: '3px 0' }}
+                            onClick={() => handleCategoryClick(grandSub.slug)}
+                          >
+                            {grandSub.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
 

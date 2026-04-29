@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { adminService, catalogService, orderService } from "../services/api";
+import alertService from "../services/alertService";
+import { adminService, catalogService, orderService, api } from "../services/api";
 import { adminStyles as styles } from "./Admin/AdminStyles";
 
 // Sub-components
@@ -15,17 +16,24 @@ export default function Admin({ onLogout }) {
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allCategories, setAllCategories] = useState([]);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(""); // "Sản phẩm" or "Danh mục"
+  const [modalType, setModalType] = useState(""); // "Sản phẩm", "Danh mục", "Đơn hàng"
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [modalTab, setModalTab] = useState("Cơ bản"); // "Cơ bản" or "Chi tiết"
+  const [modalTab, setModalTab] = useState("Cơ bản");
+
+  const [customerOrders, setCustomerOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
 
   useEffect(() => {
     fetchData();
+    // Luôn lấy danh sách danh mục để phục vụ các dropdown
+    catalogService.getCategories().then(setAllCategories).catch(() => { });
   }, [activeMenu]);
 
   const fetchData = async () => {
@@ -59,6 +67,35 @@ export default function Admin({ onLogout }) {
     }
   };
 
+  const filteredData = data.filter(item => {
+    if (!searchQuery) return true;
+    const s = searchQuery.toLowerCase();
+    if (activeMenu === "Sản phẩm") return item.name?.toLowerCase().includes(s);
+    if (activeMenu === "Danh mục") return item.name?.toLowerCase().includes(s);
+    if (activeMenu === "Đơn hàng") return item.order_code?.toLowerCase().includes(s) || item.recipient_name?.toLowerCase().includes(s);
+    if (activeMenu === "Khách hàng") return item.full_name?.toLowerCase().includes(s) || item.email?.toLowerCase().includes(s);
+    return true;
+  });
+
+  const handleViewCustomerOrders = async (customer) => {
+    // Mở modal trước với trạng thái loading
+    setModalType("Khách hàng");
+    setEditingItem(customer);
+    setIsModalOpen(true);
+    setLoadingOrders(true);
+
+    try {
+      // Gọi API (Giả sử bạn dùng hàm api đã có)
+      const response = await api(`/admin/users/${customer.id}/orders`);
+      setCustomerOrders(response || []);
+    } catch (error) {
+      alert("Không thể lấy lịch sử đơn hàng: " + error.message);
+      setIsModalOpen(false); // Đóng modal nếu lỗi
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
   const handleEdit = async (item, type) => {
     setModalType(type);
     setEditingItem(item);
@@ -70,8 +107,12 @@ export default function Admin({ onLogout }) {
       if (type === "Sản phẩm") {
         detail = await catalogService.getProduct(item.id);
         if (!detail.detail) detail.detail = { warranty_info: "12 tháng", origin: "Việt Nam" };
-      } else {
+      } else if (type === "Danh mục") {
         detail = await catalogService.getCategory(item.id);
+      } else if (type === "Đơn hàng") {
+        detail = await orderService.getAdminOrderDetail(item.id);
+      } else {
+        detail = item;
       }
       setFormData(detail);
     } catch (err) {
@@ -107,7 +148,7 @@ export default function Admin({ onLogout }) {
       }
       setFormData(newFormData);
     } catch (err) {
-      alert("Lỗi upload: " + err.message);
+      alertService.error("Lỗi upload!", err.message);
     }
   };
 
@@ -119,20 +160,28 @@ export default function Admin({ onLogout }) {
       if (modalType === "Sản phẩm") {
         if (editingItem) {
           await catalogService.updateProduct(editingItem.id, submitData);
+          alertService.success("Thành công!", "Cập nhật sản phẩm thành công.");
         } else {
           await catalogService.createProduct(submitData);
+          alertService.success("Thành công!", "Tạo sản phẩm mới thành công.");
         }
-      } else {
+      } else if (modalType === "Danh mục") {
         if (editingItem) {
           await catalogService.updateCategory(editingItem.id, submitData);
+          alertService.success("Thành công!", "Cập nhật danh mục thành công.");
         } else {
           await catalogService.createCategory(submitData);
+          alertService.success("Thành công!", "Tạo danh mục mới thành công.");
         }
+      } else if (modalType === "Đơn hàng") {
+        // Chỉ cập nhật trạng thái
+        await orderService.updateOrderStatus(editingItem.id, submitData.status);
+        alertService.success("Thành công!", "Cập nhật trạng thái đơn hàng thành công.");
       }
       setIsModalOpen(false);
       fetchData();
     } catch (err) {
-      alert("Lỗi: " + (err.response?.data?.detail || err.message));
+      alertService.error("Lỗi!", err.response?.data?.detail || err.message);
     } finally {
       setSubmitting(false);
     }
@@ -140,29 +189,31 @@ export default function Admin({ onLogout }) {
 
   return (
     <div style={styles.container}>
-      <Sidebar 
-        activeMenu={activeMenu} 
-        setActiveMenu={setActiveMenu} 
-        onLogout={onLogout} 
+      <Sidebar
+        activeMenu={activeMenu}
+        setActiveMenu={setActiveMenu}
+        onLogout={onLogout}
       />
 
       <main style={styles.main}>
-        <Header />
-        
+        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
         {activeMenu === "Tổng quan" ? (
-          <Dashboard stats={stats} chartData={chartData} />
+          <Dashboard stats={stats} chartData={chartData} setActiveMenu={setActiveMenu} />
         ) : (
-          <DataList 
-            activeMenu={activeMenu} 
-            data={data} 
-            loading={loading} 
-            handleAddNew={handleAddNew} 
-            handleEdit={handleEdit} 
+          <DataList
+            activeMenu={activeMenu}
+            data={filteredData}
+            loading={loading}
+            handleAddNew={handleAddNew}
+            handleEdit={handleEdit}
+            refreshData={fetchData}
+            handleViewCustomerOrders={handleViewCustomerOrders}
           />
         )}
       </main>
 
-      <AdminModal 
+      <AdminModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         modalType={modalType}
@@ -174,6 +225,9 @@ export default function Admin({ onLogout }) {
         submitting={submitting}
         handleSave={handleSave}
         handleImageUpload={handleImageUpload}
+        categories={allCategories}
+        customerOrders={customerOrders}
+        loadingOrders={loadingOrders}
       />
     </div>
   );

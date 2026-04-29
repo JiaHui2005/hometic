@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { User, Package, Eye, EyeOff, Phone, Mail, Calendar, CreditCard, MessageSquare, Edit2, Save, X, Camera, ShieldCheck, Star, Send, Ticket } from "lucide-react";
 import { formatVnd } from "../constants";
+import alertService from "../services/alertService";
 import { orderService, authService } from "../services/api";
 import Reviews from "./Reviews";
 
@@ -69,8 +70,9 @@ export default function Profile({ user, setUser, setActiveTab }) {
       setLoading(true);
       const response = await authService.uploadAvatar(formData);
       setEditForm({ ...editForm, avatar_url: response.url });
+      alertService.success("Thành công!", "Ảnh đại diện đã được cập nhật.");
     } catch (error) {
-      alert("Lỗi tải ảnh: " + error.message);
+      alertService.error("Lỗi!", "Lỗi tải ảnh: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -89,9 +91,9 @@ export default function Profile({ user, setUser, setActiveTab }) {
       setUser(updatedUser);
       localStorage.setItem("hometic_user", JSON.stringify(updatedUser));
       setIsEditing(false);
-      alert("Cập nhật hồ sơ thành công! ✨");
+      alertService.success("Thành công!", "Cập nhật hồ sơ thành công!");
     } catch (error) {
-      alert("Lỗi cập nhật: " + error.message);
+      alertService.error("Lỗi!", "Lỗi cập nhật: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -99,7 +101,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
 
   const handleUpdatePassword = async () => {
     if (passwordForm.new_password !== passwordForm.confirm_password) {
-      alert("Mật khẩu xác nhận không khớp!");
+      alertService.warning("Cảnh báo!", "Mật khẩu xác nhận không khớp!");
       return;
     }
     try {
@@ -108,11 +110,11 @@ export default function Profile({ user, setUser, setActiveTab }) {
         old_password: passwordForm.old_password,
         new_password: passwordForm.new_password
       });
-      alert("Đổi mật khẩu thành công! ✨");
+      alertService.success("Thành công!", "Đổi mật khẩu thành công!");
       setIsChangingPassword(false);
       setPasswordForm({ old_password: "", new_password: "", confirm_password: "" });
     } catch (error) {
-      alert(error.message || "Mật khẩu cũ không chính xác");
+      alertService.error("Lỗi!", error.message || "Mật khẩu cũ không chính xác");
     } finally {
       setLoading(false);
     }

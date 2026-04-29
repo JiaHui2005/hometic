@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { authService, setSession } from "../services/api";
+import alertService from "../services/alertService";
 import { Eye, EyeOff, Calendar, ChevronDown, ArrowLeft, Mail, Lock, Smartphone, User as UserIcon } from "lucide-react";
 
 export default function Auth({ setUser, setActiveTab }) {
@@ -40,9 +41,10 @@ export default function Auth({ setUser, setActiveTab }) {
     setError("");
     try {
       await authService.forgotPassword({ email: form.email });
-      alert("Mã OTP khôi phục đã được gửi đến Email của bạn! Vui lòng kiểm tra.");
+      alertService.success("Gửi email thành công!", "Mã OTP khôi phục đã được gửi đến Email của bạn.");
       setAuthMode("reset");
     } catch (err) {
+      alertService.error("Lỗi!", err.message || "Email không tồn tại trong hệ thống.");
       setError(err.message || "Email không tồn tại trong hệ thống.");
     } finally {
       setLoading(false);
@@ -52,6 +54,7 @@ export default function Auth({ setUser, setActiveTab }) {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     if (form.newPassword !== form.confirmPassword) {
+      alertService.warning("Cảnh báo!", "Mật khẩu xác nhận không khớp.");
       setError("Mật khẩu xác nhận không khớp.");
       return;
     }
@@ -61,10 +64,11 @@ export default function Auth({ setUser, setActiveTab }) {
         token: form.otp,
         new_password: form.newPassword
       });
-      alert("Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.");
+      alertService.success("Thành công!", "Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.");
       setAuthMode("login");
       setForm({ ...form, password: "", otp: "", newPassword: "", confirmPassword: "" });
     } catch (err) {
+      alertService.error("Lỗi!", "Mã OTP không hợp lệ hoặc đã hết hạn.");
       setError("Mã OTP không hợp lệ hoặc đã hết hạn.");
     } finally {
       setLoading(false);
@@ -97,9 +101,10 @@ export default function Auth({ setUser, setActiveTab }) {
         setSession({ access_token: data.access_token, refresh_token: data.refresh_token }, data.user);
         setUser(data.user);
         setActiveTab("shop");
-        alert("Đăng ký thành công! Chào mừng bạn đến với Hometic.");
+        alertService.success("Đăng ký thành công!", "Chào mừng bạn đến với Hometic.");
       }
     } catch (err) {
+      alertService.error("Lỗi!", err.message || "Có lỗi xảy ra, vui lòng kiểm tra lại thông tin.");
       setError(err.message || "Có lỗi xảy ra, vui lòng kiểm tra lại thông tin.");
     } finally {
       setLoading(false);

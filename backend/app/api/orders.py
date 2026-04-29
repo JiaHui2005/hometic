@@ -192,6 +192,27 @@ def admin_list_orders(db: Session = Depends(get_db), _=Depends(require_admin)):
 
     return orders
 
+@router.get("/admin/orders/{order_id}", response_model=OrderOut)
+def admin_get_order_detail(order_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    """[Admin] Lấy chi tiết một đơn hàng cụ thể"""
+    order = (
+        db.query(Order)
+        .options(
+            joinedload(Order.items)
+            .joinedload(OrderItem.product)
+        )
+        .filter(Order.id == order_id)
+        .first()
+    )
+
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Không tìm thấy đơn hàng yêu cầu"
+        )
+
+    return order
+
 @router.put("/admin/orders/{order_id}/status", response_model=OrderOut)
 def update_order_status(order_id: int, payload: OrderStatusUpdate, db: Session = Depends(get_db), _=Depends(require_admin)):
     """[Admin] Cập nhật trạng thái đơn hàng (Đang xử lý, Đang giao, v.v.)"""
@@ -315,3 +336,18 @@ def delete_coupon(coupon_id: int, db: Session = Depends(get_db), _=Depends(requi
     db.commit()
     
     return None
+
+@router.get("/admin/users/{user_id}/orders", response_model=list[OrderOut])
+def admin_get_user_orders(user_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    """[Admin] Lấy lịch sử mua hàng của một khách hàng cụ thể"""
+    orders = (
+        db.query(Order)
+        .options(
+            joinedload(Order.items)
+            .joinedload(OrderItem.product)
+        )
+        .filter(Order.user_id == user_id)
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+    return orders

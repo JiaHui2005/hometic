@@ -26,13 +26,13 @@ const styles = {
   title: {
     fontSize: '42px',
     fontWeight: '900',
-    color: brand.primary,
+    color: brand.text,
     marginBottom: '15px'
   },
   divider: {
     width: '80px',
     height: '4px',
-    backgroundColor: brand.orange,
+    backgroundColor: brand.text,
     margin: '0 auto',
     borderRadius: '2px'
   },
@@ -49,7 +49,7 @@ const styles = {
   sectionTitle: {
     fontSize: '22px',
     fontWeight: '800',
-    color: brand.primary,
+    color: brand.text,
     marginBottom: '20px',
     display: 'flex',
     alignItems: 'center',
@@ -58,7 +58,7 @@ const styles = {
   dot: {
     width: '8px',
     height: '8px',
-    backgroundColor: brand.orange,
+    backgroundColor: brand.text,
     borderRadius: '50%'
   },
   text: {
@@ -332,7 +332,7 @@ export default function StaticPages({ pageKey }) {
 
               {/* Phần 5: Lời cam kết */}
               <div style={styles.section}>
-                <p style={{ ...styles.text, fontStyle: 'italic', color: brand.primary, marginTop: '20px' }}>
+                <p style={{ ...styles.text, fontStyle: 'italic', color: brand.text, marginTop: '20px' }}>
                   "Sự an tâm của khách hàng là ưu tiên hàng đầu của Hometic. Với sự hỗ trợ vận hành chuyên nghiệp từ <strong>POPO Services</strong> và sự đồng hành của anh <strong>PewPew</strong>, chúng tôi cam kết xử lý mọi khiếu nại một cách công bằng, minh bạch và nhanh chóng nhất."
                 </p>
               </div>

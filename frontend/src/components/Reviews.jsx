@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Star, MessageSquare, Send, User as UserIcon, Loader2 } from "lucide-react";
+import alertService from "../services/alertService";
 import { reviewService } from "../services/api";
 
 export default function Reviews({ productId, showForm = true }) {
@@ -45,9 +46,9 @@ export default function Reviews({ productId, showForm = true }) {
       const newReview = await reviewService.createReview(payload);
       setReviews([newReview, ...reviews]);
       setForm({ rating: 5, comment: "" });
-      alert("Cảm ơn bạn đã để lại đánh giá! ✨");
+      alertService.success("Cảm ơn bạn!", "Đánh giá của bạn đã được lưu thành công.");
     } catch (err) {
-      alert(err.message || "Đã có lỗi xảy ra.");
+      alertService.error("Lỗi!", err.message || "Đã có lỗi xảy ra.");
     } finally {
       setLoading(false);
     }
@@ -57,8 +58,8 @@ export default function Reviews({ productId, showForm = true }) {
     container: { width: '100%', backgroundColor: brand.bg },
     panel: { maxWidth: '900px', margin: '0 auto' },
     titleSection: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px' },
-    title: { fontSize: '24px', fontWeight: '900', color: brand.primary, display: 'flex', alignItems: 'center', gap: '12px', margin: 0 },
-    countBadge: { backgroundColor: brand.primary, color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px' },
+    title: { fontSize: '24px', fontWeight: '900', color: brand.text, display: 'flex', alignItems: 'center', gap: '12px', margin: 0 },
+    countBadge: { backgroundColor: brand.text, color: brand.white, padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' },
 
     formCard: {
       backgroundColor: brand.white,
@@ -184,7 +185,7 @@ export default function Reviews({ productId, showForm = true }) {
             <div style={{ textAlign: 'center', padding: '50px' }}><Loader2 className="animate-spin" style={{ margin: '0 auto' }} color={brand.primary} /></div>
           ) : reviews.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px', color: brand.muted, backgroundColor: brand.white, borderRadius: '30px', border: `1px dotted ${brand.border}` }}>
-              <p style={{ margin: 0, fontSize: '16px' }}>Sản phẩm này chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ cảm nhận!</p>
+              <p style={{ margin: 0, fontSize: '16px', color: brand.text }}>Sản phẩm này chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ cảm nhận!</p>
             </div>
           ) : (
             reviews.map((r) => (
@@ -197,7 +198,7 @@ export default function Reviews({ productId, showForm = true }) {
                   />
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: '800', fontSize: '16px', color: brand.primary }}>{r.user?.full_name || "Khách hàng Hometic"}</span>
+                      <span style={{ fontWeight: '800', fontSize: '16px', color: brand.text }}>{r.user?.full_name || "Khách hàng Hometic"}</span>
                       <span style={{ fontSize: '12px', color: brand.muted, fontWeight: '600' }}>{new Date(r.created_at).toLocaleDateString('vi-VN')}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '3px', marginTop: '6px' }}>

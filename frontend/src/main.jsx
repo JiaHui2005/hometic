@@ -4,6 +4,8 @@ import { clearSession, getStoredUser, catalogService } from "./services/api";
 import "./styles.css";
 
 import { Header, Footer, Shop, Auth, Cart, Orders, Admin, Reviews, CategoryDetail, ProductDetail, Profile, StaticPages } from "./components";
+import AlertContainer from "./components/AlertContainer";
+import alertService from "./services/alertService";
 import { demoCategories, demoProducts } from "./constants";
 
 class ErrorBoundary extends React.Component {
@@ -110,11 +112,14 @@ function App() {
     setUser(null);
     setCart([]);
     setActiveTab("shop");
-    alert("Đã đăng xuất thành công! Hẹn gặp lại bạn. ✨");
+    alertService.success("Đăng xuất thành công!", "Hẹn gặp lại bạn. ✨");
   }
 
   return (
     <div className="app-root">
+      {/* Alert Container */}
+      <AlertContainer />
+      
       {/* Header ẩn khi ở trang Admin */}
       {activeTab !== "admin" && (
         <Header

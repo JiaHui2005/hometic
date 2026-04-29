@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { formatVnd } from "../constants";
 import { catalogService } from "../services/api";
+import { Filter, X, ChevronDown, Check, RotateCcw, Tag } from "lucide-react";
 
 export default function CategoryDetail({ categories, filters, addToCart, setActiveTab, setSelectedProduct }) {
   const [hoveredId, setHoveredId] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [categoryName, setCategoryName] = useState("Cửa hàng");
+
+  // States cho bộ lọc
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 50000000 });
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Hệ màu đồng bộ Hometic
   const brand = {
@@ -16,7 +22,9 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
     white: "#ffffff",
     text: "#1a1a1a",
     muted: "#71717a",
-    border: "#e5e1d8"
+    border: "#e5e1d8",
+    glass: "rgba(255, 255, 255, 0.8)",
+    btnHover: "#3A3939"
   };
 
   useEffect(() => {
@@ -29,16 +37,13 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
     const fetchCategoryData = async () => {
       setLoading(true);
       try {
-        // Lấy danh sách sản phẩm (đã bao gồm cả sp của danh mục con từ backend)
         const data = await catalogService.getProductsByCategory(filters.category_slug);
         setProducts(data || []);
 
-        // Ưu tiên lấy tên từ danh sách categories (có dấu) dựa trên slug
         const targetCategory = categories?.find(c => c.slug === filters.category_slug);
         if (targetCategory) {
           setCategoryName(targetCategory.name);
         } else if (data && data.length > 0) {
-          // Fallback: Nếu không tìm thấy trong list categories, lấy từ sản phẩm
           const currentCat = data.find(p => p.category.slug === filters.category_slug);
           if (currentCat) {
             setCategoryName(currentCat.category.name);
@@ -59,18 +64,39 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
     fetchCategoryData();
   }, [filters?.category_slug]);
 
-  const handleProductClick = (product) => {
-    setSelectedProduct(product);
-    setActiveTab("product_detail");
-  };
+  const availableBrands = useMemo(() => {
+    const brands = products.map(p => p.brand || "Hometic");
+    return [...new Set(brands)];
+  }, [products]);
 
-  // Logic nhóm sản phẩm theo danh mục
-  const groupedProducts = products.reduce((acc, product) => {
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => {
+      const price = p.sale_price || p.price;
+      const matchPrice = price >= priceRange.min && price <= priceRange.max;
+      const matchBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand || "Hometic");
+      return matchPrice && matchBrand;
+    });
+  }, [products, priceRange, selectedBrands]);
+
+  const groupedProducts = filteredProducts.reduce((acc, product) => {
     const catName = product.category.name;
     if (!acc[catName]) acc[catName] = [];
     acc[catName].push(product);
     return acc;
   }, {});
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setActiveTab("product_detail");
+  };
+
+  const handleBrandToggle = (brandName) => {
+    setSelectedBrands(prev =>
+      prev.includes(brandName)
+        ? prev.filter(b => b !== brandName)
+        : [...prev, brandName]
+    );
+  };
 
   const styles = {
     container: {
@@ -80,121 +106,250 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
       color: brand.text,
       fontFamily: '"Outfit", "Inter", sans-serif'
     },
-    title: {
-      fontSize: '42px',
-      fontWeight: '900',
-      color: brand.primary,
-      marginBottom: '60px',
-      textAlign: 'center',
-      letterSpacing: '-1px'
+    layout: {
+      display: 'flex',
+      gap: '40px',
+      position: 'relative'
     },
-    sectionTitle: {
-      fontSize: '24px',
-      fontWeight: '800',
-      color: brand.primary,
-      marginBottom: '25px',
+    sidebar: {
+      width: '300px',
+      flexShrink: 0,
+      display: window.innerWidth <= 1024 ? 'none' : 'block'
+    },
+    content: { flex: 1 },
+    filterCard: {
+      backgroundColor: brand.white,
+      borderRadius: '24px',
+      padding: '28px',
+      marginBottom: '24px',
+      border: `1px solid ${brand.border}`,
+      boxShadow: '0 10px 30px rgba(35, 74, 74, 0.02)',
+    },
+    filterHeader: {
       display: 'flex',
       alignItems: 'center',
-      gap: '15px'
+      gap: '12px',
+      marginBottom: '24px',
     },
-    sectionDivider: {
+    filterIconCircle: {
+      width: '36px',
+      height: '36px',
+      borderRadius: '12px',
+      backgroundColor: `${brand.primary}08`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: brand.primary
+    },
+    filterTitle: {
+      fontSize: '16px',
+      fontWeight: '800',
+      color: brand.text,
+      textTransform: 'uppercase',
+      letterSpacing: '1px'
+    },
+    priceInputWrapper: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px'
+    },
+    priceField: {
+      display: 'flex',
+      alignItems: 'center',
+      backgroundColor: "#f2efe6", // Màu nền nhẹ hơn cho input
+      borderRadius: '16px',
+      padding: '0 16px',
+      border: `1px solid transparent`,
+      transition: '0.3s ease',
+      height: '56px'
+    },
+    priceLabel: {
+      fontSize: '13px',
+      fontWeight: '700',
+      color: brand.text,
+      marginRight: '8px',
+      whiteSpace: 'nowrap'
+    },
+    priceInput: {
       flex: 1,
-      height: '2px',
-      backgroundColor: brand.border,
-      borderRadius: '2px'
+      background: 'none',
+      border: 'none',
+      fontSize: '15px',
+      fontWeight: '800',
+      color: brand.text,
+      outline: 'none',
+      width: '100%',
+      fontFamily: 'inherit',
+      textAlign: 'left'
+    },
+    priceUnit: {
+      fontSize: '13px',
+      fontWeight: '700',
+      color: brand.muted,
+      marginLeft: '8px'
+    },
+    quickPriceTag: (active) => ({
+      padding: '10px 12px',
+      fontSize: '13px',
+      fontWeight: '800',
+      borderRadius: '12px',
+      cursor: 'pointer',
+      transition: '0.2s',
+      backgroundColor: active ? brand.orange : brand.white,
+      color: active ? brand.white : brand.text,
+      border: `1px solid ${active ? brand.orange : brand.border}`,
+      flex: 1,
+      textAlign: 'center'
+    }),
+    brandList: {
+      maxHeight: '260px',
+      overflowY: 'auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px'
+    },
+    brandItem: (active) => ({
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '14px 16px',
+      borderRadius: '14px',
+      cursor: 'pointer',
+      transition: '0.2s',
+      backgroundColor: active ? `${brand.orange}10` : 'transparent',
+    }),
+    checkbox: (active) => ({
+      width: '20px',
+      height: '20px',
+      borderRadius: '6px',
+      border: `2px solid ${active ? brand.orange : brand.border}`,
+      backgroundColor: active ? brand.orange : 'transparent',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: '0.2s'
+    }),
+    resetBtn: {
+      width: '100%',
+      padding: '18px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '12px',
+      backgroundColor: 'transparent',
+      border: `2px dashed ${brand.border}`,
+      color: brand.muted,
+      borderRadius: '20px',
+      fontWeight: '800',
+      fontSize: '14px',
+      cursor: 'pointer',
+      transition: '0.3s'
+    },
+    title: {
+      fontSize: '32px',
+      fontWeight: '900',
+      color: brand.text,
+      marginBottom: '40px',
+      letterSpacing: '-0.5px'
     },
     grid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: '30px',
-      marginBottom: '80px' // Khoảng cách giữa các danh mục con
+      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+      gap: '25px',
+      marginBottom: '60px'
     },
     card: {
       backgroundColor: brand.white,
-      borderRadius: '24px',
-      padding: '24px',
+      borderRadius: '16px',
+      padding: '0',
       border: `1px solid ${brand.border}`,
       display: 'flex',
       flexDirection: 'column',
-      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: 'all 0.3s ease',
       cursor: 'pointer',
       position: 'relative',
-      boxShadow: '0 4px 20px rgba(35, 74, 74, 0.04)'
-    },
-    ribbon: {
-      position: 'absolute',
-      top: '25px',
-      left: '25px',
-      backgroundColor: brand.orange,
-      color: brand.white,
-      padding: '5px 12px',
-      borderRadius: '10px',
-      fontSize: '11px',
-      fontWeight: '900',
-      zIndex: 1,
-      boxShadow: '0 4px 10px rgba(218, 143, 72, 0.3)'
-    },
-    imageContainer: {
-      width: '100%',
-      aspectRatio: '1/1',
-      borderRadius: '18px',
       overflow: 'hidden',
-      marginBottom: '20px',
-      backgroundColor: '#f8f8f8'
+      boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
     },
-    image: {
+    cardImage: {
       width: '100%',
-      height: '100%',
+      height: '220px',
       objectFit: 'cover',
-      transition: 'transform 0.6s ease'
+      cursor: 'pointer'
     },
-    productName: {
-      fontSize: '17px',
+    cardBody: {
+      padding: '18px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      flex: 1
+    },
+    cardName: {
+      fontSize: '16px',
       fontWeight: '700',
       color: brand.text,
-      marginBottom: '10px',
-      lineHeight: '1.4',
-      height: '48px',
+      cursor: 'pointer',
       display: '-webkit-box',
       WebkitLineClamp: 2,
       WebkitBoxOrient: 'vertical',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      lineHeight: '1.4',
+      height: '45px',
+      margin: 0
+    },
+    cardDesc: {
+      fontSize: '13px',
+      color: brand.muted
+    },
+    cardPrice: {
+      fontSize: '18px',
+      fontWeight: '800',
+      color: brand.text,
+      marginTop: '5px'
     },
     priceContainer: {
       display: 'flex',
       flexDirection: 'column',
       gap: '2px',
-      marginBottom: '20px'
+      margin: '5px 0'
     },
     activePrice: {
-      fontSize: '22px',
-      fontWeight: '900',
-      color: brand.primary
+      fontSize: '18px',
+      fontWeight: '800',
+      color: brand.text
     },
     oldPrice: {
-      fontSize: '14px',
+      fontSize: '13px',
       color: brand.muted,
-      textDecoration: 'line-through'
+      textDecoration: 'line-through',
+      fontWeight: '500'
+    },
+    ribbon: {
+      position: 'absolute',
+      top: '12px',
+      left: '12px',
+      backgroundColor: brand.orange,
+      color: brand.white,
+      padding: '4px 10px',
+      borderRadius: '6px',
+      fontSize: '11px',
+      fontWeight: '700',
+      zIndex: 1
     },
     btn: (isHovered) => ({
       width: '100%',
-      padding: '16px',
-      borderRadius: '14px',
-      fontWeight: '900',
+      padding: '12px',
+      borderRadius: '8px',
+      fontWeight: '700',
       fontSize: '14px',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
-      border: `2px solid ${brand.orange}`,
-      backgroundColor: isHovered ? brand.orange : 'transparent',
-      color: isHovered ? brand.white : brand.orange,
-      textTransform: 'uppercase',
-      letterSpacing: '1px'
+      backgroundColor: isHovered ? brand.btnHover : brand.orange,
+      color: brand.white,
+      marginTop: '10px',
+      border: 'none',
+      outline: 'none'
     }),
-    emptyState: {
-      textAlign: 'center',
-      padding: '100px 20px',
-      color: brand.muted
-    }
   };
 
   if (loading) {
@@ -202,7 +357,7 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
       <div style={{ ...styles.container, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ border: `4px solid ${brand.border}`, borderTop: `4px solid ${brand.orange}`, borderRadius: '50%', width: '50px', height: '50px', animation: 'spin 1s linear infinite', margin: '0 auto 25px' }}></div>
-          <p style={{ fontWeight: '800', color: brand.primary, fontSize: '18px' }}>Đang sắp xếp kệ hàng...</p>
+          <p style={{ fontWeight: '800', color: brand.text, fontSize: '18px' }}>Đang sắp xếp kệ hàng...</p>
         </div>
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
@@ -215,95 +370,176 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
     <div style={styles.container}>
       <h1 style={styles.title}>{categoryName}</h1>
 
-      {categoryEntries.length > 0 ? (
-        categoryEntries.map(([catName, catProducts]) => (
-          <div key={catName} style={{ marginBottom: '20px' }}>
-            {/* Hiển thị tiêu đề danh mục con nếu có nhiều hơn 1 danh mục hoặc tên khác tiêu đề chính */}
-            {(categoryEntries.length > 1 || catName !== categoryName) && (
-              <div style={styles.sectionTitle}>
-                <span>{catName}</span>
-                <div style={styles.sectionDivider}></div>
+      <div style={styles.layout}>
+        {/* Sidebar Lọc */}
+        <aside style={styles.sidebar}>
+          <div style={styles.filterCard}>
+            <div style={styles.filterHeader}>
+              <div style={styles.filterIconCircle}><Tag size={18} /></div>
+              <span style={styles.filterTitle}>Khoảng giá</span>
+            </div>
+
+            <div style={styles.priceInputWrapper}>
+              <div className="price-field-focus" style={styles.priceField}>
+                <span style={styles.priceLabel}>Từ</span>
+                <input
+                  style={styles.priceInput}
+                  type="number"
+                  value={priceRange.min}
+                  onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
+                />
+                <span style={styles.priceUnit}>đ</span>
               </div>
-            )}
+              <div className="price-field-focus" style={styles.priceField}>
+                <span style={styles.priceLabel}>Đến</span>
+                <input
+                  style={styles.priceInput}
+                  type="number"
+                  value={priceRange.max}
+                  onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
+                />
+                <span style={styles.priceUnit}>đ</span>
+              </div>
+            </div>
 
-            <div style={styles.grid}>
-              {catProducts.map((product) => {
-                const isHovered = hoveredId === product.id;
-                const hasSale = !!product.sale_price;
-
-                return (
-                  <div
-                    key={product.id}
-                    style={{
-                      ...styles.card,
-                      transform: isHovered ? 'translateY(-12px)' : 'none',
-                      boxShadow: isHovered ? '0 25px 50px rgba(35, 74, 74, 0.12)' : '0 4px 20px rgba(35, 74, 74, 0.04)',
-                      borderColor: isHovered ? brand.orange : brand.border
-                    }}
-                    onMouseEnter={() => setHoveredId(product.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    onClick={() => handleProductClick(product)}
-                  >
-                    {hasSale && <div style={styles.ribbon}>-{Math.round((1 - product.sale_price / product.price) * 100)}%</div>}
-
-                    <div style={styles.imageContainer}>
-                      <img
-                        src={product.image_url || "https://via.placeholder.com/400?text=Hometic"}
-                        alt={product.name}
-                        style={{
-                          ...styles.image,
-                          transform: isHovered ? 'scale(1.1)' : 'scale(1)'
-                        }}
-                      />
-                    </div>
-
-                    <div style={{ flex: 1 }}>
-                      <div style={styles.productName}>{product.name}</div>
-                      <div style={styles.priceContainer}>
-                        <div style={styles.activePrice}>
-                          {formatVnd(product.sale_price || product.price)}
-                        </div>
-                        {hasSale && (
-                          <div style={styles.oldPrice}>
-                            {formatVnd(product.price)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      style={styles.btn(isHovered)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(product);
-                      }}
-                    >
-                      Thêm vào giỏ
-                    </button>
-                  </div>
-                );
-              })}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+              {[5000000, 15000000, 30000000].map(val => (
+                <div
+                  key={val}
+                  onClick={() => setPriceRange({ min: 0, max: val })}
+                  style={styles.quickPriceTag(priceRange.max === val)}
+                >
+                  &lt; {val / 1000000}Tr
+                </div>
+              ))}
             </div>
           </div>
-        ))
-      ) : (
-        <div style={styles.emptyState}>
-          <h3 style={{ fontSize: '24px', fontWeight: '800' }}>Danh mục này hiện chưa có sản phẩm.</h3>
-          <p style={{ marginTop: '10px', marginBottom: '30px' }}>Chúng tôi sẽ cập nhật các thiết bị mới sớm nhất có thể.</p>
+
+          <div style={styles.filterCard}>
+            <div style={styles.filterHeader}>
+              <div style={styles.filterIconCircle}><Check size={18} /></div>
+              <span style={styles.filterTitle}>Thương hiệu</span>
+            </div>
+            <div style={styles.brandList} className="custom-scrollbar">
+              {availableBrands.map(b => (
+                <div key={b} style={styles.brandItem(selectedBrands.includes(b))} onClick={() => handleBrandToggle(b)}>
+                  <span style={{
+                    color: selectedBrands.includes(b) ? brand.primary : brand.muted,
+                    fontWeight: selectedBrands.includes(b) ? '800' : '500',
+                    fontSize: '15px'
+                  }}>{b}</span>
+                  <div style={styles.checkbox(selectedBrands.includes(b))}>
+                    {selectedBrands.includes(b) && <Check size={14} color="white" strokeWidth={3} />}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <button
-            onClick={() => setActiveTab("shop")}
-            style={{
-              padding: '18px 40px',
-              backgroundColor: brand.primary, color: 'white',
-              border: 'none', borderRadius: '16px',
-              fontWeight: '900', cursor: 'pointer',
-              fontSize: '15px', textTransform: 'uppercase', letterSpacing: '1px'
-            }}
+            onClick={() => { setPriceRange({ min: 0, max: 50000000 }); setSelectedBrands([]); }}
+            style={styles.resetBtn}
           >
-            QUAY LẠI CỬA HÀNG
+            <RotateCcw size={18} />
+            LÀM MỚI BỘ LỌC
           </button>
-        </div>
-      )}
+        </aside>
+
+        {/* Nội dung sản phẩm */}
+        <main style={styles.content}>
+          {categoryEntries.length > 0 ? (
+            categoryEntries.map(([catName, catProducts]) => (
+              <div key={catName}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
+                  <span style={{ fontSize: '22px', fontWeight: '800', color: brand.text }}>{catName}</span>
+                  <div style={{ flex: 1, height: '2px', backgroundColor: brand.border, borderRadius: '2px' }}></div>
+                </div>
+
+                <div style={styles.grid}>
+                  {catProducts.map((product) => {
+                    const isHovered = hoveredId === product.id;
+                    return (
+                      <article
+                        key={product.id}
+                        style={{
+                          ...styles.card,
+                          transform: isHovered ? 'translateY(-5px)' : 'translateY(0)'
+                        }}
+                        onMouseEnter={() => setHoveredId(product.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                      >
+                        {product.sale_price && <div style={styles.ribbon}>GIẢM GIÁ</div>}
+                        <img 
+                          src={product.image_url || "https://via.placeholder.com/400"} 
+                          alt={product.name} 
+                          style={styles.cardImage}
+                          onClick={() => handleProductClick(product)}
+                        />
+                        <div style={styles.cardBody}>
+                          <h3 
+                            style={styles.cardName}
+                            onClick={() => handleProductClick(product)}
+                          >
+                            {product.name}
+                          </h3>
+                          <span style={styles.cardDesc}>
+                            {product.brand || "Thiết bị gia dụng cao cấp"}
+                          </span>
+                          <div style={styles.priceContainer}>
+                            <strong style={styles.activePrice}>
+                              {formatVnd(product.sale_price || product.price)}
+                            </strong>
+                            {product.sale_price && (
+                              <span style={styles.oldPrice}>
+                                {formatVnd(product.price)}
+                              </span>
+                            )}
+                          </div>
+                          <button 
+                            style={styles.btn(isHovered)} 
+                            onMouseEnter={() => setHoveredId(product.id)}
+                            onMouseLeave={() => setHoveredId(null)}
+                            onClick={(e) => { e.stopPropagation(); addToCart(product); }}
+                          >
+                            Mua ngay
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+              <h3 style={{ fontSize: '24px', fontWeight: '800', color: brand.primary }}>Không tìm thấy sản phẩm</h3>
+              <p style={{ color: brand.muted }}>Vui lòng điều chỉnh bộ lọc hoặc chọn danh mục khác.</p>
+            </div>
+          )}
+        </main>
+      </div>
+
+      <style>{`
+        /* Ẩn nút tăng giảm của input number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+        
+        .price-field-focus:focus-within {
+          border-color: #da8f48 !important;
+          background-color: #ffffff !important;
+          box-shadow: 0 0 0 4px rgba(218, 143, 72, 0.1);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e1d8; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #da8f48; }
+      `}</style>
     </div>
   );
 }

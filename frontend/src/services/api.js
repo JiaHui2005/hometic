@@ -132,12 +132,14 @@ export const catalogService = {
   // Admin Product CRUD
   createProduct: (data) => api("/admin/products", { method: "POST", body: JSON.stringify(data) }),
   updateProduct: (id, data) => api(`/admin/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  restoreProduct: (id) => api(`/admin/products/${id}/restore`, { method: "PATCH" }), // Thêm dòng này
   deleteProduct: (id) => api(`/admin/products/${id}`, { method: "DELETE" }),
 
   // Admin Category CRUD
   createCategory: (data) => api("/admin/categories", { method: "POST", body: JSON.stringify(data) }),
   updateCategory: (id, data) => api(`/admin/categories/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteCategory: (id) => api(`/admin/categories/${id}`, { method: "DELETE" }),
+  restoreCategory: (id) => api(`/admin/categories/${id}/restore`, { method: "PATCH" }),
 };
 
 export const orderService = {
@@ -147,6 +149,8 @@ export const orderService = {
 
   // Admin
   getAllOrders: () => api("/admin/orders"),
+  getAdminOrderDetail: (id) => api(`/admin/orders/${id}`),
+  getUserOrders: (userId) => api(`/admin/users/${userId}/orders`),
   updateOrderStatus: (id, status) => api(`/admin/orders/${id}/status`, { method: "PUT", body: JSON.stringify({ status }) }),
   getCoupons: () => api("/admin/coupons"),
   createCoupon: (data) => api("/admin/coupons", { method: "POST", body: JSON.stringify(data) }),
@@ -163,6 +167,8 @@ export const adminService = {
   getDashboard: () => api("/admin/dashboard"),
   getCharts: () => api("/admin/charts"),
   getUsers: () => api("/admin/users"),
+  searchUsers: (query) => api(`/admin/users/search?q=${encodeURIComponent(query)}`),
+  getUserOrders: (userId) => api(`/admin/users/${userId}/orders`),
   updateUser: (id, data) => api(`/admin/users/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteUser: (id) => api(`/admin/users/${id}`, { method: "DELETE" }),
   uploadImage: async (file) => {

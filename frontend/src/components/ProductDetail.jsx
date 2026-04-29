@@ -64,26 +64,26 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
     gallery: { flex: 1, maxWidth: isMobile ? '100%' : '500px' },
     mainImgBox: { backgroundColor: brand.white, borderRadius: '30px', overflow: 'hidden', border: `1px solid ${brand.border}`, boxShadow: '0 20px 40px rgba(35, 74, 74, 0.05)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' },
     content: { flex: 1.2, display: 'flex', flexDirection: 'column', gap: '15px' },
-    badge: { display: 'inline-block', padding: '6px 16px', backgroundColor: brand.primary, color: 'white', borderRadius: '10px', fontSize: '12px', fontWeight: '800', width: 'fit-content', textTransform: 'uppercase' },
-    title: { fontSize: isMobile ? '28px' : '36px', fontWeight: '900', margin: '10px 0 0', color: brand.primary, lineHeight: '1.2' },
+    badge: { display: 'inline-block', padding: '6px 16px', backgroundColor: brand.text, color: 'white', borderRadius: '10px', fontSize: '12px', fontWeight: '800', width: 'fit-content', textTransform: 'uppercase' },
+    title: { fontSize: isMobile ? '28px' : '36px', fontWeight: '900', margin: '10px 0 0', color: brand.text, lineHeight: '1.2' },
 
     // STYLE GIÁ ĐÃ CẬP NHẬT
-    priceSection: { display: 'flex', alignItems: 'center', gap: '15px', margin: '10px 0' },
-    activePrice: { fontSize: '32px', fontWeight: '900', color: brand.orange },
+    priceSection: { display: 'flex', alignItems: 'center', gap: '15px', margin: '10px 0', color: brand.text },
+    activePrice: { fontSize: '32px', fontWeight: '900', color: brand.text },
     oldPrice: { fontSize: '18px', color: brand.muted, textDecoration: 'line-through', fontWeight: '500' },
 
     policy: { display: 'flex', gap: '25px', padding: '20px 0', borderTop: `1px solid ${brand.border}`, borderBottom: `1px solid ${brand.border}`, margin: '10px 0' },
-    policyItem: { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: '600', color: brand.primary },
+    policyItem: { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: '600', color: brand.text },
 
     qtySelector: { display: 'flex', alignItems: 'center', gap: '20px', margin: '20px 0' },
-    qtyWrapper: { display: 'flex', alignItems: 'center', border: `1px solid ${brand.primary}`, borderRadius: '15px', overflow: 'hidden', backgroundColor: 'white', width: '160px', height: '48px' },
-    qtyBtn: { flex: '1', height: '100%', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', color: brand.primary, transition: '0.2s', padding: '0' },
-    qtyText: { width: '50px', textAlign: 'center', fontSize: '18px', fontWeight: '800', color: brand.primary },
+    qtyWrapper: { display: 'flex', alignItems: 'center', border: `1px solid ${brand.text}`, borderRadius: '15px', overflow: 'hidden', backgroundColor: 'white', width: '160px', height: '48px' },
+    qtyBtn: { flex: '1', height: '100%', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', color: brand.text, transition: '0.2s', padding: '0' },
+    qtyText: { width: '50px', textAlign: 'center', fontSize: '18px', fontWeight: '800', color: brand.text },
 
     specsSection: { backgroundColor: brand.white, padding: isMobile ? '25px' : '45px', borderRadius: '30px', border: `1px solid ${brand.border}`, marginBottom: '60px', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' },
     table: { width: '100%', borderCollapse: 'collapse' },
     row: { borderBottom: `1px solid #f2f0eb` },
-    label: { padding: '18px', fontWeight: '800', color: brand.primary, width: '35%', backgroundColor: '#faf9f6', fontSize: '14px' },
+    label: { padding: '18px', fontWeight: '800', color: brand.text, width: '35%', backgroundColor: '#faf9f6', fontSize: '14px' },
     val: { padding: '18px', color: brand.text, fontSize: '14px' }
   };
 
@@ -102,7 +102,7 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
           <div style={styles.badge}>{product.category?.name || "Premium"}</div>
           <h1 style={styles.title}>{product.name}</h1>
           <p style={{ color: brand.muted, fontSize: '14px', fontWeight: '600' }}>
-            THƯƠNG HIỆU: <span style={{ color: brand.primary }}>{product.brand}</span> | SKU: {product.id}
+            THƯƠNG HIỆU: <span style={{ color: brand.text }}>{product.brand}</span> | SKU: <span style={{ color: brand.text }}>{product.id}</span>
           </p>
 
           {/* PHẦN GIÁ ĐỒNG BỘ */}
@@ -127,7 +127,7 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
           </div>
 
           <div style={styles.qtySelector}>
-            <span style={{ fontWeight: '800', color: brand.primary }}>SỐ LƯỢNG:</span>
+            <span style={{ fontWeight: '800', color: brand.text }}>SỐ LƯỢNG:</span>
             <div style={styles.qtyWrapper}>
               <button style={styles.qtyBtn} onClick={() => setQuantity(Math.max(1, quantity - 1))}>
                 <Minus size={18} />
@@ -142,15 +142,17 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
           <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
             <button
               onClick={() => addToCart({ ...product, quantity })}
-              style={{ flex: 1, padding: '18px', backgroundColor: 'transparent', color: brand.primary, border: `2px solid ${brand.primary}`, borderRadius: '15px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', transition: '0.3s' }}
+              style={{ flex: 1, padding: '18px', backgroundColor: brand.orange, color: brand.white, borderRadius: '15px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', transition: '0.3s' }}
               onMouseOver={(e) => { e.currentTarget.style.backgroundColor = brand.primary; e.currentTarget.style.color = 'white'; }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = brand.primary; }}
+              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = brand.orange; e.currentTarget.style.color = brand.white; }}
             >
               THÊM VÀO GIỎ
             </button>
             <button
               onClick={() => { addToCart({ ...product, quantity }); setActiveTab("cart"); }}
-              style={{ flex: 1, padding: '18px', backgroundColor: brand.primary, color: 'white', border: 'none', borderRadius: '15px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(35, 74, 74, 0.15)' }}
+              style={{ flex: 1, padding: '18px', backgroundColor: brand.orange, color: brand.white, border: 'none', borderRadius: '15px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(35, 74, 74, 0.15)' }}
+              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = brand.primary; e.currentTarget.style.color = 'white'; }}
+              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = brand.orange; e.currentTarget.style.color = brand.white; }}
             >
               MUA NGAY
             </button>
@@ -160,7 +162,7 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
 
       {/* Thông số kỹ thuật */}
       <div style={styles.specsSection}>
-        <h2 style={{ fontSize: '20px', fontWeight: '900', marginBottom: '30px', color: brand.primary, borderLeft: `5px solid ${brand.orange}`, paddingLeft: '15px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '900', marginBottom: '30px', color: brand.text, borderLeft: `5px solid ${brand.orange}`, paddingLeft: '15px' }}>
           CHI TIẾT SẢN PHẨM
         </h2>
         {specs.length > 0 ? (

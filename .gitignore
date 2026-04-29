@@ -9,6 +9,7 @@ backend/.env
 backend/.venv/
 backend/venv/
 backend/env/
+backend/.accounts_created
 __pycache__/
 *.py[cod]
 *$py.class

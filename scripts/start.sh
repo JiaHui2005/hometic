@@ -4,17 +4,33 @@ set -e
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_DIR="$ROOT_DIR/backend"
 FRONTEND_DIR="$ROOT_DIR/frontend"
+# Đường dẫn tệp đánh dấu (nằm trong thư mục backend)
+MARKER_FILE="$BACKEND_DIR/.accounts_created"
 
 echo "==> Hometic: chuẩn bị backend"
 cd "$BACKEND_DIR"
+
 if [ ! -f ".env" ]; then
   cp .env.example .env
 fi
+
 if [ ! -d ".venv" ]; then
   python3 -m venv .venv
 fi
+
 source .venv/bin/activate
 pip install -r requirements.txt
+
+# --- PHẦN TẠO TÀI KHOẢN (CHỈ CHẠY 1 LẦN) ---
+if [ ! -f "$MARKER_FILE" ]; then
+    echo "🚀 Lần đầu khởi chạy: Đang tạo tài khoản test..."
+    python -m app.utils.create_accounts
+    touch "$MARKER_FILE"
+    echo "✅ Đã tạo tài khoản và lưu trạng thái."
+else
+    echo "ℹ️ Tài khoản test đã được tạo trước đó, bỏ qua bước này."
+fi
+# ------------------------------------------
 
 echo "==> Hometic: chuẩn bị frontend"
 cd "$FRONTEND_DIR"

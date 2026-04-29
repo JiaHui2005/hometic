@@ -84,9 +84,10 @@ export default function Profile({ user, setUser, setActiveTab }) {
       setLoading(true);
       const payload = {
         ...editForm,
-        gender: editForm.gender === "Male" ? "Nam" : editForm.gender === "Female" ? "Nữ" : "Khác",
+        gender: editForm.gender,
         birthday: editForm.birthday || null
       };
+      console.log(payload)
       const updatedUser = await authService.updateMe(payload);
       setUser(updatedUser);
       localStorage.setItem("hometic_user", JSON.stringify(updatedUser));
@@ -263,8 +264,8 @@ export default function Profile({ user, setUser, setActiveTab }) {
                     <div><label style={styles.label}>Ngày sinh</label><input type="date" style={styles.input} value={editForm.birthday} onChange={e => setEditForm({ ...editForm, birthday: e.target.value })} /></div>
                     <div>
                       <label style={styles.label}>Giới tính</label>
-                      <select style={styles.input} value={editForm.gender} onChange={e => setEditForm({ ...editForm, gender: e.target.value })}>
-                        <option value="Male">Nam</option><option value="Female">Nữ</option><option value="Other">Khác</option>
+                      <select value={editForm.gender} style={styles.input} onChange={e => setEditForm({ ...editForm, gender: e.target.value })}>
+                        <option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option>
                       </select>
                     </div>
                   </div>

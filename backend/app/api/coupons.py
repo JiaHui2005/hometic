@@ -5,21 +5,29 @@ from app.db.session import get_db
 from app.models.entities import User, UserCoupon, Coupon
 from app.schemas.dto import UserCouponOut
 from datetime import datetime
+from sqlalchemy import or_
 
 router = APIRouter(prefix="/coupons", tags=["coupons"])
 
 @router.get("/my-coupons", response_model=list[UserCouponOut])
 def get_my_coupons(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    """Lấy danh sách mã giảm giá của người dùng hiện tại"""
+    """Lấy danh sách mã giảm giá còn hạn của người dùng hiện tại"""
+    now = datetime.now()
+    
     user_coupons = (
         db.query(UserCoupon)
+        .join(UserCoupon.coupon) 
         .options(joinedload(UserCoupon.coupon))
-        .filter(UserCoupon.user_id == current_user.id)
+        .filter(
+            UserCoupon.user_id == current_user.id,
+            Coupon.is_active == True,
+            or_(Coupon.start_date <= now, Coupon.start_date == None),
+            or_(Coupon.end_date >= now, Coupon.end_date == None)
+        )
         .order_by(UserCoupon.assigned_at.desc())
         .all()
     )
     return user_coupons
-
 @router.get("/check/{code}", response_model=UserCouponOut)
 def check_coupon(code: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Kiểm tra một mã giảm giá có khả dụng cho người dùng hiện tại hay không"""

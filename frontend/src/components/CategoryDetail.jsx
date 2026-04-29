@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { formatVnd } from "../constants";
 import { catalogService } from "../services/api";
+import alertService from "../services/alertService";
 import { Filter, X, ChevronDown, Check, RotateCcw, Tag } from "lucide-react";
 
 export default function CategoryDetail({ categories, filters, addToCart, setActiveTab, setSelectedProduct }) {
@@ -62,7 +63,7 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
     };
 
     fetchCategoryData();
-  }, [filters?.category_slug]);
+  }, [filters?.category_slug, categories]); // Thêm categories vào dependency để tránh cảnh báo lint
 
   const availableBrands = useMemo(() => {
     const brands = products.map(p => p.brand || "Hometic");
@@ -88,6 +89,16 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     setActiveTab("product_detail");
+  };
+
+  const handleBuyNow = (product) => {
+    addToCart(product);
+
+    setActiveTab("cart");
+
+    alertService.success(`Đã thêm thành công "${product.name}" vào giỏ hàng!`);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBrandToggle = (brandName) => {
@@ -156,7 +167,7 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
     priceField: {
       display: 'flex',
       alignItems: 'center',
-      backgroundColor: "#f2efe6", // Màu nền nhẹ hơn cho input
+      backgroundColor: "#f2efe6",
       borderRadius: '16px',
       padding: '0 16px',
       border: `1px solid transparent`,
@@ -300,18 +311,6 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
     cardDesc: {
       fontSize: '13px',
       color: brand.muted
-    },
-    cardPrice: {
-      fontSize: '18px',
-      fontWeight: '800',
-      color: brand.text,
-      marginTop: '5px'
-    },
-    priceContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '2px',
-      margin: '5px 0'
     },
     activePrice: {
       fontSize: '18px',
@@ -491,7 +490,7 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
                           <span style={styles.cardDesc}>
                             {product.brand || "Thiết bị gia dụng cao cấp"}
                           </span>
-                          <div style={styles.priceContainer}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', margin: '5px 0' }}>
                             <strong style={styles.activePrice}>
                               {formatVnd(product.sale_price || product.price)}
                             </strong>
@@ -505,7 +504,8 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
                             style={styles.btn(isHovered)}
                             onMouseEnter={() => setHoveredId(product.id)}
                             onMouseLeave={() => setHoveredId(null)}
-                            onClick={(e) => { e.stopPropagation(); addToCart(product); }}
+                            // Thay đổi onClick tại đây
+                            onClick={(e) => { e.stopPropagation(); handleBuyNow(product); }}
                           >
                             Mua ngay
                           </button>
@@ -526,7 +526,6 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
       </div>
 
       <style>{`
-        /* Ẩn nút tăng giảm của input number */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
           -webkit-appearance: none;

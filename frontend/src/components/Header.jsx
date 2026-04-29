@@ -172,7 +172,7 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
               onMouseEnter={(e) => { const menu = e.currentTarget.querySelector('.mega-menu-inline'); if (menu) menu.style.display = 'grid'; }}
               onMouseLeave={(e) => { const menu = e.currentTarget.querySelector('.mega-menu-inline'); if (menu) menu.style.display = 'none'; }}
             >
-              <button style={styles.navBtn(filters?.category_slug === cat.slug)} onClick={() => handleCategoryClick(cat.slug)}>
+              <button style={styles.navBtn(activeTab === "category_detail" && filters?.category_slug === cat.slug)} onClick={() => handleCategoryClick(cat.slug)}>
                 {cat.name}
               </button>
               <div className="mega-menu-inline" style={styles.megaMenu}>
@@ -349,4 +349,4 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
       </div >
     </>
   );
-}
+} 

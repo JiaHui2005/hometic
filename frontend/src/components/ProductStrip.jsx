@@ -10,9 +10,11 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
     setActiveTab("product_detail");
   };
 
-  const handleBuyNow = (product) => {
-    addToCart(product);
+  const handleBuyNow = (product, e) => {
+    // Ngăn chặn sự kiện click lan ra thẻ article cha
+    e.stopPropagation();
 
+    addToCart(product);
     setActiveTab("cart");
     alertService.success(`Đã thêm thành công "${product.name}" vào giỏ hàng!`);
   };
@@ -37,16 +39,17 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '25px' },
     card: {
       backgroundColor: brand.white, borderRadius: '16px', overflow: 'hidden', position: 'relative',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.05)', transition: 'transform 0.3s ease'
+      boxShadow: '0 4px 15px rgba(0,0,0,0.05)', transition: 'transform 0.3s ease',
+      cursor: 'pointer' // Thêm con trỏ tay cho toàn bộ card
     },
-    img: { width: '100%', height: '220px', objectFit: 'cover', cursor: 'pointer' },
+    img: { width: '100%', height: '220px', objectFit: 'cover' },
     ribbon: {
       position: 'absolute', top: '12px', left: '12px', backgroundColor: brand.orange,
       color: brand.white, padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '700', zIndex: 1
     },
     body: { padding: '18px', display: 'flex', flexDirection: 'column', gap: '8px' },
     prodName: {
-      fontSize: '16px', fontWeight: '700', margin: 0, color: brand.text, cursor: 'pointer',
+      fontSize: '16px', fontWeight: '700', margin: 0, color: brand.text,
       display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
       lineHeight: '1.4', height: '45px'
     },
@@ -85,6 +88,8 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
             <article
               style={styles.card}
               key={productKey}
+              // Chuyển sự kiện click ra ngoài cùng
+              onClick={() => handleProductClick(product)}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
@@ -93,15 +98,14 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
               <img
                 src={product.image_url}
                 alt={product.name}
-                onClick={() => handleProductClick(product)}
                 style={styles.img}
               />
 
               <div style={styles.body}>
-                <h3 onClick={() => handleProductClick(product)} style={styles.prodName}>
+                <h3 style={styles.prodName}>
                   {product.name}
                 </h3>
-                <span style={styles.desc}>{product.description || "Thiết bị gia dụng cao cấp"}</span>
+                <span style={styles.desc}>{product.description || "Thiết thiết bị cao cấp"}</span>
 
                 <div style={styles.priceContainer}>
                   <strong style={styles.activePrice}>
@@ -118,7 +122,8 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
                   style={styles.buyBtn(hoveredBtn === productKey)}
                   onMouseEnter={() => setHoveredBtn(productKey)}
                   onMouseLeave={() => setHoveredBtn(null)}
-                  onClick={() => handleBuyNow(product)}
+                  // Thêm e vào tham số và stopPropagation bên trong hàm
+                  onClick={(e) => handleBuyNow(product, e)}
                 >
                   Mua ngay
                 </button>

@@ -71,6 +71,10 @@ function App() {
   const [staticPage, setStaticPage] = useState("");
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab])
+
+  useEffect(() => {
     localStorage.setItem("hometic_cart", JSON.stringify(cart));
   }, [cart]);
 
@@ -119,7 +123,7 @@ function App() {
     <div className="app-root">
       {/* Alert Container */}
       <AlertContainer />
-      
+
       {/* Header ẩn khi ở trang Admin */}
       {activeTab !== "admin" && (
         <Header
@@ -206,9 +210,9 @@ function App() {
 
       {/* Footer ẩn khi ở trang Admin */}
       {activeTab !== "admin" && (
-        <Footer 
-          setActiveTab={setActiveTab} 
-          setStaticPage={setStaticPage} 
+        <Footer
+          setActiveTab={setActiveTab}
+          setStaticPage={setStaticPage}
         />
       )}
     </div>

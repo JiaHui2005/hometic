@@ -14,18 +14,6 @@ export default function Header() {
     }}>
       {/* Khu vực Slogan với Animation Chữ */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-        <div style={{
-          backgroundColor: brand.orange + '15',
-          padding: '14px',
-          borderRadius: '18px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          animation: 'float 3.5s ease-in-out infinite',
-          boxShadow: `0 8px 20px ${brand.orange}10`
-        }}>
-          <Sparkles size={26} color={brand.orange} style={{ animation: 'rotateSparkle 5s linear infinite' }} />
-        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <h2 style={{
@@ -39,7 +27,7 @@ export default function Header() {
             lineHeight: 1.1,
             display: 'flex',
             gap: '8px',
-            overflow: 'hidden' // Để phục vụ text reveal
+            overflow: 'hidden'
           }}>
             {/* Tách chữ để tạo hiệu ứng reveal từng từ hoặc cụm */}
             <span style={{ animation: 'textReveal 0.8s cubic-bezier(0.77,0,0.175,1) forwards' }}>Hometic:</span>

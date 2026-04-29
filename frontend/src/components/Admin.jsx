@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import alertService from "../services/alertService";
 import { adminService, catalogService, orderService, api } from "../services/api";
 import { adminStyles as styles } from "./Admin/AdminStyles";
-
-// Sub-components
 import Sidebar from "./Admin/Sidebar";
 import Header from "./Admin/Header";
 import Dashboard from "./Admin/Dashboard";
@@ -19,9 +17,8 @@ export default function Admin({ onLogout }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [allCategories, setAllCategories] = useState([]);
 
-  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(""); // "Sản phẩm", "Danh mục", "Đơn hàng"
+  const [modalType, setModalType] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -32,7 +29,6 @@ export default function Admin({ onLogout }) {
 
   useEffect(() => {
     fetchData();
-    // Luôn lấy danh sách danh mục để phục vụ các dropdown
     catalogService.getCategories().then(setAllCategories).catch(() => { });
   }, [activeMenu]);
 
@@ -78,19 +74,17 @@ export default function Admin({ onLogout }) {
   });
 
   const handleViewCustomerOrders = async (customer) => {
-    // Mở modal trước với trạng thái loading
     setModalType("Khách hàng");
     setEditingItem(customer);
     setIsModalOpen(true);
     setLoadingOrders(true);
 
     try {
-      // Gọi API (Giả sử bạn dùng hàm api đã có)
       const response = await api(`/admin/users/${customer.id}/orders`);
       setCustomerOrders(response || []);
     } catch (error) {
       alert("Không thể lấy lịch sử đơn hàng: " + error.message);
-      setIsModalOpen(false); // Đóng modal nếu lỗi
+      setIsModalOpen(false);
     } finally {
       setLoadingOrders(false);
     }

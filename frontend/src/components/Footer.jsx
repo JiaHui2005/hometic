@@ -95,20 +95,56 @@ export default function Footer({ setActiveTab, setStaticPage }) {
       fontSize: '12px',
       lineHeight: '1.8',
       opacity: 0.7
-    }
+    },
+    brandContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      cursor: 'pointer',
+      height: '100%'
+    },
   };
 
   return (
     <footer style={styles.footer}>
       <div style={styles.content}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={styles.brand}>
-            <svg width="35" height="35" viewBox="0 0 40 40" fill="none">
-              <path d="M20 5L5 18V35H35V18L20 5Z" fill={brand.primary} />
-              <path d="M12 22H28V30H12V22Z" fill={brand.secondary} />
-            </svg>
-            <h2 style={styles.logoText}>Hometic</h2>
+          {/* LOGO BOX: logo1 bên trái logo2 */}
+          <div style={{ ...styles.brandContainer, gap: '15px' }} onClick={() => setActiveTab("shop")}>
+            {/* Logo 1: Biểu tượng ngôi nhà - Tăng từ 40px lên 52px */}
+            <div style={{
+              position: 'relative',
+              width: isMobile ? '35px' : '52px',
+              height: isMobile ? '35px' : '52px',
+              flexShrink: 0,
+              transition: 'transform 0.3s ease' // Thêm hiệu ứng mượt khi hover
+            }}>
+              <img
+                src="/logo1.png"
+                alt="Hometic Icon"
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            </div>
+
+            {/* Logo 2: Chữ Hometic - Tăng chiều cao từ 28px lên 38px để nhìn rõ hơn */}
+            <div style={{
+              height: isMobile ? '24px' : '38px',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              <img
+                src="/logo2.png"
+                alt="Hometic Brand"
+                style={{
+                  height: '100%',
+                  width: 'auto',
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.05))' // Thêm đổ bóng nhẹ cho chữ nổi bật
+                }}
+              />
+            </div>
           </div>
+
           <p style={{ fontSize: '13px', opacity: 0.8 }}>Nâng tầm không gian sống thông minh cho ngôi nhà Việt.</p>
         </div>
 
@@ -137,32 +173,32 @@ export default function Footer({ setActiveTab, setStaticPage }) {
           <p style={{ fontWeight: '800', margin: 0, textTransform: 'uppercase', fontSize: '14px', letterSpacing: '1px' }}>Kết nối với chúng tôi</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
             {/* Facebook POPO Services */}
-            <a 
-              href="https://www.facebook.com/poposervicecompanylimited" 
-              target="_blank" 
+            <a
+              href="https://www.facebook.com/poposervicecompanylimited"
+              target="_blank"
               rel="noopener noreferrer"
               style={{ textDecoration: 'none', transition: 'transform 0.3s ease' }}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
               <svg width="32" height="32" viewBox="0 0 24 24" fill={brand.primary}>
-                <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7h-2.54v-2.9h2.54V9.82c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-0.45 2.9h-2.33v7a10 10 0 008.44-9.9c0-5.53-4.5-10.02-10-10.02z"/>
+                <path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7h-2.54v-2.9h2.54V9.82c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-0.45 2.9h-2.33v7a10 10 0 008.44-9.9c0-5.53-4.5-10.02-10-10.02z" />
               </svg>
             </a>
 
             {/* PewPew Website */}
-            <a 
-              href="https://pewpew.company" 
-              target="_blank" 
+            <a
+              href="https://pewpew.company"
+              target="_blank"
               rel="noopener noreferrer"
               style={{ textDecoration: 'none', transition: 'transform 0.3s ease' }}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <img 
-                src="/pewpew_logo.png" 
-                alt="PewPew Website" 
-                style={{ height: '40px', width: 'auto', borderRadius: '8px' }} 
+              <img
+                src="/pewpew_logo.png"
+                alt="PewPew Website"
+                style={{ height: '40px', width: 'auto', borderRadius: '8px' }}
               />
             </a>
           </div>

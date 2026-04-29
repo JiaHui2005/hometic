@@ -37,12 +37,13 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
     text: "#1a1a1a",
     muted: "#71717a",
     hover: "#1a3838", // Màu đậm hơn khi hover primary
+    orange: "#ed7f1a", // Định nghĩa thêm màu orange để tránh lỗi biến undefined
   };
 
   const fetchMyCoupons = async () => {
-    if (!user) { 
+    if (!user) {
       alertService.warning("Thông báo!", "Vui lòng đăng nhập để xem mã giảm giá.");
-      return; 
+      return;
     }
     try {
       setCouponLoading(true);
@@ -81,6 +82,13 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
     }
   };
 
+  const handleRemoveCoupon = () => {
+    setDiscount(0);
+    setAppliedCoupon(null);
+    setPromo("");
+    alertService.info("Thông báo", "Đã hủy áp dụng mã giảm giá.");
+  };
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
@@ -101,7 +109,14 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
   const subtotal = cart.reduce((sum, item) => (sum + (item.sale_price || item.price) * (item.quantity || 1)), 0);
   const total = subtotal - discount;
 
-  const confirmOrder = async () => {
+  const confirmOrder = async (e) => {
+
+    if (e) e.preventDefault();
+
+    if (loading) {
+      return;
+    }
+
     if (!shippingInfo.shipping_address || !shippingInfo.phone_number) {
       alertService.warning("Cảnh báo!", "Vui lòng cung cấp đầy đủ thông tin giao hàng.");
       return;
@@ -115,9 +130,13 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
         ...shippingInfo
       };
       await orderService.checkout(payload);
-      alertService.success("Thành công!", "Đặt hàng thành công! Hometic sẽ sớm liên hệ với bạn.");
+
       clearCart();
+
       setShowCheckoutModal(false);
+
+      alertService.success("Thành công!", "Đặt hàng thành công! Hometic sẽ sớm liên hệ với bạn.");
+
       setActiveTab("shop");
     } catch (err) {
       alertService.error("Lỗi!", err.message || "Lỗi khi đặt hàng.");
@@ -188,28 +207,47 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
           <div style={{ marginBottom: "15px" }}>
             <div style={{ display: "flex", marginBottom: "8px" }}>
               <input
-                style={{ flex: 1, padding: "12px", border: `1px solid ${brand.border}`, borderRadius: "12px 0 0 12px", outline: "none" }}
+                style={{ flex: 1, padding: "12px", border: `1px solid ${brand.border}`, borderRadius: "12px 0 0 12px", outline: "none", backgroundColor: appliedCoupon ? "#f0fdf4" : "white" }}
                 placeholder="Nhập mã giảm giá"
                 value={promo}
                 onChange={(e) => setPromo(e.target.value)}
+                disabled={!!appliedCoupon}
               />
-              <button
-                onClick={handleManualApply}
-                onMouseEnter={() => setIsApplyHovered(true)}
-                onMouseLeave={() => setIsApplyHovered(false)}
-                style={{
-                  backgroundColor: isApplyHovered ? brand.hover : brand.orange,
-                  color: "#fff",
-                  border: "none",
-                  padding: "0 15px",
-                  cursor: "pointer",
-                  borderRadius: "0 12px 12px 0",
-                  fontWeight: "700",
-                  transition: "background-color 0.3s ease"
-                }}
-              >
-                Áp dụng
-              </button>
+              {appliedCoupon ? (
+                <button
+                  onClick={handleRemoveCoupon}
+                  style={{
+                    backgroundColor: "#ff4d4d",
+                    color: "#fff",
+                    border: "none",
+                    padding: "0 15px",
+                    cursor: "pointer",
+                    borderRadius: "0 12px 12px 0",
+                    fontWeight: "700",
+                    transition: "background-color 0.3s ease"
+                  }}
+                >
+                  Hủy
+                </button>
+              ) : (
+                <button
+                  onClick={handleManualApply}
+                  onMouseEnter={() => setIsApplyHovered(true)}
+                  onMouseLeave={() => setIsApplyHovered(false)}
+                  style={{
+                    backgroundColor: isApplyHovered ? brand.hover : brand.orange,
+                    color: "#fff",
+                    border: "none",
+                    padding: "0 15px",
+                    cursor: "pointer",
+                    borderRadius: "0 12px 12px 0",
+                    fontWeight: "700",
+                    transition: "background-color 0.3s ease"
+                  }}
+                >
+                  Áp dụng
+                </button>
+              )}
             </div>
             <button
               onClick={fetchMyCoupons}
@@ -231,10 +269,10 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
 
           <button
             onClick={() => {
-              if (!user) { 
+              if (!user) {
                 alertService.warning("Thông báo!", "Vui lòng đăng nhập để thanh toán.");
-                setActiveTab("auth"); 
-                return; 
+                setActiveTab("auth");
+                return;
               }
               setShowCheckoutModal(true);
             }}
@@ -253,21 +291,17 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
         </div>
       </div>
 
-      {/* MODAL DANH SÁCH MÃ GIẢM GIÁ */}
+      {/* MODAL DANH SÁCH MÃ GIẢM GIÁ (Giữ nguyên) */}
       {showCouponModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 2100 }}>
           <div style={{ backgroundColor: "white", padding: "30px", borderRadius: "25px", width: "90%", maxWidth: "450px", maxHeight: "80vh", position: "relative", display: "flex", flexDirection: "column" }}>
-
-            {/* Dấu X để đóng */}
             <button
               onClick={() => setShowCouponModal(false)}
               style={{ position: "absolute", top: "20px", right: "20px", background: "none", border: "none", cursor: "pointer", color: brand.muted }}
             >
               <X size={24} />
             </button>
-
             <h3 style={{ margin: "0 0 20px 0", color: brand.text, fontWeight: "900", fontSize: "20px" }}>Mã giảm giá của tôi</h3>
-
             <div style={{ overflowY: "auto", flex: 1, paddingRight: "5px" }}>
               {myCoupons.map((item) => (
                 <div key={item.id} style={styles.couponCard}>
@@ -296,8 +330,6 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
                 </div>
               ))}
             </div>
-
-            {/* Nút Đóng ở dưới */}
             <button
               onClick={() => setShowCouponModal(false)}
               style={{ marginTop: "20px", padding: "12px", width: "100%", backgroundColor: "#f4f4f5", color: brand.text, border: "none", borderRadius: "12px", fontWeight: "700", cursor: "pointer" }}
@@ -308,21 +340,71 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
         </div>
       )}
 
-      {/* CHECKOUT MODAL */}
+      {/* CHECKOUT MODAL (Giữ nguyên) */}
       {showCheckoutModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(35, 74, 74, 0.6)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 2000, padding: "20px" }}>
           <div style={{ backgroundColor: "white", padding: "40px", borderRadius: "35px", width: "100%", maxWidth: "550px", position: "relative" }}>
-            <button onClick={() => setShowCheckoutModal(false)} style={{ position: "absolute", top: "25px", right: "25px", border: "none", background: "none", cursor: "pointer", color: brand.muted }}><X size={24} /></button>
-            <h2 style={{ fontSize: "24px", fontWeight: "900", color: brand.text, marginBottom: "30px", display: "flex", alignItems: "center", gap: "12px" }}><CheckCircle size={28} color={brand.secondary} /> Xác nhận đặt hàng</h2>
-            <div style={{ display: "grid", gap: "20px" }}>
-              <div><label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Người nhận hàng</label><input style={styles.input} value={shippingInfo.recipient_name} onChange={e => setShippingInfo({ ...shippingInfo, recipient_name: e.target.value })} /></div>
-              <div><label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Số điện thoại</label><input style={styles.input} value={shippingInfo.phone_number} onChange={e => setShippingInfo({ ...shippingInfo, phone_number: e.target.value })} /></div>
-              <div><label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Địa chỉ giao hàng</label><textarea style={{ ...styles.input, height: "100px", resize: "none" }} value={shippingInfo.shipping_address} onChange={e => setShippingInfo({ ...shippingInfo, shipping_address: e.target.value })} /></div>
-            </div>
-            <div style={{ backgroundColor: brand.bg, padding: "20px", borderRadius: "20px", marginTop: "30px", marginBottom: "30px" }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span style={{ fontWeight: "700", color: brand.primary }}>Tổng thanh toán:</span><span style={{ fontWeight: "900", color: brand.secondary, fontSize: "22px" }}>{formatVnd(total)}</span></div></div>
-            <button disabled={loading} onClick={confirmOrder}
-              onMouseEnter={() => setIsConfirmHovered(true)}
-              onMouseLeave={() => setIsConfirmHovered(false)} style={{ width: "100%", padding: "20px", backgroundColor: isConfirmHovered ? brand.hover : brand.orange, color: "white", border: "none", borderRadius: "18px", fontWeight: "800", fontSize: "16px", cursor: "pointer" }}>{loading ? "ĐANG XỬ LÝ..." : "HOÀN TẤT ĐẶT HÀNG"}</button>
+            <button type="button" onClick={() => setShowCheckoutModal(false)} style={{ position: "absolute", top: "25px", right: "25px", border: "none", background: "none", cursor: "pointer", color: brand.muted }}><X size={24} /></button>
+
+            <h2 style={{ fontSize: "24px", fontWeight: "900", color: brand.text, marginBottom: "30px", display: "flex", alignItems: "center", gap: "12px" }}>
+              <CheckCircle size={28} color={brand.secondary} /> Xác nhận đặt hàng
+            </h2>
+
+            {/* Bọc toàn bộ trong FORM */}
+            <form onSubmit={confirmOrder}>
+              <div style={{ display: "grid", gap: "20px" }}>
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Người nhận hàng</label>
+                  <input required style={styles.input} value={shippingInfo.recipient_name} onChange={e => setShippingInfo({ ...shippingInfo, recipient_name: e.target.value })} />
+                </div>
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Số điện thoại</label>
+                  <input required type="tel" style={styles.input} value={shippingInfo.phone_number} onChange={e => setShippingInfo({ ...shippingInfo, phone_number: e.target.value })} />
+                </div>
+                <div>
+                  <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Địa chỉ giao hàng</label>
+                  <textarea required style={{ ...styles.input, height: "100px", resize: "none" }} value={shippingInfo.shipping_address} onChange={e => setShippingInfo({ ...shippingInfo, shipping_address: e.target.value })} />
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: brand.bg, padding: "20px", borderRadius: "20px", marginTop: "30px", marginBottom: "30px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontWeight: "700", color: brand.primary }}>Tổng thanh toán:</span>
+                  <span style={{ fontWeight: "900", color: brand.secondary, fontSize: "22px" }}>{formatVnd(total)}</span>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                onMouseEnter={() => setIsConfirmHovered(true)}
+                onMouseLeave={() => setIsConfirmHovered(false)}
+                style={{
+                  width: "100%",
+                  padding: "20px",
+                  backgroundColor: loading ? "#ccc" : (isConfirmHovered ? brand.hover : brand.orange),
+                  color: "white",
+                  border: "none",
+                  borderRadius: "18px",
+                  fontWeight: "800",
+                  fontSize: "16px",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} /> ĐANG XỬ LÝ...
+                  </>
+                ) : (
+                  "HOÀN TẤT ĐẶT HÀNG"
+                )}
+              </button>
+            </form>
           </div>
         </div>
       )}

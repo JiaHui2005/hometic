@@ -386,7 +386,10 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
                   style={styles.priceInput}
                   type="number"
                   value={priceRange.min}
-                  onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPriceRange(prev => ({ ...prev, min: val === "" ? "" : Number(val) }))
+                  }}
                 />
                 <span style={styles.priceUnit}>đ</span>
               </div>
@@ -396,7 +399,10 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
                   style={styles.priceInput}
                   type="number"
                   value={priceRange.max}
-                  onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPriceRange(prev => ({ ...prev, max: val === "" ? "" : Number(val) }))
+                  }}
                 />
                 <span style={styles.priceUnit}>đ</span>
               </div>
@@ -469,14 +475,14 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
                         onMouseLeave={() => setHoveredId(null)}
                       >
                         {product.sale_price && <div style={styles.ribbon}>GIẢM GIÁ</div>}
-                        <img 
-                          src={product.image_url || "https://via.placeholder.com/400"} 
-                          alt={product.name} 
+                        <img
+                          src={product.image_url || "https://via.placeholder.com/400"}
+                          alt={product.name}
                           style={styles.cardImage}
                           onClick={() => handleProductClick(product)}
                         />
                         <div style={styles.cardBody}>
-                          <h3 
+                          <h3
                             style={styles.cardName}
                             onClick={() => handleProductClick(product)}
                           >
@@ -495,8 +501,8 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
                               </span>
                             )}
                           </div>
-                          <button 
-                            style={styles.btn(isHovered)} 
+                          <button
+                            style={styles.btn(isHovered)}
                             onMouseEnter={() => setHoveredId(product.id)}
                             onMouseLeave={() => setHoveredId(null)}
                             onClick={(e) => { e.stopPropagation(); addToCart(product); }}

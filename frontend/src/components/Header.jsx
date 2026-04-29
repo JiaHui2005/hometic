@@ -63,7 +63,6 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
       padding: isMobile ? '0 20px' : '0 40px', height: '80px', width: '100%',
       boxShadow: '0 2px 10px rgba(0,0,0,0.05)', boxSizing: 'border-box'
     },
-    // Khuôn logo chứa cả icon và chữ
     brandContainer: {
       display: 'flex',
       alignItems: 'center',
@@ -123,7 +122,15 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
     <>
       <header style={styles.header}>
         {/* LOGO BOX: logo1 bên trái logo2 */}
-        <div style={{ ...styles.brandContainer, gap: '15px' }} onClick={() => setActiveTab("shop")}>
+        <div style={{ ...styles.brandContainer, gap: '15px' }}
+          onClick={() => {
+            setActiveTab("shop");
+            if (setFilters) {
+              setFilters(prev => ({ ...prev, category_slug: "", q: "" }))
+            }
+            setSearchTerm("");
+          }}
+        >
           {/* Logo 1: Biểu tượng ngôi nhà - Tăng từ 40px lên 52px */}
           <div style={{
             position: 'relative',
@@ -242,10 +249,10 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
-      </header>
+      </header >
 
       {/* Mobile Menu Overlay */}
-      <div style={styles.mobileMenu}>
+      < div style={styles.mobileMenu} >
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '10px 5px', borderBottom: '1px solid #eee', marginBottom: '10px' }} onClick={() => { setActiveTab("profile"); setIsMobileMenuOpen(false); }}>
             <div style={{ ...styles.avatarWrapper, width: '50px', height: '50px' }}>
@@ -256,7 +263,8 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
               <div style={{ fontSize: '13px', color: brand.muted }}>Xem trang cá nhân</div>
             </div>
           </div>
-        )}
+        )
+        }
 
         <div style={{ display: 'flex', alignItems: 'center', background: '#f5f5f5', borderRadius: '12px', padding: '12px 15px', marginBottom: '10px' }}>
           <Search size={18} color="#999" onClick={handleSearch} />
@@ -269,72 +277,76 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
           />
         </div>
 
-        {!loading && parentCategories.map((cat) => (
-          <div key={cat.id} style={{ borderBottom: '1px solid #eee' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <button
-                style={{ flex: 1, background: 'none', border: 'none', padding: '15px 5px', textAlign: 'left', fontSize: '16px', fontWeight: '700', color: brand.text }}
-                onClick={() => handleCategoryClick(cat.slug)}
-              >
-                {cat.name}
-              </button>
-              <button
-                style={{ background: 'none', border: 'none', padding: '10px' }}
-                onClick={() => toggleMobileCat(cat.id)}
-              >
-                <ChevronDown size={20} style={{ transform: expandedMobileCats[cat.id] ? 'rotate(180deg)' : 'rotate(0)', transition: '0.3s' }} />
-              </button>
-            </div>
+        {
+          !loading && parentCategories.map((cat) => (
+            <div key={cat.id} style={{ borderBottom: '1px solid #eee' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <button
+                  style={{ flex: 1, background: 'none', border: 'none', padding: '15px 5px', textAlign: 'left', fontSize: '16px', fontWeight: '700', color: brand.text }}
+                  onClick={() => handleCategoryClick(cat.slug)}
+                >
+                  {cat.name}
+                </button>
+                <button
+                  style={{ background: 'none', border: 'none', padding: '10px' }}
+                  onClick={() => toggleMobileCat(cat.id)}
+                >
+                  <ChevronDown size={20} style={{ transform: expandedMobileCats[cat.id] ? 'rotate(180deg)' : 'rotate(0)', transition: '0.3s' }} />
+                </button>
+              </div>
 
-            {expandedMobileCats[cat.id] && (
-              <div style={{ paddingLeft: '20px', paddingBottom: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {getSubCategories(cat.id).map(sub => (
-                  <div key={sub.id}>
-                    <div
-                      style={{ fontWeight: '700', fontSize: '15px', color: brand.primary, padding: '5px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                      onClick={() => handleCategoryClick(sub.slug)}
-                    >
-                      {sub.name}
-                      {getSubCategories(sub.id).length > 0 && (
-                        <button
-                          style={{ background: 'none', border: 'none' }}
-                          onClick={(e) => { e.stopPropagation(); toggleMobileCat(sub.id); }}
-                        >
-                          <ChevronDown size={16} style={{ transform: expandedMobileCats[sub.id] ? 'rotate(180deg)' : 'rotate(0)' }} />
-                        </button>
+              {expandedMobileCats[cat.id] && (
+                <div style={{ paddingLeft: '20px', paddingBottom: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {getSubCategories(cat.id).map(sub => (
+                    <div key={sub.id}>
+                      <div
+                        style={{ fontWeight: '700', fontSize: '15px', color: brand.primary, padding: '5px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                        onClick={() => handleCategoryClick(sub.slug)}
+                      >
+                        {sub.name}
+                        {getSubCategories(sub.id).length > 0 && (
+                          <button
+                            style={{ background: 'none', border: 'none' }}
+                            onClick={(e) => { e.stopPropagation(); toggleMobileCat(sub.id); }}
+                          >
+                            <ChevronDown size={16} style={{ transform: expandedMobileCats[sub.id] ? 'rotate(180deg)' : 'rotate(0)' }} />
+                          </button>
+                        )}
+                      </div>
+                      {expandedMobileCats[sub.id] && (
+                        <div style={{ paddingLeft: '15px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
+                          {getSubCategories(sub.id).map(grandSub => (
+                            <span
+                              key={grandSub.id}
+                              style={{ fontSize: '14px', color: '#666', padding: '3px 0' }}
+                              onClick={() => handleCategoryClick(grandSub.slug)}
+                            >
+                              {grandSub.name}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    {expandedMobileCats[sub.id] && (
-                      <div style={{ paddingLeft: '15px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
-                        {getSubCategories(sub.id).map(grandSub => (
-                          <span
-                            key={grandSub.id}
-                            style={{ fontSize: '14px', color: '#666', padding: '3px 0' }}
-                            onClick={() => handleCategoryClick(grandSub.slug)}
-                          >
-                            {grandSub.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+                  ))}
+                </div>
+              )}
+            </div>
+          ))
+        }
 
-        {!user ? (
-          <button style={{ marginTop: '15px', background: brand.secondary, border: 'none', padding: '15px', borderRadius: '12px', color: 'white', fontSize: '16px', fontWeight: '700', cursor: 'pointer' }} onClick={() => { setActiveTab("auth"); setIsMobileMenuOpen(false); }}>
-            Đăng nhập / Đăng ký
-          </button>
-        ) : (
-          <button style={{ marginTop: '15px', background: '#eee', border: 'none', padding: '15px', borderRadius: '12px', color: brand.text, fontSize: '16px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }} onClick={onLogout}>
-            <LogOut size={18} />
-            Đăng xuất
-          </button>
-        )}
-      </div>
+        {
+          !user ? (
+            <button style={{ marginTop: '15px', background: brand.secondary, border: 'none', padding: '15px', borderRadius: '12px', color: 'white', fontSize: '16px', fontWeight: '700', cursor: 'pointer' }} onClick={() => { setActiveTab("auth"); setIsMobileMenuOpen(false); }}>
+              Đăng nhập / Đăng ký
+            </button>
+          ) : (
+            <button style={{ marginTop: '15px', background: '#eee', border: 'none', padding: '15px', borderRadius: '12px', color: brand.text, fontSize: '16px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }} onClick={onLogout}>
+              <LogOut size={18} />
+              Đăng xuất
+            </button>
+          )
+        }
+      </div >
     </>
   );
 }

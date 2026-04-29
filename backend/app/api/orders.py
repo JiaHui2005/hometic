@@ -50,6 +50,9 @@ def create_order(payload: CheckoutIn, db: Session = Depends(get_db), current_use
             Coupon.end_date >= datetime.now()
         ).first()
 
+        if coupon is None:
+            raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail="Mã giảm giá không tồn tại")
+
         is_started = True if not coupon.start_date else (coupon.start_date <= now)
         is_not_expired = True if not coupon.end_date else (coupon.end_date >= now)
 

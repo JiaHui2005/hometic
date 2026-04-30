@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Trash2, ShoppingBag, ArrowRight, Minus, Plus, X, CheckCircle, Ticket, Loader2 } from "lucide-react";
 import { formatVnd } from "../constants";
 import alertService from "../services/alertService";
-import { orderService, couponService } from "../services/api";
+import { orderService, couponService, getImgUrl } from "../services/api";
 
 export default function Cart({ cart, user, updateQuantity, removeFromCart, setActiveTab, clearCart }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -177,7 +177,7 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
           <h1 style={{ fontSize: "26px", fontWeight: "900", color: brand.text, marginBottom: "30px", marginTop: 0 }}>Giỏ hàng của bạn</h1>
           {cart.map((item) => (
             <div key={item.id} style={styles.itemRow}>
-              <img src={item.image_url || item.image} alt={item.name} style={{ width: "90px", height: "90px", borderRadius: "18px", objectFit: "cover", backgroundColor: "#f8f8f8" }} />
+              <img src={getImgUrl(item.image_url || item.image)} alt={item.name} style={{ width: "90px", height: "90px", borderRadius: "18px", objectFit: "cover", backgroundColor: "#f8f8f8" }} />
               <div style={{ flex: 1 }}>
                 <h3 style={{ fontSize: "16px", fontWeight: "700", marginBottom: "4px", color: brand.text }}>{item.name}</h3>
                 <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>

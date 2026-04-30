@@ -128,7 +128,7 @@ def upload_avatar(file: UploadFile = File(...), current_user: User = Depends(get
     with open(physical_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    return {"url": f"http://localhost:8000/static/uploads/{file_name}"}
+    return {"url": f"/static/uploads/{file_name}"}
 
 @router.put("/change-password")
 def change_password(

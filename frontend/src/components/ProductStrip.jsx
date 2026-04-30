@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { formatVnd } from "../constants";
 import alertService from "../services/alertService";
+import { getImgUrl } from "../services/api";
 
 export default function ProductStrip({ title, items, addToCart, setActiveTab, setSelectedProduct }) {
   const [hoveredBtn, setHoveredBtn] = useState(null);
@@ -96,7 +97,7 @@ export default function ProductStrip({ title, items, addToCart, setActiveTab, se
               {hasSale && <div style={styles.ribbon}>GIẢM GIÁ</div>}
 
               <img
-                src={product.image_url}
+                src={getImgUrl(product.image_url)}
                 alt={product.name}
                 style={styles.img}
               />

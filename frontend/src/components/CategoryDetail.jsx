@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { formatVnd } from "../constants";
-import { catalogService } from "../services/api";
+import { catalogService, getImgUrl } from "../services/api";
 import alertService from "../services/alertService";
 import { Filter, X, ChevronDown, Check, RotateCcw, Tag } from "lucide-react";
 
@@ -475,7 +475,7 @@ export default function CategoryDetail({ categories, filters, addToCart, setActi
                       >
                         {product.sale_price && <div style={styles.ribbon}>GIẢM GIÁ</div>}
                         <img
-                          src={product.image_url || "https://via.placeholder.com/400"}
+                          src={getImgUrl(product.image_url) || "https://via.placeholder.com/400"}
                           alt={product.name}
                           style={styles.cardImage}
                           onClick={() => handleProductClick(product)}

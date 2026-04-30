@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { brand, adminStyles as styles } from "./AdminStyles";
 import { formatVnd } from "../../constants";
-import { catalogService, orderService } from "../../services/api";
+import { catalogService, orderService, getImgUrl } from "../../services/api";
 import alertService from "../../services/alertService";
 
 export default function DataList({
@@ -223,7 +223,7 @@ export default function DataList({
                     <>
                       <td style={styles.td}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                          <img src={item.image_url} style={{ width: '45px', height: '45px', borderRadius: '10px', objectFit: 'cover' }} alt="" />
+                          <img src={getImgUrl(item.image_url)} style={{ width: '45px', height: '45px', borderRadius: '10px', objectFit: 'cover' }} alt="" />
                           <div style={{ fontWeight: '700', color: brand.sidebar }}>{item.name}</div>
                         </div>
                       </td>

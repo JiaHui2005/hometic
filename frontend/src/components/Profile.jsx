@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { User, Package, Eye, EyeOff, Phone, Mail, Calendar, CreditCard, MessageSquare, Edit2, Save, X, Camera, ShieldCheck, Star, Send, Ticket } from "lucide-react";
 import { formatVnd } from "../constants";
 import alertService from "../services/alertService";
-import { orderService, authService } from "../services/api";
+import { orderService, authService, getImgUrl } from "../services/api";
 import Reviews from "./Reviews";
 
 export default function Profile({ user, setUser, setActiveTab }) {
@@ -174,7 +174,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
             <div style={styles.avatarContainer}>
               <div style={styles.avatar}>
                 <img
-                  src={editForm.avatar_url ? `${editForm.avatar_url}` : "https://www.w3schools.com/howto/img_avatar.png"}
+                  src={editForm.avatar_url ? getImgUrl(editForm.avatar_url) : "https://www.w3schools.com/howto/img_avatar.png"}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   alt="avatar"
                   onError={(e) => { e.target.onerror = null; e.target.src = "https://www.w3schools.com/howto/img_avatar.png"; }}
@@ -317,7 +317,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
                         {selectedOrder.items?.map((item, idx) => (
                           <tr key={idx} style={{ borderBottom: `1px solid ${brand.border}` }}>
                             <td style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <img src={item.product?.image_url} style={{ width: '45px', height: '45px', borderRadius: '8px', objectFit: 'cover' }} />
+                              <img src={getImgUrl(item.product?.image_url)} style={{ width: '45px', height: '45px', borderRadius: '8px', objectFit: 'cover' }} />
                               <div>
                                 <div style={{ fontWeight: '600', fontSize: '14px' }}>{item.product?.name}</div>
                                 {selectedOrder.status === "delivered" && (

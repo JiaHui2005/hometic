@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { formatVnd } from "../constants";
 import alertService from "../services/alertService";
 import { Search, Tag, Check, RotateCcw, Package, ArrowRight } from "lucide-react";
+import { getImgUrl } from "../services/api";
 
 export default function SearchPage({ products, filters, setFilters, addToCart, setActiveTab, setSelectedProduct }) {
   const [hoveredId, setHoveredId] = useState(null);
@@ -304,7 +305,7 @@ export default function SearchPage({ products, filters, setFilters, addToCart, s
                   onMouseLeave={() => setHoveredId(null)}
                   onClick={() => handleProductClick(product)}
                 >
-                  <img src={product.image_url} alt={product.name} style={styles.cardImage} />
+                  <img src={getImgUrl(product.image_url)} alt={product.name} style={styles.cardImage} />
                   <div style={styles.cardBody}>
                     <h3 style={styles.cardName}>{product.name}</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '5px' }}>

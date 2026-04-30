@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { brand } from "./AdminStyles";
-import { catalogService } from "../../services/api";
+import { catalogService, getImgUrl } from "../../services/api";
 import { formatVnd } from "../../constants";
 import { X, ShoppingBag, Clock, Package, Truck, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
@@ -238,7 +238,7 @@ export default function AdminModal({
                       </label>
                     </div>
                     <div style={{ width: '100%', height: '200px', marginTop: '15px', borderRadius: '20px', overflow: 'hidden', border: `1px solid ${brand.border}`, backgroundColor: brand.panel }}>
-                      {formData.image_url && <img src={formData.image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />}
+                      {formData.image_url && <img src={getImgUrl(formData.image_url)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />}
                     </div>
                   </div>
                 </div>

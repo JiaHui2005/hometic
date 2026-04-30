@@ -1,4 +1,17 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const BASE_URL = API_URL.replace("/api", "");
+
+export const getImgUrl = (path) => {
+  if (!path) return "";
+  
+  // Nếu là URL tuyệt đối nhưng trỏ về localhost, ta thay thế nó bằng BASE_URL hiện tại
+  if (path.startsWith("http://localhost:8000") || path.startsWith("http://127.0.0.1:8000")) {
+    return path.replace(/^http:\/\/(localhost|127\.0\.0\.1):8000/, BASE_URL);
+  }
+
+  if (path.startsWith("http")) return path;
+  return `${BASE_URL}${path}`;
+};
 
 // --- Session Management ---
 
@@ -90,7 +103,7 @@ export const authService = {
   updateMe: (data) => api("/auth/me", { method: "PUT", body: JSON.stringify(data) }),
   uploadAvatar: async (formData) => {
     const accessToken = localStorage.getItem("hometic_access_token");
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+    // Sử dụng API_URL toàn cục
 
     const response = await fetch(`${API_URL}/auth/upload-avatar`, {
       method: "POST",
@@ -173,7 +186,7 @@ export const adminService = {
   deleteUser: (id) => api(`/admin/users/${id}`, { method: "DELETE" }),
   uploadImage: async (file) => {
     const accessToken = localStorage.getItem("hometic_access_token");
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+    // Sử dụng API_URL toàn cục
     const formData = new FormData();
     formData.append("file", file);
 

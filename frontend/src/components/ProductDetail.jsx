@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Star, Package, ShieldCheck, Truck, Loader2, Minus, Plus } from "lucide-react";
 import { formatVnd } from "../constants";
-import { catalogService } from "../services/api";
+import { catalogService, getImgUrl } from "../services/api";
 import Reviews from "./Reviews";
 
 export default function ProductDetail({ product: initialProduct, addToCart, setActiveTab }) {
@@ -33,7 +33,7 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
       setLoading(true);
       const data = await catalogService.getProduct(id);
       setProduct(data);
-      setMainImage(data.image_url);
+      setMainImage(getImgUrl(data.image_url));
     } catch (err) {
       console.error("Lỗi lấy chi tiết sản phẩm:", err);
     } finally {
@@ -93,7 +93,7 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
         {/* Gallery */}
         <div style={styles.gallery}>
           <div style={styles.mainImgBox}>
-            <img src={mainImage} alt={product.name} style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }} />
+            <img src={getImgUrl(mainImage)} alt={product.name} style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }} />
           </div>
         </div>
 

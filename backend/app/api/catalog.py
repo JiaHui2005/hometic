@@ -13,10 +13,14 @@ router = APIRouter(tags=["catalog"])
 # --- Categories ---
 
 @router.get("/categories", response_model=list[CategoryOut])
-def list_categories(db: Session = Depends(get_db)):
-    """Lấy danh sách tất cả danh mục"""
+def list_categories(db: Session = Depends(get_db), current_user: User | None = Depends(get_current_user_optional)):
+    """Lấy danh sách tất cả danh mục (Lọc is_active cho khách hàng)"""
+    query = db.query(Category)
     
-    return db.query(Category).all()
+    if not current_user or current_user.role != 'admin':
+        query = query.filter(Category.is_active == True)
+        
+    return query.all()
 
 @router.get("/categories/{id}", response_model=CategoryOut)
 def get_category(id: int, db: Session = Depends(get_db)):

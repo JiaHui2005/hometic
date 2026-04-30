@@ -19,6 +19,8 @@ export default function DataList({
 }) {
   // --- STATE TÌM KIẾM ---
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // --- LOGIC LỌC DỮ LIỆU TẠI CHỖ ---
   const filteredData = data.filter((item) => {
@@ -38,6 +40,9 @@ export default function DataList({
         return true;
     }
   });
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const getOrderStatus = (status) => {
     switch (status) {
@@ -183,7 +188,7 @@ export default function DataList({
             )}
           </thead>
           <tbody>
-            {filteredData.length > 0 ? filteredData.map((item) => {
+            {paginatedData.length > 0 ? paginatedData.map((item) => {
               const orderStatus = activeMenu === "Đơn hàng" ? getOrderStatus(item.status) : null;
 
               return (
@@ -231,15 +236,15 @@ export default function DataList({
                       <td style={styles.td}>
                         <span style={{
                           display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '800',
-                          backgroundColor: item.is_active !== false ? '#eafaf1' : '#fef2f2',
-                          color: item.is_active !== false ? brand.success : brand.danger,
-                          border: `1px solid ${item.is_active !== false ? brand.success : brand.danger}40`
-                        }}>{item.is_active !== false ? "HOẠT ĐỘNG" : "ĐÃ ẨN"}</span>
+                          backgroundColor: Boolean(item.is_active) ? '#eafaf1' : '#fef2f2',
+                          color: Boolean(item.is_active) ? brand.success : brand.danger,
+                          border: `1px solid ${Boolean(item.is_active) ? brand.success : brand.danger}40`
+                        }}>{Boolean(item.is_active) ? "HOẠT ĐỘNG" : "ĐÃ ẨN"}</span>
                       </td>
                       <td style={{ ...styles.td, textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                           <button onClick={() => handleEdit(item, "Danh mục")} style={actionBtnStyle(brand.primary)} title="Sửa"><Edit3 size={16} /></button>
-                          {item.is_active !== false ?
+                          {Boolean(item.is_active) ?
                             <button onClick={() => handleDeleteCategory(item)} style={actionBtnStyle(brand.danger)} title="Ẩn"><XCircle size={16} /></button> :
                             <button onClick={() => handleRestoreCategory(item)} style={actionBtnStyle(brand.success)} title="Hiện"><RotateCcw size={16} /></button>
                           }
@@ -297,6 +302,29 @@ export default function DataList({
             )}
           </tbody>
         </table>
+      )}
+
+      {/* --- PHÂN TRANG --- */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '30px' }}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => prev - 1)}
+            style={{ padding: '8px 16px', borderRadius: '10px', border: `1px solid ${brand.border}`, backgroundColor: 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? brand.muted : brand.primary, fontWeight: '700' }}
+          >
+            Trước
+          </button>
+          <div style={{ fontSize: '14px', fontWeight: '800', color: brand.sidebar }}>
+            Trang {currentPage} / {totalPages}
+          </div>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(prev => prev + 1)}
+            style={{ padding: '8px 16px', borderRadius: '10px', border: `1px solid ${brand.border}`, backgroundColor: 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? brand.muted : brand.primary, fontWeight: '700' }}
+          >
+            Sau
+          </button>
+        </div>
       )}
       <style>{`
         .admin-tr:hover { background-color: #fcfaf6 !important; }

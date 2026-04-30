@@ -45,11 +45,17 @@ export default function ProductManager() {
   async function submit(event) {
     event.preventDefault();
     const payload = {
-      ...form,
       category_id: Number(form.category_id),
+      name: form.name,
+      slug: form.slug,
       price: Number(form.price),
       sale_price: form.sale_price ? Number(form.sale_price) : null,
       stock: Number(form.stock),
+      image_url: form.image_url,
+      detail: {
+        description: form.description,
+        content: form.smart_features
+      }
     };
     await api(editingId ? `/admin/products/${editingId}` : "/admin/products", {
       method: editingId ? "PUT" : "POST",

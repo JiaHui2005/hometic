@@ -13,3 +13,4 @@ export { default as CategoryDetail } from "./CategoryDetail";
 export { default as ProductDetail } from "./ProductDetail";
 export { default as Profile } from "./Profile";
 export { default as StaticPages } from "./StaticPages";
+export { default as SearchPage } from "./SearchPage";

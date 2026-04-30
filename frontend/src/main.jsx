@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { clearSession, getStoredUser, catalogService } from "./services/api";
 import "./styles.css";
 
-import { Header, Footer, Shop, Auth, Cart, Orders, Admin, Reviews, CategoryDetail, ProductDetail, Profile, StaticPages } from "./components";
+import { Header, Footer, Shop, Auth, Cart, Orders, Admin, Reviews, CategoryDetail, ProductDetail, Profile, StaticPages, SearchPage } from "./components";
 import AlertContainer from "./components/AlertContainer";
 import alertService from "./services/alertService";
 import { demoCategories, demoProducts } from "./constants";
@@ -201,6 +201,17 @@ function App() {
 
         {activeTab === "admin" && (
           <Admin onLogout={logout} />
+        )}
+
+        {activeTab === "search" && (
+          <SearchPage
+            products={products}
+            filters={filters}
+            setFilters={setFilters}
+            addToCart={addToCart}
+            setActiveTab={setActiveTab}
+            setSelectedProduct={setSelectedProduct}
+          />
         )}
 
         {activeTab === "static_page" && (

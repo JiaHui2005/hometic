@@ -39,9 +39,9 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
     const timer = setTimeout(() => {
       if (searchTerm !== (filters?.q || "")) {
         setFilters(prev => ({ ...prev, q: searchTerm, category_slug: "" }));
-        // Chỉ nhảy sang tab shop nếu đang ở các tab không liên quan đến sản phẩm
-        if (!["shop", "category_detail", "product_detail"].includes(activeTab)) {
-          setActiveTab("shop");
+        // Chuyển sang tab search nếu đang gõ
+        if (activeTab !== "search" && searchTerm.trim().length > 0) {
+          setActiveTab("search");
         }
       }
     }, 500); // Debounce 500ms
@@ -51,9 +51,7 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
   const handleSearch = (e) => {
     if (e.key === "Enter" || e.type === "click") {
       setFilters(prev => ({ ...prev, q: searchTerm, category_slug: "" }));
-      if (!["shop", "category_detail"].includes(activeTab)) {
-        setActiveTab("shop");
-      }
+      setActiveTab("search");
       setIsMobileMenuOpen(false);
     }
   };

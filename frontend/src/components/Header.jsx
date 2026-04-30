@@ -35,10 +35,25 @@ export default function Header({ user, cartCount, activeTab, setActiveTab, onLog
   const parentCategories = categories.filter(cat => cat.parent_id === null);
   const getSubCategories = (parentId) => categories.filter(cat => cat.parent_id === parentId);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm !== (filters?.q || "")) {
+        setFilters(prev => ({ ...prev, q: searchTerm, category_slug: "" }));
+        // Chỉ nhảy sang tab shop nếu đang ở các tab không liên quan đến sản phẩm
+        if (!["shop", "category_detail", "product_detail"].includes(activeTab)) {
+          setActiveTab("shop");
+        }
+      }
+    }, 500); // Debounce 500ms
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const handleSearch = (e) => {
     if (e.key === "Enter" || e.type === "click") {
       setFilters(prev => ({ ...prev, q: searchTerm, category_slug: "" }));
-      setActiveTab("shop");
+      if (!["shop", "category_detail"].includes(activeTab)) {
+        setActiveTab("shop");
+      }
       setIsMobileMenuOpen(false);
     }
   };

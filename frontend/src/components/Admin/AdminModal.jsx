@@ -223,7 +223,7 @@ export default function AdminModal({
                         </div>
                       </div>
                     )}
-                    <div style={inputGroupStyle}><label style={labelStyle}>MÔ TẢ NGẮN</label><textarea value={formData.description || ""} onChange={(e) => setFormData({ ...formData, description: e.target.value })} style={{ ...inputStyle, minHeight: '80px', resize: 'none' }} /></div>
+                    <div style={inputGroupStyle}><label style={labelStyle}>MÔ TẢ NGẮN</label><textarea value={formData.detail?.description || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, description: e.target.value } })} style={{ ...inputStyle, minHeight: '80px', resize: 'none' }} /></div>
                   </div>
                   <div>
                     <label style={labelStyle}>ẢNH ĐẠI DIỆN</label>

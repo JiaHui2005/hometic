@@ -11,8 +11,8 @@ export default function Shop({ categories, products, addToCart, setActiveTab, se
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const displayProducts = Array.from({ length: 10 }, (_, index) => products[index % Math.max(products.length, 1)])
-    .filter(Boolean)
+  const displayProducts = products
+    .slice(0, 10)
     .map((product, index) => ({ ...product, viewKey: `${product.id}-${index}` }));
 
   const sections = [

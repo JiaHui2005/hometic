@@ -95,6 +95,7 @@ class CategoryBase(BaseModel):
 
 class CategoryOut(CategoryBase):
     id: int
+    is_active: bool
 
     class Config:
         from_attributes = True
@@ -120,9 +121,9 @@ class ProductBase(BaseModel):
     name: str
     slug: str
     brand: str = "Hometic"
-    price: float = Field(ge=0)
+    price: float = Field(default=0, ge=0)
     sale_price: float | None = None
-    stock: int = Field(ge=0)
+    stock: int = Field(default=0, ge=0)
     image_url: str | None = None
     is_active: bool = True
 

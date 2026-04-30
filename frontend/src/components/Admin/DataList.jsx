@@ -7,6 +7,7 @@ import {
 import { brand, adminStyles as styles } from "./AdminStyles";
 import { formatVnd } from "../../constants";
 import { catalogService, orderService } from "../../services/api";
+import alertService from "../../services/alertService";
 
 export default function DataList({
   activeMenu,
@@ -72,22 +73,46 @@ export default function DataList({
 
   const handleDeleteProduct = async (product) => {
     if (window.confirm(`Ngừng bán sản phẩm "${product.name}"?`)) {
-      try { await catalogService.deleteProduct(product.id); if (refreshData) refreshData(); } catch (error) { alert(error.message); }
+      try { 
+        await catalogService.deleteProduct(product.id); 
+        alertService.success("Thành công!", `Đã ngừng bán "${product.name}"`);
+        if (refreshData) refreshData(); 
+      } catch (error) { 
+        alertService.error("Lỗi!", error.message); 
+      }
     }
   };
 
   const handleRestoreProduct = async (product) => {
-    try { await catalogService.restoreProduct(product.id); if (refreshData) refreshData(); } catch (error) { alert(error.message); }
+    try { 
+      await catalogService.restoreProduct(product.id); 
+      alertService.success("Thành công!", `Đã khôi phục sản phẩm "${product.name}"`);
+      if (refreshData) refreshData(); 
+    } catch (error) { 
+      alertService.error("Lỗi!", error.message); 
+    }
   };
 
   const handleDeleteCategory = async (cat) => {
     if (window.confirm(`Bạn có chắc muốn ẩn danh mục "${cat.name}"?`)) {
-      try { await catalogService.deleteCategory(cat.id); if (refreshData) refreshData(); } catch (error) { alert(error.message); }
+      try { 
+        await catalogService.deleteCategory(cat.id); 
+        alertService.success("Thành công!", `Đã ẩn danh mục "${cat.name}"`);
+        if (refreshData) refreshData(); 
+      } catch (error) { 
+        alertService.error("Lỗi!", error.message); 
+      }
     }
   };
 
   const handleRestoreCategory = async (cat) => {
-    try { await catalogService.restoreCategory(cat.id); if (refreshData) refreshData(); } catch (error) { alert(error.message); }
+    try { 
+      await catalogService.restoreCategory(cat.id); 
+      alertService.success("Thành công!", `Đã hiển thị danh mục "${cat.name}"`);
+      if (refreshData) refreshData(); 
+    } catch (error) { 
+      alertService.error("Lỗi!", error.message); 
+    }
   };
 
   const handleViewOrder = async (order) => {

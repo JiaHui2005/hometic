@@ -193,15 +193,19 @@ export default function AdminModal({
               {modalTab === "Cơ bản" ? (
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px' }}>
                   <div>
-                    <div style={{ ...inputGroupStyle, marginBottom: '15px' }}><label style={labelStyle}>TÊN {modalType.toUpperCase()}</label><input type="text" value={formData.name || ""} onChange={(e) => setFormData({ ...formData, name: e.target.value })} style={inputStyle} required /></div>
+                    <div style={{ ...inputGroupStyle, marginBottom: '15px' }}><label style={labelStyle}>TÊN {modalType.toUpperCase()}</label><input type="text" value={formData.name || ""} onChange={(e) => setFormData({ ...formData, name: e.target.value })} style={inputStyle} placeholder={`Ví dụ: ${modalType === "Sản phẩm" ? "Robot hút bụi Xiaomi" : "Đồ gia dụng"}`} required /></div>
                     {modalType === "Sản phẩm" ? (
                       <>
                         <div style={rowStyle}>
-                          <div style={inputGroupStyle}><label style={labelStyle}>GIÁ GỐC</label><input type="number" value={formData.price || ""} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} style={inputStyle} required /></div>
-                          <div style={inputGroupStyle}><label style={labelStyle}>GIÁ GIẢM</label><input type="number" value={formData.sale_price || ""} onChange={(e) => setFormData({ ...formData, sale_price: e.target.value ? Number(e.target.value) : null })} style={inputStyle} /></div>
+                          <div style={inputGroupStyle}><label style={labelStyle}>GIÁ GỐC</label><input type="number" value={formData.price || ""} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} style={inputStyle} placeholder="Nhập giá bán gốc (đ)" required /></div>
+                          <div style={inputGroupStyle}><label style={labelStyle}>GIÁ GIẢM</label><input type="number" value={formData.sale_price || ""} onChange={(e) => setFormData({ ...formData, sale_price: e.target.value ? Number(e.target.value) : null })} style={inputStyle} placeholder="Giá sau khuyến mãi (đ)" /></div>
                         </div>
                         <div style={rowStyle}>
-                          <div style={inputGroupStyle}><label style={labelStyle}>TỒN KHO</label><input type="number" value={formData.stock || 0} onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })} style={inputStyle} /></div>
+                          <div style={inputGroupStyle}><label style={labelStyle}>SLUG</label><input type="text" value={formData.slug || ""} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} style={inputStyle} placeholder="vi-du-duong-dan-san-pham" required /></div>
+                          <div style={inputGroupStyle}><label style={labelStyle}>THƯƠNG HIỆU</label><input type="text" value={formData.brand || "Hometic"} onChange={(e) => setFormData({ ...formData, brand: e.target.value })} style={inputStyle} placeholder="Ví dụ: Xiaomi, LG, Hometic..." /></div>
+                        </div>
+                        <div style={rowStyle}>
+                          <div style={inputGroupStyle}><label style={labelStyle}>TỒN KHO</label><input type="number" value={formData.stock || 0} onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })} style={inputStyle} placeholder="Số lượng sẵn có" /></div>
                           <div style={inputGroupStyle}>
                             <label style={labelStyle}>DANH MỤC</label>
                             <select value={formData.category_id || ""} onChange={(e) => setFormData({ ...formData, category_id: Number(e.target.value) })} style={inputStyle} required>
@@ -213,7 +217,7 @@ export default function AdminModal({
                       </>
                     ) : (
                       <div style={rowStyle}>
-                        <div style={inputGroupStyle}><label style={labelStyle}>SLUG</label><input type="text" value={formData.slug || ""} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} style={inputStyle} /></div>
+                        <div style={inputGroupStyle}><label style={labelStyle}>SLUG</label><input type="text" value={formData.slug || ""} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} style={inputStyle} placeholder="ten-danh-muc" /></div>
                         <div style={inputGroupStyle}>
                           <label style={labelStyle}>DANH MỤC CHA</label>
                           <select value={formData.parent_id || ""} onChange={(e) => setFormData({ ...formData, parent_id: e.target.value ? Number(e.target.value) : null })} style={inputStyle}>
@@ -223,12 +227,12 @@ export default function AdminModal({
                         </div>
                       </div>
                     )}
-                    <div style={inputGroupStyle}><label style={labelStyle}>MÔ TẢ NGẮN</label><textarea value={formData.detail?.description || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, description: e.target.value } })} style={{ ...inputStyle, minHeight: '80px', resize: 'none' }} /></div>
+                    <div style={inputGroupStyle}><label style={labelStyle}>MÔ TẢ NGẮN</label><textarea value={formData.detail?.description || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, description: e.target.value } })} style={{ ...inputStyle, minHeight: '80px', resize: 'none' }} placeholder="Nhập tóm tắt đặc điểm nổi bật sản phẩm..." /></div>
                   </div>
                   <div>
                     <label style={labelStyle}>ẢNH ĐẠI DIỆN</label>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '5px' }}>
-                      <input type="text" value={formData.image_url || ""} onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} style={inputStyle} />
+                      <input type="text" value={formData.image_url || ""} onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} style={inputStyle} placeholder="Dán URL ảnh hoặc tải lên" />
                       <label style={{ padding: '12px', backgroundColor: brand.panel, borderRadius: '12px', cursor: 'pointer', border: `1px dashed ${brand.primary}`, fontSize: '11px', fontWeight: '800', color: brand.primary }}>
                         UP<input type="file" hidden onChange={(e) => handleImageUpload(e, "image_url")} />
                       </label>
@@ -241,14 +245,14 @@ export default function AdminModal({
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
                   <div>
-                    <div style={inputGroupStyle}><label style={labelStyle}>HEADLINE</label><input type="text" value={formData.detail?.description || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, description: e.target.value } })} style={inputStyle} /></div>
-                    <div style={{ ...inputGroupStyle, marginTop: '15px' }}><label style={labelStyle}>NỘI DUNG (HTML)</label><textarea value={formData.detail?.content || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, content: e.target.value } })} style={{ ...inputStyle, minHeight: '180px', resize: 'none' }} /></div>
+                    <div style={inputGroupStyle}><label style={labelStyle}>HEADLINE</label><input type="text" value={formData.detail?.description || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, description: e.target.value } })} style={inputStyle} placeholder="Tiêu đề chính phần chi tiết" /></div>
+                    <div style={{ ...inputGroupStyle, marginTop: '15px' }}><label style={labelStyle}>NỘI DUNG (HTML)</label><textarea value={formData.detail?.content || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, content: e.target.value } })} style={{ ...inputStyle, minHeight: '180px', resize: 'none' }} placeholder="Nhập mô tả chi tiết, có thể sử dụng các thẻ HTML (b, i, p...)" /></div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    <div style={inputGroupStyle}><label style={labelStyle}>THÔNG SỐ (JSON)</label><textarea value={typeof formData.detail?.specifications === 'object' ? JSON.stringify(formData.detail?.specifications, null, 2) : formData.detail?.specifications || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, specifications: e.target.value } })} style={{ ...inputStyle, minHeight: '125px', fontFamily: 'monospace', fontSize: '12px' }} /></div>
+                     <div style={inputGroupStyle}><label style={labelStyle}>THÔNG SỐ (JSON)</label><textarea value={typeof formData.detail?.specifications === 'object' ? JSON.stringify(formData.detail?.specifications, null, 2) : formData.detail?.specifications || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, specifications: e.target.value } })} style={{ ...inputStyle, minHeight: '125px', fontFamily: 'monospace', fontSize: '12px' }} placeholder='Ví dụ: {"Dung tích": "5L", "Công suất": "1500W"}' /></div>
                     <div style={rowStyle}>
-                      <div style={inputGroupStyle}><label style={labelStyle}>BẢO HÀNH</label><input type="text" value={formData.detail?.warranty_info || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, warranty_info: e.target.value } })} style={inputStyle} /></div>
-                      <div style={inputGroupStyle}><label style={labelStyle}>XUẤT XỨ</label><input type="text" value={formData.detail?.origin || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, origin: e.target.value } })} style={inputStyle} /></div>
+                       <div style={inputGroupStyle}><label style={labelStyle}>BẢO HÀNH</label><input type="text" value={formData.detail?.warranty_info || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, warranty_info: e.target.value } })} style={inputStyle} placeholder="Ví dụ: 12 tháng" /></div>
+                       <div style={inputGroupStyle}><label style={labelStyle}>XUẤT XỨ</label><input type="text" value={formData.detail?.origin || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, origin: e.target.value } })} style={inputStyle} placeholder="Ví dụ: Việt Nam" /></div>
                     </div>
                   </div>
                 </div>

@@ -151,7 +151,30 @@ export default function Admin({ onLogout }) {
     setSubmitting(true);
     try {
       const submitData = { ...formData };
+      console.log(submitData)
+
       if (modalType === "Sản phẩm") {
+        // Clean up extra fields
+        delete submitData.description;
+        
+        // Ensure numeric fields are numbers
+        if (submitData.price !== undefined) submitData.price = Number(submitData.price);
+        if (submitData.sale_price !== undefined && submitData.sale_price !== null) submitData.sale_price = Number(submitData.sale_price);
+        if (submitData.stock !== undefined) submitData.stock = Number(submitData.stock);
+        if (submitData.category_id !== undefined) submitData.category_id = Number(submitData.category_id);
+
+        // Parse JSON fields safely
+        if (submitData.detail) {
+          if (typeof submitData.detail.specifications === 'string') {
+            try { submitData.detail.specifications = JSON.parse(submitData.detail.specifications); }
+            catch (e) { submitData.detail.specifications = {}; }
+          }
+          if (typeof submitData.detail.gallery_urls === 'string') {
+            try { submitData.detail.gallery_urls = JSON.parse(submitData.detail.gallery_urls); }
+            catch (e) { submitData.detail.gallery_urls = []; }
+          }
+        }
+
         if (editingItem) {
           await catalogService.updateProduct(editingItem.id, submitData);
           alertService.success("Thành công!", "Cập nhật sản phẩm thành công.");

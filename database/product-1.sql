@@ -5,46 +5,46 @@
 -- Thêm vào bảng Products
 INSERT INTO products (id, category_id, name, slug, brand, price, sale_price, stock, image_url, is_active) VALUES
 -- Thêm Nồi chiên không dầu (Cat 12)
-(21, 12, 'Nồi chiên không dầu Tefal 4.2L', 'noi-chien-khong-dau-tefal-4-2l', 'Tefal', 2500000, 1990000, 20, 'http://localhost:8000/static/uploads/tefal-42l.jpg', TRUE),
-(22, 12, 'Nồi chiên không dầu Lock&Lock 5.2L', 'noi-chien-khong-dau-lock-lock-5-2l', 'Lock&Lock', 3200000, 2550000, 15, 'http://localhost:8000/static/uploads/locknlock-52l.webp', TRUE),
+(21, 12, 'Nồi chiên không dầu Tefal 4.2L', 'noi-chien-khong-dau-tefal-4-2l', 'Tefal', 2500000, 1990000, 20, 'static/uploads/tefal-42l.jpg', TRUE),
+(22, 12, 'Nồi chiên không dầu Lock&Lock 5.2L', 'noi-chien-khong-dau-lock-lock-5-2l', 'Lock&Lock', 3200000, 2550000, 15, 'static/uploads/locknlock-52l.webp', TRUE),
 
 -- Thêm Lò vi sóng / Lò nướng (Cat 13)
-(23, 13, 'Lò vi sóng Electrolux 23L', 'lo-vi-song-electrolux-23l', 'Electrolux', 2100000, 1850000, 30, 'http://localhost:8000/static/uploads/lvs-electrolux.avif', TRUE),
-(24, 13, 'Lò nướng điện Sanaky 50L', 'lo-nuong-dien-sanaky-50l', 'Sanaky', 1950000, 1650000, 25, 'http://localhost:8000/static/uploads/lo-nuong-sanaky.jpg', TRUE),
+(23, 13, 'Lò vi sóng Electrolux 23L', 'lo-vi-song-electrolux-23l', 'Electrolux', 2100000, 1850000, 30, 'static/uploads/lvs-electrolux.avif', TRUE),
+(24, 13, 'Lò nướng điện Sanaky 50L', 'lo-nuong-dien-sanaky-50l', 'Sanaky', 1950000, 1650000, 25, 'static/uploads/lo-nuong-sanaky.jpg', TRUE),
 
 -- Thêm Quạt điện / Quạt điều hòa (Cat 14)
-(25, 14, 'Quạt điều hòa Sunhouse Boss', 'quat-dieu-hoa-sunhouse-boss', 'Sunhouse', 4500000, 3790000, 18, 'http://localhost:8000/static/uploads/quat-dieu-hoa-sunhouse.jpg', TRUE),
-(26, 14, 'Quạt treo tường Senko có remote', 'quat-treo-tuong-senko-remote', 'Senko', 550000, 480000, 50, 'http://localhost:8000/static/uploads/quat-treo-senko.jpg', TRUE),
+(25, 14, 'Quạt điều hòa Sunhouse Boss', 'quat-dieu-hoa-sunhouse-boss', 'Sunhouse', 4500000, 3790000, 18, 'static/uploads/quat-dieu-hoa-sunhouse.jpg', TRUE),
+(26, 14, 'Quạt treo tường Senko có remote', 'quat-treo-tuong-senko-remote', 'Senko', 550000, 480000, 50, 'static/uploads/quat-treo-senko.jpg', TRUE),
 
 -- Thêm Máy lọc không khí (Cat 15)
-(27, 15, 'Máy lọc không khí Sharp FP-J30E-A', 'may-loc-khong-khi-sharp-fp-j30e-a', 'Sharp', 2500000, 1990000, 40, 'http://localhost:8000/static/uploads/sharp-air-purifier.png', TRUE),
-(28, 15, 'Máy lọc không khí Daikin MC30VVM-A', 'may-loc-khong-khi-daikin-mc30vvm', 'Daikin', 3800000, 3200000, 20, 'http://localhost:8000/static/uploads/daikin-air.jpg', TRUE),
+(27, 15, 'Máy lọc không khí Sharp FP-J30E-A', 'may-loc-khong-khi-sharp-fp-j30e-a', 'Sharp', 2500000, 1990000, 40, 'static/uploads/sharp-air-purifier.png', TRUE),
+(28, 15, 'Máy lọc không khí Daikin MC30VVM-A', 'may-loc-khong-khi-daikin-mc30vvm', 'Daikin', 3800000, 3200000, 20, 'static/uploads/daikin-air.jpg', TRUE),
 
 -- Thêm Tủ lạnh (Cat 16)
-(29, 16, 'Tủ lạnh LG Inverter 315 Lít', 'tu-lanh-lg-inverter-315-lit', 'LG', 9500000, 8490000, 10, 'http://localhost:8000/static/uploads/tu-lanh-lg.jpg', TRUE),
-(30, 16, 'Tủ lạnh Aqua Inverter 189 Lít', 'tu-lanh-aqua-inverter-189-lit', 'Aqua', 5500000, 4990000, 25, 'http://localhost:8000/static/uploads/tu-lanh-aqua.png', TRUE),
+(29, 16, 'Tủ lạnh LG Inverter 315 Lít', 'tu-lanh-lg-inverter-315-lit', 'LG', 9500000, 8490000, 10, 'static/uploads/tu-lanh-lg.jpg', TRUE),
+(30, 16, 'Tủ lạnh Aqua Inverter 189 Lít', 'tu-lanh-aqua-inverter-189-lit', 'Aqua', 5500000, 4990000, 25, 'static/uploads/tu-lanh-aqua.png', TRUE),
 
 -- Thêm Máy lạnh (Cat 17)
-(31, 17, 'Máy lạnh Daikin Inverter 1.5 HP', 'may-lanh-daikin-inverter-1-5-hp', 'Daikin', 13500000, 12200000, 15, 'http://localhost:8000/static/uploads/may-lanh-daikin.jpg', TRUE),
-(32, 17, 'Máy lạnh LG Inverter 1 HP Wifi', 'may-lanh-lg-inverter-1-hp-wifi', 'LG', 10500000, 9300000, 20, 'http://localhost:8000/static/uploads/may-lanh-lg.jpg', TRUE),
+(31, 17, 'Máy lạnh Daikin Inverter 1.5 HP', 'may-lanh-daikin-inverter-1-5-hp', 'Daikin', 13500000, 12200000, 15, 'static/uploads/may-lanh-daikin.jpg', TRUE),
+(32, 17, 'Máy lạnh LG Inverter 1 HP Wifi', 'may-lanh-lg-inverter-1-hp-wifi', 'LG', 10500000, 9300000, 20, 'static/uploads/may-lanh-lg.jpg', TRUE),
 
 -- Thêm Camera an ninh (Cat 18)
-(33, 18, 'Camera IP Wifi Imou Ranger 2', 'camera-ip-wifi-imou-ranger-2', 'Imou', 650000, 490000, 100, 'http://localhost:8000/static/uploads/imou-ranger2.jpg', TRUE),
-(34, 18, 'Camera ngoài trời KBVision 4MP', 'camera-ngoai-troi-kbvision-4mp', 'KBVision', 1200000, 950000, 45, 'http://localhost:8000/static/uploads/kbvision-4mp.jpg', TRUE),
+(33, 18, 'Camera IP Wifi Imou Ranger 2', 'camera-ip-wifi-imou-ranger-2', 'Imou', 650000, 490000, 100, 'static/uploads/imou-ranger2.jpg', TRUE),
+(34, 18, 'Camera ngoài trời KBVision 4MP', 'camera-ngoai-troi-kbvision-4mp', 'KBVision', 1200000, 950000, 45, 'static/uploads/kbvision-4mp.jpg', TRUE),
 
 -- Thêm Khóa cửa vân tay (Cat 19)
-(35, 19, 'Khóa cửa thông minh Samsung SHP-DP738', 'khoa-cua-thong-minh-samsung-shp-dp738', 'Samsung', 11500000, 9900000, 12, 'http://localhost:8000/static/uploads/khoa-samsung.jpg', TRUE),
-(36, 19, 'Khóa cửa nhôm xingfa Kaimi', 'khoa-cua-nhom-xingfa-kaimi', 'Kaimi', 4500000, 3800000, 30, 'http://localhost:8000/static/uploads/khoa-kaimi.jpg', TRUE),
+(35, 19, 'Khóa cửa thông minh Samsung SHP-DP738', 'khoa-cua-thong-minh-samsung-shp-dp738', 'Samsung', 11500000, 9900000, 12, 'static/uploads/khoa-samsung.jpg', TRUE),
+(36, 19, 'Khóa cửa nhôm xingfa Kaimi', 'khoa-cua-nhom-xingfa-kaimi', 'Kaimi', 4500000, 3800000, 30, 'static/uploads/khoa-kaimi.jpg', TRUE),
 
 -- Thêm Đèn LED thông minh (Cat 20)
-(37, 20, 'Bóng đèn thông minh Xiaomi Mi LED Smart Bulb', 'bong-den-thong-minh-xiaomi', 'Xiaomi', 350000, 250000, 80, 'http://localhost:8000/static/uploads/xiaomi-bulb.jpg', TRUE),
-(38, 20, 'Đèn ốp trần thông minh Rạng Đông', 'den-op-tran-thong-minh-rang-dong', 'Rạng Đông', 1500000, 1250000, 40, 'http://localhost:8000/static/uploads/den-rang-dong.jpg', TRUE),
+(37, 20, 'Bóng đèn thông minh Xiaomi Mi LED Smart Bulb', 'bong-den-thong-minh-xiaomi', 'Xiaomi', 350000, 250000, 80, 'static/uploads/xiaomi-bulb.jpg', TRUE),
+(38, 20, 'Đèn ốp trần thông minh Rạng Đông', 'den-op-tran-thong-minh-rang-dong', 'Rạng Đông', 1500000, 1250000, 40, 'static/uploads/den-rang-dong.jpg', TRUE),
 
 -- Thêm Máy sấy tóc (Cat 21)
-(39, 21, 'Máy tạo kiểu tóc Dyson Airwrap', 'may-tao-kieu-toc-dyson-airwrap', 'Dyson', 15500000, 14900000, 5, 'http://localhost:8000/static/uploads/dyson-airwrap.jpg', TRUE),
+(39, 21, 'Máy tạo kiểu tóc Dyson Airwrap', 'may-tao-kieu-toc-dyson-airwrap', 'Dyson', 15500000, 14900000, 5, 'static/uploads/dyson-airwrap.jpg', TRUE),
 
 -- Thêm Cân điện tử / Máy massage (Cat 22)
-(40, 22, 'Máy massage cổ thông minh Xiaomi Jeeback', 'may-massage-co-xiaomi-jeeback', 'Xiaomi', 1200000, 950000, 50, 'http://localhost:8000/static/uploads/massage-jeeback.jpg', TRUE);
+(40, 22, 'Máy massage cổ thông minh Xiaomi Jeeback', 'may-massage-co-xiaomi-jeeback', 'Xiaomi', 1200000, 950000, 50, 'static/uploads/massage-jeeback.jpg', TRUE);
 
 
 -- Thêm vào bảng Product_Details (Khớp nối chính xác với ID Product từ 21 - 40)

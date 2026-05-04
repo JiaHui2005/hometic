@@ -14,31 +14,31 @@ INSERT INTO categories (id, name, slug, description, image_url, parent_id, is_ac
 (28, 'Nghe nhìn', 'nghe-nhin', 'Tivi và hệ thống âm thanh', NULL, 27, TRUE),
 
 -- Cấp 2 (Cháu)
-(25, 'Robot hút bụi', 'robot-hut-bui', 'Robot hút bụi lau nhà thông minh', 'http://localhost:8000/static/uploads/cat_robot.png', 24, TRUE),
-(26, 'Máy hút bụi cầm tay', 'may-hut-bui-cam-tay', 'Máy hút bụi không dây tiện lợi', 'http://localhost:8000/static/uploads/cat_hutbui.webp', 24, TRUE),
-(29, 'Tivi thông minh', 'tivi-thong-minh', 'Smart Tivi 4K, OLED', 'http://localhost:8000/static/uploads/cat_tivi.jpg', 28, TRUE),
-(30, 'Loa Soundbar', 'loa-soundbar', 'Loa thanh Soundbar xem phim', 'http://localhost:8000/static/uploads/cat_soundbar.jpg', 28, TRUE);
+(25, 'Robot hút bụi', 'robot-hut-bui', 'Robot hút bụi lau nhà thông minh', 'static/uploads/cat_robot.png', 24, TRUE),
+(26, 'Máy hút bụi cầm tay', 'may-hut-bui-cam-tay', 'Máy hút bụi không dây tiện lợi', 'static/uploads/cat_hutbui.webp', 24, TRUE),
+(29, 'Tivi thông minh', 'tivi-thong-minh', 'Smart Tivi 4K, OLED', 'static/uploads/cat_tivi.jpg', 28, TRUE),
+(30, 'Loa Soundbar', 'loa-soundbar', 'Loa thanh Soundbar xem phim', 'static/uploads/cat_soundbar.jpg', 28, TRUE);
 
 
 -- 2. Bổ sung Products
 INSERT INTO products (id, category_id, name, slug, brand, price, sale_price, stock, image_url, is_active) VALUES
 -- Nhóm Robot hút bụi (Cat 25)
-(41, 25, 'Robot hút bụi lau nhà Roborock S8 Pro Ultra', 'robot-hut-bui-roborock-s8-pro-ultra', 'Roborock', 24900000, 22500000, 10, 'http://localhost:8000/static/uploads/roborock-s8.jpg', TRUE),
-(42, 25, 'Robot hút bụi Ecovacs Deebot T20 Omni', 'robot-hut-bui-ecovacs-deebot-t20-omni', 'Ecovacs', 19500000, 17900000, 15, 'http://localhost:8000/static/uploads/ecovacs-t20.jpg', TRUE),
-(43, 25, 'Robot lau kính thông minh Ecovacs Winbot', 'robot-lau-kinh-ecovacs-winbot', 'Ecovacs', 8500000, 7200000, 20, 'http://localhost:8000/static/uploads/ecovacs-winbot.jpg', TRUE),
+(41, 25, 'Robot hút bụi lau nhà Roborock S8 Pro Ultra', 'robot-hut-bui-roborock-s8-pro-ultra', 'Roborock', 24900000, 22500000, 10, 'static/uploads/roborock-s8.jpg', TRUE),
+(42, 25, 'Robot hút bụi Ecovacs Deebot T20 Omni', 'robot-hut-bui-ecovacs-deebot-t20-omni', 'Ecovacs', 19500000, 17900000, 15, 'static/uploads/ecovacs-t20.jpg', TRUE),
+(43, 25, 'Robot lau kính thông minh Ecovacs Winbot', 'robot-lau-kinh-ecovacs-winbot', 'Ecovacs', 8500000, 7200000, 20, 'static/uploads/ecovacs-winbot.jpg', TRUE),
 
 -- Nhóm Máy hút bụi cầm tay (Cat 26)
-(44, 26, 'Máy hút bụi không dây Dyson V15 Detect', 'may-hut-bui-khong-day-dyson-v15-detect', 'Dyson', 19900000, 18500000, 8, 'http://localhost:8000/static/uploads/dyson-v15.webp', TRUE),
-(45, 26, 'Máy hút bụi cầm tay Xiaomi Vacuum Cleaner G11', 'may-hut-bui-xiaomi-vacuum-g11', 'Xiaomi', 6500000, 5800000, 35, 'http://localhost:8000/static/uploads/xiaomi-g11.png', TRUE),
+(44, 26, 'Máy hút bụi không dây Dyson V15 Detect', 'may-hut-bui-khong-day-dyson-v15-detect', 'Dyson', 19900000, 18500000, 8, 'static/uploads/dyson-v15.webp', TRUE),
+(45, 26, 'Máy hút bụi cầm tay Xiaomi Vacuum Cleaner G11', 'may-hut-bui-xiaomi-vacuum-g11', 'Xiaomi', 6500000, 5800000, 35, 'static/uploads/xiaomi-g11.png', TRUE),
 
 -- Nhóm Tivi thông minh (Cat 29)
-(46, 29, 'Smart Tivi Samsung 4K 65 inch', 'smart-tivi-samsung-4k-65-inch', 'Samsung', 18500000, 16900000, 12, 'http://localhost:8000/static/uploads/tivi-samsung-65.jpg', TRUE),
-(47, 29, 'Android Tivi Sony 4K 55 inch', 'android-tivi-sony-4k-55-inch', 'Sony', 16000000, 14500000, 18, 'http://localhost:8000/static/uploads/tivi-sony-55.jpg', TRUE),
-(48, 29, 'Smart Tivi LG OLED 55 inch', 'smart-tivi-lg-oled-55-inch', 'LG', 28000000, 25500000, 5, 'http://localhost:8000/static/uploads/tivi-lg-oled.jpg', TRUE),
+(46, 29, 'Smart Tivi Samsung 4K 65 inch', 'smart-tivi-samsung-4k-65-inch', 'Samsung', 18500000, 16900000, 12, 'static/uploads/tivi-samsung-65.jpg', TRUE),
+(47, 29, 'Android Tivi Sony 4K 55 inch', 'android-tivi-sony-4k-55-inch', 'Sony', 16000000, 14500000, 18, 'static/uploads/tivi-sony-55.jpg', TRUE),
+(48, 29, 'Smart Tivi LG OLED 55 inch', 'smart-tivi-lg-oled-55-inch', 'LG', 28000000, 25500000, 5, 'static/uploads/tivi-lg-oled.jpg', TRUE),
 
 -- Nhóm Loa Soundbar (Cat 30)
-(49, 30, 'Loa Soundbar Samsung HW-Q600B', 'loa-soundbar-samsung-hw-q600b', 'Samsung', 5500000, 4200000, 25, 'http://localhost:8000/static/uploads/soundbar-samsung.webp', TRUE),
-(50, 30, 'Loa Soundbar Sony HT-S400', 'loa-soundbar-sony-ht-s400', 'Sony', 4800000, 3990000, 30, 'http://localhost:8000/static/uploads/soundbar-sony.jpg', TRUE);
+(49, 30, 'Loa Soundbar Samsung HW-Q600B', 'loa-soundbar-samsung-hw-q600b', 'Samsung', 5500000, 4200000, 25, 'static/uploads/soundbar-samsung.webp', TRUE),
+(50, 30, 'Loa Soundbar Sony HT-S400', 'loa-soundbar-sony-ht-s400', 'Sony', 4800000, 3990000, 30, 'static/uploads/soundbar-sony.jpg', TRUE);
 
 
 -- 3. Bổ sung Product_Details (Khớp nối với ID từ 41 - 50)

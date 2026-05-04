@@ -47,34 +47,34 @@ INSERT INTO users (email, password_hash, full_name, phone, birthday, gender, rol
 -- 3. Seed Products (ID được xếp liền mạch và gom theo nhóm danh mục)
 INSERT INTO products (id, category_id, name, slug, brand, price, sale_price, stock, image_url, is_active) VALUES
 -- Nhóm Nồi chiên không dầu (Cat 12)
-(1, 12, 'Nồi chiên không dầu SmartCook 6L', 'noi-chien-khong-dau-smartcook-6l', 'SmartCook', 2490000, 2190000, 40, 'http://localhost:8000/static/uploads/nckd_smartcook.png', TRUE),
-(2, 12, 'Nồi chiên không dầu Philips HD9252', 'noi-chien-khong-dau-philips-hd9252', 'Philips', 3500000, 3100000, 20, 'http://localhost:8000/static/uploads/noi-chien-khong-dau-philips-hd925290-24-lit.jpg', TRUE),
-(3, 12, 'Nồi chiên không dầu điện tử Sunhouse Mama 5.5L', 'noi-chien-khong-dau-dien-tu-sunhouse-mama', 'Sunhouse', 2800000, 2350000, 35, 'http://localhost:8000/static/uploads/nckd_sunhouse.png', TRUE),
+(1, 12, 'Nồi chiên không dầu SmartCook 6L', 'noi-chien-khong-dau-smartcook-6l', 'SmartCook', 2490000, 2190000, 40, 'static/uploads/nckd_smartcook.png', TRUE),
+(2, 12, 'Nồi chiên không dầu Philips HD9252', 'noi-chien-khong-dau-philips-hd9252', 'Philips', 3500000, 3100000, 20, 'static/uploads/noi-chien-khong-dau-philips-hd925290-24-lit.jpg', TRUE),
+(3, 12, 'Nồi chiên không dầu điện tử Sunhouse Mama 5.5L', 'noi-chien-khong-dau-dien-tu-sunhouse-mama', 'Sunhouse', 2800000, 2350000, 35, 'static/uploads/nckd_sunhouse.png', TRUE),
 -- Nhóm Lò vi sóng (Cat 13)
-(4, 13, 'Lò vi sóng điện tử Sharp 20L', 'lo-vi-song-dien-tu-sharp-20l', 'Sharp', 1800000, 1450000, 50, 'http://localhost:8000/static/uploads/lo-vi-song-co-sharp-r-208vn-ws-20-lit-vietmart.webp', TRUE),
-(5, 13, 'Lò vi sóng tráng men Samsung 23L', 'lo-vi-song-trang-men-samsung-23l', 'Samsung', 2200000, 1950000, 45, 'http://localhost:8000/static/uploads/lo-vi-song-trang-men-samsung-23l.jpg', TRUE),
+(4, 13, 'Lò vi sóng điện tử Sharp 20L', 'lo-vi-song-dien-tu-sharp-20l', 'Sharp', 1800000, 1450000, 50, 'static/uploads/lo-vi-song-co-sharp-r-208vn-ws-20-lit-vietmart.webp', TRUE),
+(5, 13, 'Lò vi sóng tráng men Samsung 23L', 'lo-vi-song-trang-men-samsung-23l', 'Samsung', 2200000, 1950000, 45, 'static/uploads/lo-vi-song-trang-men-samsung-23l.jpg', TRUE),
 -- Nhóm Quạt điện (Cat 14)
-(6, 14, 'Quạt đứng Mitsubishi LV16-RV', 'quat-dung-mitsubishi-lv16-rv', 'Mitsubishi', 1900000, 1750000, 100, 'http://localhost:8000/static/uploads/quat-dung-mitsubishi-lv16-rv-sf-gy-xam-nhat-1.webp', TRUE),
-(7, 14, 'Quạt không cánh Dyson Purifier Cool', 'quat-khong-canh-dyson-purifier-cool', 'Dyson', 15990000, 14500000, 10, 'http://localhost:8000/static/uploads/quat-khong-canh.jfif', TRUE),
-(8, 14, 'Quạt trần Panasonic 5 cánh có remote', 'quat-tran-panasonic-5-canh', 'Panasonic', 3200000, 2890000, 25, 'http://localhost:8000/static/uploads/quat-tran-5-canh.webp', TRUE),
+(6, 14, 'Quạt đứng Mitsubishi LV16-RV', 'quat-dung-mitsubishi-lv16-rv', 'Mitsubishi', 1900000, 1750000, 100, 'static/uploads/quat-dung-mitsubishi-lv16-rv-sf-gy-xam-nhat-1.webp', TRUE),
+(7, 14, 'Quạt không cánh Dyson Purifier Cool', 'quat-khong-canh-dyson-purifier-cool', 'Dyson', 15990000, 14500000, 10, 'static/uploads/quat-khong-canh.jfif', TRUE),
+(8, 14, 'Quạt trần Panasonic 5 cánh có remote', 'quat-tran-panasonic-5-canh', 'Panasonic', 3200000, 2890000, 25, 'static/uploads/quat-tran-5-canh.webp', TRUE),
 -- Nhóm Máy lọc không khí (Cat 15)
-(9, 15, 'Máy lọc không khí Xiaomi Smart Air Purifier 4', 'may-loc-khong-khi-xiaomi-smart-air-purifier-4', 'Xiaomi', 4500000, 3990000, 30, 'http://localhost:8000/static/uploads/compact-1_5619695929bb460297d97062724ed8fa_large.png', TRUE),
-(10, 15, 'Máy lọc không khí Coway Cartridge', 'may-loc-khong-khi-coway-cartridge', 'Coway', 5500000, 4890000, 20, 'http://localhost:8000/static/uploads/coway.jpg', TRUE),
+(9, 15, 'Máy lọc không khí Xiaomi Smart Air Purifier 4', 'may-loc-khong-khi-xiaomi-smart-air-purifier-4', 'Xiaomi', 4500000, 3990000, 30, 'static/uploads/compact-1_5619695929bb460297d97062724ed8fa_large.png', TRUE),
+(10, 15, 'Máy lọc không khí Coway Cartridge', 'may-loc-khong-khi-coway-cartridge', 'Coway', 5500000, 4890000, 20, 'static/uploads/coway.jpg', TRUE),
 -- Nhóm Camera an ninh (Cat 18)
-(11, 18, 'Camera IP Wifi Ezviz C6N 1080P', 'camera-ip-wifi-ezviz-c6n-1080p', 'Ezviz', 800000, 550000, 80, 'http://localhost:8000/static/uploads/camera-ip-ezviz-csc6na01c2wfr-1080-p-g6C6NW.jpg', TRUE),
-(12, 18, 'Camera ngoài trời TP-Link Tapo C310', 'camera-ngoai-troi-tplink-tapo-c310', 'TP-Link', 950000, 750000, 65, 'http://localhost:8000/static/uploads/camera-wifi-3mp-tp-link-tapo-c310-3.jpg', TRUE),
+(11, 18, 'Camera IP Wifi Ezviz C6N 1080P', 'camera-ip-wifi-ezviz-c6n-1080p', 'Ezviz', 800000, 550000, 80, 'static/uploads/camera-ip-ezviz-csc6na01c2wfr-1080-p-g6C6NW.jpg', TRUE),
+(12, 18, 'Camera ngoài trời TP-Link Tapo C310', 'camera-ngoai-troi-tplink-tapo-c310', 'TP-Link', 950000, 750000, 65, 'static/uploads/camera-wifi-3mp-tp-link-tapo-c310-3.jpg', TRUE),
 -- Nhóm Khóa cửa vân tay (Cat 19)
-(13, 19, 'Khóa cửa vân tay Xiaomi Smart Door Lock', 'khoa-cua-van-tay-xiaomi-smart-door-lock', 'Xiaomi', 6500000, 5990000, 15, 'http://localhost:8000/static/uploads/khoa-van-tay-xiaomi.jpg', TRUE),
-(14, 19, 'Khóa cửa điện tử thông minh Hafele EL9000', 'khoa-cua-dien-tu-thong-minh-hafele-el9000', 'Hafele', 12500000, 11000000, 8, 'http://localhost:8000/static/uploads/Khoa-dien-tu-Hafele-EL9000.jpg', TRUE),
+(13, 19, 'Khóa cửa vân tay Xiaomi Smart Door Lock', 'khoa-cua-van-tay-xiaomi-smart-door-lock', 'Xiaomi', 6500000, 5990000, 15, 'static/uploads/khoa-van-tay-xiaomi.jpg', TRUE),
+(14, 19, 'Khóa cửa điện tử thông minh Hafele EL9000', 'khoa-cua-dien-tu-thong-minh-hafele-el9000', 'Hafele', 12500000, 11000000, 8, 'static/uploads/Khoa-dien-tu-Hafele-EL9000.jpg', TRUE),
 -- Nhóm Đèn LED thông minh (Cat 20)
-(15, 20, 'Bóng đèn LED thông minh Philips Hue', 'bong-den-led-thong-minh-philips-hue', 'Philips', 1200000, 1050000, 60, 'http://localhost:8000/static/uploads/hue-white-and-color-ambiance-a19.jpg', TRUE),
-(16, 20, 'Dây đèn LED RGB Yeelight Lightstrip Pro', 'day-den-led-rgb-yeelight-lightstrip-pro', 'Yeelight', 1500000, 1250000, 50, 'http://localhost:8000/static/uploads/1777435540_Yeelight-Lightstrip-Pro-Starter_Hop-2M.jpg.webp', TRUE),
+(15, 20, 'Bóng đèn LED thông minh Philips Hue', 'bong-den-led-thong-minh-philips-hue', 'Philips', 1200000, 1050000, 60, 'static/uploads/hue-white-and-color-ambiance-a19.jpg', TRUE),
+(16, 20, 'Dây đèn LED RGB Yeelight Lightstrip Pro', 'day-den-led-rgb-yeelight-lightstrip-pro', 'Yeelight', 1500000, 1250000, 50, 'static/uploads/1777435540_Yeelight-Lightstrip-Pro-Starter_Hop-2M.jpg.webp', TRUE),
 -- Nhóm Tủ lạnh & Máy lạnh (Cat 16, 17)
-(17, 16, 'Tủ lạnh Samsung Inverter 236 lít', 'tu-lanh-samsung-inverter-236-lit', 'Samsung', 7500000, 6500000, 12, 'http://localhost:8000/static/uploads/1777435556_tu-lanh.webp', TRUE),
-(18, 17, 'Máy lạnh Panasonic Inverter 1 HP', 'may-lanh-panasonic-inverter-1-hp', 'Panasonic', 11500000, 10200000, 18, 'http://localhost:8000/static/uploads/1777435563_panasonic-inverter-1-hp-cu-cs-pu9akh-8top-tskt1-700x467.jpg', TRUE),
+(17, 16, 'Tủ lạnh Samsung Inverter 236 lít', 'tu-lanh-samsung-inverter-236-lit', 'Samsung', 7500000, 6500000, 12, 'static/uploads/1777435556_tu-lanh.webp', TRUE),
+(18, 17, 'Máy lạnh Panasonic Inverter 1 HP', 'may-lanh-panasonic-inverter-1-hp', 'Panasonic', 11500000, 10200000, 18, 'static/uploads/1777435563_panasonic-inverter-1-hp-cu-cs-pu9akh-8top-tskt1-700x467.jpg', TRUE),
 -- Nhóm Máy sấy & Cân điện tử (Cat 21, 22)
-(19, 21, 'Máy sấy tóc Panasonic 2000W', 'may-say-toc-panasonic-2000w', 'Panasonic', 850000, 690000, 45, 'http://localhost:8000/static/uploads/1777435570_may-say-tpc.jpg', TRUE),
-(20, 22, 'Cân điện tử Xiaomi Mi Body Composition Scale 2', 'can-dien-tu-xiaomi-mi-body-composition', 'Xiaomi', 650000, 450000, 80, 'http://localhost:8000/static/uploads/1777435428_Can-thong-minh-xiaomi-mi-body-composition-scale-2-3.jpg', TRUE);
+(19, 21, 'Máy sấy tóc Panasonic 2000W', 'may-say-toc-panasonic-2000w', 'Panasonic', 850000, 690000, 45, 'static/uploads/1777435570_may-say-tpc.jpg', TRUE),
+(20, 22, 'Cân điện tử Xiaomi Mi Body Composition Scale 2', 'can-dien-tu-xiaomi-mi-body-composition', 'Xiaomi', 650000, 450000, 80, 'static/uploads/1777435428_Can-thong-minh-xiaomi-mi-body-composition-scale-2-3.jpg', TRUE);
 
 
 -- 4. Seed Product Details (Khớp nối chính xác với ID Product mới)

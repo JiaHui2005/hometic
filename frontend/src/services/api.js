@@ -10,7 +10,7 @@ export const getImgUrl = (path) => {
   }
 
   if (path.startsWith("http")) return path;
-  return `${BASE_URL}${path}`;
+  return `${BASE_URL}${"/"}${path}`;
 };
 
 // --- Session Management ---

@@ -3,7 +3,7 @@ const BASE_URL = API_URL.replace("/api", "");
 
 export const getImgUrl = (path) => {
   if (!path) return "";
-  
+
   // Nếu là URL tuyệt đối nhưng trỏ về localhost, ta thay thế nó bằng BASE_URL hiện tại
   if (path.startsWith("http://localhost:8000") || path.startsWith("http://127.0.0.1:8000")) {
     return path.replace(/^http:\/\/(localhost|127\.0\.0\.1):8000/, BASE_URL);

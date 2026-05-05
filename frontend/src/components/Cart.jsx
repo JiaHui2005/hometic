@@ -28,6 +28,64 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
     notes: "Giao hàng giờ hành chính"
   });
 
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedWard, setSelectedWard] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
+
+  const fetchProvinces = async () => {
+    try {
+      const response = await fetch("https://provinces.open-api.vn/api/p/");
+      const data = await response.json();
+      setProvinces(data);
+    } catch (error) {
+      console.error("Lỗi lấy danh sách tỉnh thành:", error);
+    }
+  };
+
+  const fetchDistricts = async (provinceCode) => {
+    try {
+      const response = await fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`);
+      const data = await response.json();
+      setDistricts(data.districts || []);
+      setWards([]);
+      setSelectedDistrict("");
+      setSelectedWard("");
+    } catch (error) {
+      console.error("Lỗi lấy danh sách quận huyện:", error);
+    }
+  };
+
+  const fetchWards = async (districtCode) => {
+    try {
+      const response = await fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
+      const data = await response.json();
+      setWards(data.wards || []);
+      setSelectedWard("");
+    } catch (error) {
+      console.error("Lỗi lấy danh sách phường xã:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    const provinceName = provinces.find(p => p.code == selectedProvince)?.name || "";
+    const districtName = districts.find(d => d.code == selectedDistrict)?.name || "";
+    const wardName = wards.find(w => w.code == selectedWard)?.name || "";
+    
+    const parts = [detailAddress, wardName, districtName, provinceName].filter(Boolean);
+    setShippingInfo(prev => ({
+      ...prev,
+      shipping_address: parts.join(", ")
+    }));
+  }, [selectedProvince, selectedDistrict, selectedWard, detailAddress, provinces, districts, wards]);
+
   const brand = {
     primary: "#234a4a",
     secondary: "#ed7f1a",
@@ -103,6 +161,8 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
         shipping_address: user.address || "",
         notes: "Giao hàng giờ hành chính"
       });
+      // Nếu user đã có địa chỉ, có thể thử parse nhưng khá phức tạp
+      // Ở đây ta ưu tiên cho user chọn lại từ đầu để đảm bảo tính chính xác của API
     }
   }, [user, showCheckoutModal]);
 
@@ -361,9 +421,70 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
                   <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Số điện thoại</label>
                   <input required type="tel" style={styles.input} value={shippingInfo.phone_number} onChange={e => setShippingInfo({ ...shippingInfo, phone_number: e.target.value })} />
                 </div>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "15px" }}>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Tỉnh / Thành phố</label>
+                    <select 
+                      required 
+                      style={styles.input} 
+                      value={selectedProvince} 
+                      onChange={e => {
+                        setSelectedProvince(e.target.value);
+                        fetchDistricts(e.target.value);
+                      }}
+                    >
+                      <option value="">Chọn Tỉnh/Thành</option>
+                      {provinces.map(p => (
+                        <option key={p.code} value={p.code}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Quận / Huyện</label>
+                    <select 
+                      required 
+                      style={styles.input} 
+                      value={selectedDistrict} 
+                      disabled={!selectedProvince}
+                      onChange={e => {
+                        setSelectedDistrict(e.target.value);
+                        fetchWards(e.target.value);
+                      }}
+                    >
+                      <option value="">Chọn Quận/Huyện</option>
+                      {districts.map(d => (
+                        <option key={d.code} value={d.code}>{d.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Phường / Xã</label>
+                    <select 
+                      required 
+                      style={styles.input} 
+                      value={selectedWard} 
+                      disabled={!selectedDistrict}
+                      onChange={e => setSelectedWard(e.target.value)}
+                    >
+                      <option value="">Chọn Phường/Xã</option>
+                      {wards.map(w => (
+                        <option key={w.code} value={w.code}>{w.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
                 <div>
-                  <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Địa chỉ giao hàng</label>
-                  <textarea required style={{ ...styles.input, height: "100px", resize: "none" }} value={shippingInfo.shipping_address} onChange={e => setShippingInfo({ ...shippingInfo, shipping_address: e.target.value })} />
+                  <label style={{ fontSize: "12px", fontWeight: "800", color: brand.text, textTransform: "uppercase" }}>Số nhà, tên đường (Địa chỉ cụ thể)</label>
+                  <input 
+                    required 
+                    placeholder="VD: 123 Đường ABC..."
+                    style={styles.input} 
+                    value={detailAddress} 
+                    onChange={e => setDetailAddress(e.target.value)} 
+                  />
+                </div>
+                <div style={{ fontSize: "13px", color: brand.muted, fontStyle: "italic", marginTop: "-10px" }}>
+                  Địa chỉ: {shippingInfo.shipping_address || "(Chưa hoàn thiện)"}
                 </div>
               </div>
 

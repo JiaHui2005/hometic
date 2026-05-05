@@ -1,10 +1,26 @@
 import React from "react";
-import { LayoutDashboard, Package, ListTree, ShoppingCart, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ListTree, ShoppingCart, Users, LogOut, X } from "lucide-react";
 import { brand, adminStyles as styles } from "./AdminStyles";
 
-export default function Sidebar({ activeMenu, setActiveMenu, onLogout }) {
-  return (
-    <aside style={styles.sidebar}>
+export default function Sidebar({ activeMenu, setActiveMenu, onLogout, isVisible, isMobile, onClose }) {
+  const sidebarContent = (
+    <aside style={{
+      ...styles.sidebar,
+      position: isMobile ? 'fixed' : 'relative',
+      zIndex: 1000,
+      left: isVisible ? 0 : '-280px',
+      transition: 'left 0.3s ease-in-out',
+      visibility: isVisible ? 'visible' : (isMobile ? 'hidden' : 'visible')
+    }}>
+      {isMobile && (
+        <button 
+          onClick={onClose}
+          style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', color: brand.white, cursor: 'pointer' }}
+        >
+          <X size={24} />
+        </button>
+      )}
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '60px', flexShrink: 0 }}>
         <div style={{ width: '48px', height: '48px', backgroundColor: brand.orange, borderRadius: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0, boxShadow: '0 8px 15px rgba(218, 143, 72, 0.2)' }}>
           <Package color="white" size={28} />
@@ -46,5 +62,17 @@ export default function Sidebar({ activeMenu, setActiveMenu, onLogout }) {
         </button>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {isMobile && isVisible && (
+        <div 
+          onClick={onClose}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999 }}
+        />
+      )}
+      {sidebarContent}
+    </>
   );
 }

@@ -9,10 +9,19 @@ export default function Profile({ user, setUser, setActiveTab }) {
   const [activeSubTab, setActiveSubTab] = useState("profile");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [viewingProductId, setViewingProductId] = useState(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+
+  const isMobile = windowWidth <= 1024;
+  const isPhone = windowWidth <= 768;
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
@@ -44,11 +53,6 @@ export default function Profile({ user, setUser, setActiveTab }) {
     }
   }, [user, isEditing]);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // Gọi danh sách đơn hàng
   useEffect(() => {
@@ -133,15 +137,15 @@ export default function Profile({ user, setUser, setActiveTab }) {
   };
 
   const styles = {
-    container: { padding: isMobile ? "20px" : "60px 5%", backgroundColor: brand.bg, minHeight: "100vh" },
+    container: { padding: isPhone ? "20px 10px" : "60px 5%", backgroundColor: brand.bg, minHeight: "100vh" },
     layout: { display: "flex", flexDirection: isMobile ? "column" : "row", gap: "40px", maxWidth: "1200px", margin: "0 auto" },
-    sidebar: { flex: "0 0 320px", display: "flex", flexDirection: "column", gap: "20px" },
-    mainContent: { flex: 1, backgroundColor: brand.white, borderRadius: "30px", padding: isMobile ? "25px" : "40px", boxShadow: "0 10px 50px rgba(35, 74, 74, 0.05)", border: `1px solid ${brand.border}`, position: 'relative' },
-    profileCard: { backgroundColor: brand.primary, borderRadius: "30px", padding: "40px 20px", color: "white", textAlign: "center", position: 'relative', overflow: 'hidden' },
-    avatarContainer: { position: 'relative', width: "120px", height: "120px", margin: "0 auto 20px" },
+    sidebar: { flex: isMobile ? "1" : "0 0 320px", display: "flex", flexDirection: "column", gap: "20px" },
+    mainContent: { flex: 1, backgroundColor: brand.white, borderRadius: "30px", padding: isPhone ? "20px" : "40px", boxShadow: "0 10px 50px rgba(35, 74, 74, 0.05)", border: `1px solid ${brand.border}`, position: 'relative', width: '100%', boxSizing: 'border-box' },
+    profileCard: { backgroundColor: brand.primary, borderRadius: "30px", padding: isPhone ? "30px 15px" : "40px 20px", color: "white", textAlign: "center", position: 'relative', overflow: 'hidden' },
+    avatarContainer: { position: 'relative', width: isPhone ? "100px" : "120px", height: isPhone ? "100px" : "120px", margin: "0 auto 20px" },
     avatar: { width: "100%", height: "100%", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.1)", border: '4px solid rgba(255,255,255,0.2)', overflow: 'hidden', boxShadow: '0 8px 25px rgba(0,0,0,0.2)' },
     cameraIcon: { position: 'absolute', bottom: '5px', right: '5px', background: brand.secondary, padding: '10px', borderRadius: '50%', cursor: 'pointer', border: '3px solid #234a4a', transition: '0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-    infoGrid: { display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px', marginTop: '30px' },
+    infoGrid: { display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr', gap: '20px', marginTop: '30px' },
     infoItem: { padding: '20px', borderRadius: '20px', backgroundColor: '#fdfcf9', border: `1px solid ${brand.border}`, display: 'flex', alignItems: 'center', gap: '15px', transition: '0.3s' },
     iconBox: (color) => ({ width: '50px', height: '50px', borderRadius: '15px', backgroundColor: color, display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white' }),
     label: { fontSize: '12px', fontWeight: '800', color: brand.accent, letterSpacing: '0.5px', marginBottom: '4px', textTransform: 'uppercase' },
@@ -149,7 +153,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
     btnEdit: { display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: 'transparent', color: brand.primary, border: `2px solid ${brand.primary}`, borderRadius: '12px', fontWeight: '700', cursor: 'pointer', transition: '0.3s' },
     input: { width: '100%', padding: '14px', borderRadius: '12px', border: `2px solid ${brand.border}`, fontSize: '15px', outline: 'none', transition: '0.3s', boxSizing: 'border-box' },
     navBtn: (active) => ({ padding: "18px 25px", borderRadius: "18px", backgroundColor: active ? brand.white : "transparent", color: active ? brand.primary : brand.muted, cursor: 'pointer', display: 'flex', gap: '12px', fontWeight: '700', border: active ? `1px solid ${brand.border}` : '1px solid transparent', transition: "0.3s", boxShadow: active ? "0 4px 15px rgba(0,0,0,0.05)" : "none", textAlign: 'left', width: '100%', borderStyle: 'solid', borderWidth: '1px' }),
-    btnAction: (isPrimary) => ({ padding: "14px 28px", borderRadius: "15px", border: isPrimary ? "none" : `2px solid ${brand.border}`, backgroundColor: isPrimary ? brand.primary : "transparent", color: isPrimary ? "white" : brand.text, fontWeight: "700", fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", transition: "0.3s", minWidth: isMobile ? "100%" : "160px", boxShadow: isPrimary ? "0 4px 12px rgba(35, 74, 74, 0.2)" : "none" })
+    btnAction: (isPrimary) => ({ padding: "14px 28px", borderRadius: "15px", border: isPrimary ? "none" : `2px solid ${brand.border}`, backgroundColor: isPrimary ? brand.primary : "transparent", color: isPrimary ? "white" : brand.text, fontWeight: "700", fontSize: "15px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", transition: "0.3s", minWidth: isPhone ? "100%" : "160px", boxShadow: isPrimary ? "0 4px 12px rgba(35, 74, 74, 0.2)" : "none" })
   };
 
   if (viewingProductId) {
@@ -206,18 +210,18 @@ export default function Profile({ user, setUser, setActiveTab }) {
         <div style={styles.mainContent}>
           {activeSubTab === "profile" ? (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '35px' }}>
+              <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', justifyContent: 'space-between', alignItems: isPhone ? 'flex-start' : 'center', marginBottom: '35px', gap: '20px' }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '28px', color: brand.primary }}>Thông tin tài khoản</h2>
-                  <p style={{ color: brand.muted, margin: '5px 0 0', fontSize: '14px' }}>Quản lý thông tin cá nhân để bảo mật tài khoản</p>
+                  <h2 style={{ margin: 0, fontSize: isPhone ? '24px' : '28px', color: brand.primary }}>Thông tin tài khoản</h2>
+                  <p style={{ color: brand.muted, margin: '5px 0 0', fontSize: '14px' }}>Quản lý thông tin cá nhân bảo mật</p>
                 </div>
                 {!isEditing && !isChangingPassword && (
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => setIsChangingPassword(true)} style={{ ...styles.btnEdit, borderColor: brand.secondary, color: brand.secondary }}>
-                      <CreditCard size={16} /> Đổi mật khẩu
+                  <div style={{ display: 'flex', gap: '10px', width: isPhone ? '100%' : 'auto' }}>
+                    <button onClick={() => setIsChangingPassword(true)} style={{ ...styles.btnEdit, borderColor: brand.secondary, color: brand.secondary, flex: isPhone ? 1 : 'none', justifyContent: 'center' }}>
+                      <CreditCard size={16} /> Đổi MK
                     </button>
-                    <button onClick={() => setIsEditing(true)} style={styles.btnEdit}>
-                      <Edit2 size={16} /> Chỉnh sửa
+                    <button onClick={() => setIsEditing(true)} style={{ ...styles.btnEdit, flex: isPhone ? 1 : 'none', justifyContent: 'center' }}>
+                      <Edit2 size={16} /> Sửa
                     </button>
                   </div>
                 )}
@@ -245,7 +249,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
                       </div>
                     </div>
                   ))}
-                  <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', gap: '15px', marginTop: '10px' }}>
                     <button style={styles.btnAction(true)} disabled={loading} onClick={handleUpdatePassword}>
                       {loading ? "Đang xử lý..." : "Cập nhật mật khẩu"}
                     </button>
@@ -256,11 +260,11 @@ export default function Profile({ user, setUser, setActiveTab }) {
                 </div>
               ) : isEditing ? (
                 <div style={{ display: 'grid', gap: '25px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr', gap: '20px' }}>
                     <div><label style={styles.label}>Họ và tên</label><input style={styles.input} value={editForm.full_name} onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} /></div>
                     <div><label style={styles.label}>Số điện thoại</label><input style={styles.input} value={editForm.phone} onChange={e => setEditForm({ ...editForm, phone: e.target.value })} /></div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr', gap: '20px' }}>
                     <div><label style={styles.label}>Ngày sinh</label><input type="date" style={styles.input} value={editForm.birthday} onChange={e => setEditForm({ ...editForm, birthday: e.target.value })} /></div>
                     <div>
                       <label style={styles.label}>Giới tính</label>
@@ -269,11 +273,11 @@ export default function Profile({ user, setUser, setActiveTab }) {
                       </select>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}>
-                    <button onClick={handleSaveProfile} disabled={loading} style={{ padding: '16px 40px', background: brand.primary, color: 'white', border: 'none', borderRadius: '15px', fontWeight: '700', cursor: 'pointer', flex: isMobile ? 1 : 'none' }}>
+                  <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', gap: '15px', marginTop: '20px' }}>
+                    <button onClick={handleSaveProfile} disabled={loading} style={{ padding: '16px 40px', background: brand.primary, color: 'white', border: 'none', borderRadius: '15px', fontWeight: '700', cursor: 'pointer', width: isPhone ? '100%' : 'auto' }}>
                       {loading ? "Đang lưu..." : "Lưu thay đổi"}
                     </button>
-                    <button onClick={() => setIsEditing(false)} style={{ padding: '16px 40px', background: '#f4f4f5', color: brand.text, border: 'none', borderRadius: '15px', fontWeight: '700', cursor: 'pointer', flex: isMobile ? 1 : 'none' }}>
+                    <button onClick={() => setIsEditing(false)} style={{ padding: '16px 40px', background: '#f4f4f5', color: brand.text, border: 'none', borderRadius: '15px', fontWeight: '700', cursor: 'pointer', width: isPhone ? '100%' : 'auto' }}>
                       Hủy
                     </button>
                   </div>
@@ -311,29 +315,53 @@ export default function Profile({ user, setUser, setActiveTab }) {
                     </div>
                   </div>
                   <div style={{ border: `1px solid ${brand.border}`, borderRadius: '20px', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                      <thead style={{ backgroundColor: brand.bg }}><tr><th style={{ padding: '15px', textAlign: 'left' }}>Sản phẩm</th><th style={{ padding: '15px' }}>SL</th><th style={{ padding: '15px', textAlign: 'right' }}>Đơn giá</th></tr></thead>
-                      <tbody>
+                    {!isPhone ? (
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead style={{ backgroundColor: brand.bg }}><tr><th style={{ padding: '15px', textAlign: 'left' }}>Sản phẩm</th><th style={{ padding: '15px' }}>SL</th><th style={{ padding: '15px', textAlign: 'right' }}>Đơn giá</th></tr></thead>
+                        <tbody>
+                          {selectedOrder.items?.map((item, idx) => (
+                            <tr key={idx} style={{ borderBottom: `1px solid ${brand.border}` }}>
+                              <td style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <img src={getImgUrl(item.product?.image_url)} style={{ width: '45px', height: '45px', borderRadius: '8px', objectFit: 'cover' }} />
+                                <div>
+                                  <div style={{ fontWeight: '600', fontSize: '14px' }}>{item.product?.name}</div>
+                                  {selectedOrder.status === "delivered" && (
+                                    <button
+                                      onClick={() => setViewingProductId(item.product?.id)}
+                                      style={{ color: brand.secondary, border: 'none', background: 'none', padding: 0, fontSize: '12px', fontWeight: '700', cursor: 'pointer', marginTop: '5px', textDecoration: 'underline' }}
+                                    > Đánh giá ngay </button>
+                                  )}
+                                </div>
+                              </td>
+                              <td style={{ padding: '15px', textAlign: 'center' }}>{item.quantity}</td>
+                              <td style={{ padding: '15px', textAlign: 'right', fontWeight: '700' }}>{formatVnd(item.price_at_purchase)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      /* Card layout for mobile */
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
                         {selectedOrder.items?.map((item, idx) => (
-                          <tr key={idx} style={{ borderBottom: `1px solid ${brand.border}` }}>
-                            <td style={{ padding: '15px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <img src={getImgUrl(item.product?.image_url)} style={{ width: '45px', height: '45px', borderRadius: '8px', objectFit: 'cover' }} />
-                              <div>
-                                <div style={{ fontWeight: '600', fontSize: '14px' }}>{item.product?.name}</div>
-                                {selectedOrder.status === "delivered" && (
-                                  <button
-                                    onClick={() => setViewingProductId(item.product?.id)}
-                                    style={{ color: brand.secondary, border: 'none', background: 'none', padding: 0, fontSize: '12px', fontWeight: '700', cursor: 'pointer', marginTop: '5px', textDecoration: 'underline' }}
-                                  > Đánh giá ngay </button>
-                                )}
+                          <div key={idx} style={{ padding: '15px', borderBottom: `1px solid ${brand.border}`, display: 'flex', gap: '12px' }}>
+                            <img src={getImgUrl(item.product?.image_url)} style={{ width: '60px', height: '60px', borderRadius: '12px', objectFit: 'cover' }} />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: '700', fontSize: '14px', marginBottom: '4px' }}>{item.product?.name}</div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                                <span style={{ color: brand.muted }}>Số lượng: {item.quantity}</span>
+                                <span style={{ fontWeight: '700', color: brand.primary }}>{formatVnd(item.price_at_purchase)}</span>
                               </div>
-                            </td>
-                            <td style={{ padding: '15px', textAlign: 'center' }}>{item.quantity}</td>
-                            <td style={{ padding: '15px', textAlign: 'right', fontWeight: '700' }}>{formatVnd(item.price_at_purchase)}</td>
-                          </tr>
+                              {selectedOrder.status === "delivered" && (
+                                <button
+                                  onClick={() => setViewingProductId(item.product?.id)}
+                                  style={{ color: brand.secondary, border: 'none', background: 'none', padding: 0, fontSize: '12px', fontWeight: '700', cursor: 'pointer', marginTop: '8px', textDecoration: 'underline' }}
+                                > Đánh giá ngay </button>
+                              )}
+                            </div>
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
+                      </div>
+                    )}
 
                     {/* TỔNG KẾT ĐƠN HÀNG CÓ HIỆN MÃ GIẢM GIÁ */}
                     <div style={{ padding: '20px', backgroundColor: '#fdfcf9', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-end' }}>
@@ -369,9 +397,9 @@ export default function Profile({ user, setUser, setActiveTab }) {
                 /* DANH SÁCH ĐƠN HÀNG */
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   {orders.map((order) => (
-                    <div key={order.id} style={{ padding: '20px', borderRadius: '20px', border: `1px solid ${brand.border}`, backgroundColor: '#fdfcf9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div key={order.id} style={{ padding: '20px', borderRadius: '20px', border: `1px solid ${brand.border}`, backgroundColor: '#fdfcf9', display: 'flex', flexDirection: isPhone ? 'column' : 'row', justifyContent: 'space-between', alignItems: isPhone ? 'flex-start' : 'center', gap: isPhone ? '15px' : '0' }}>
                       <div><div style={{ fontWeight: '800' }}>#{order.order_code}</div><div style={{ fontSize: '13px', color: brand.muted }}>{new Date(order.created_at).toLocaleDateString('vi-VN')} - {formatVnd(order.total_amount)}</div></div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: isPhone ? '100%' : 'auto', gap: '12px' }}>
                         <span style={{ fontSize: '12px', fontWeight: '700', color: brand.secondary }}>{order.status.toUpperCase()}</span>
                         <button onClick={() => orderService.getMyOrder(order.id).then(setSelectedOrder)} style={{ ...styles.btnEdit, padding: '8px 16px' }}>Chi tiết</button>
                       </div>

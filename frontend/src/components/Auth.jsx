@@ -7,10 +7,11 @@ export default function Auth({ setUser, setActiveTab }) {
   // authMode: 'login', 'register', 'forgot', 'reset'
   const [authMode, setAuthMode] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false); // Mắt cho MK mới
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Mắt cho Xác nhận MK
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -25,6 +26,15 @@ export default function Auth({ setUser, setActiveTab }) {
   const [error, setError] = useState("");
 
   const dateInputRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth <= 1024;
+  const isPhone = windowWidth <= 768;
 
   useEffect(() => {
     setIsVisible(false);
@@ -123,15 +133,63 @@ export default function Auth({ setUser, setActiveTab }) {
   };
 
   const styles = {
-    container: { display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100vw', height: '100vh', backgroundColor: brand.bg, fontFamily: '"Inter", sans-serif', overflow: 'hidden' },
-    mainWrapper: { display: 'flex', width: '90%', maxWidth: '1000px', height: '85vh', borderRadius: '30px', overflow: 'hidden', backgroundColor: brand.panelBg, boxShadow: '0 25px 50px rgba(0, 0, 0, 0.12)', position: 'relative' },
-    visualSide: { position: 'absolute', top: 0, left: (authMode === 'login' || authMode === 'forgot' || authMode === 'reset') ? '50%' : '0', width: '50%', height: '100%', backgroundColor: brand.primary, color: brand.white, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', transition: 'all 0.6s cubic-bezier(0.65, 0, 0.35, 1)', zIndex: 10, padding: '40px', textAlign: 'center' },
-    scrollArea: { width: '50%', height: '100%', padding: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxSizing: 'border-box', opacity: isVisible ? 1 : 0, transition: 'opacity 0.4s ease', overflowY: 'auto' },
-    title: { fontSize: '28px', fontWeight: '900', color: brand.text, margin: '0 0 8px' },
+    container: { 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      width: '100%', 
+      minHeight: '100vh', 
+      backgroundColor: brand.bg, 
+      fontFamily: '"Inter", sans-serif', 
+      padding: isPhone ? '20px 10px' : '40px',
+      boxSizing: 'border-box'
+    },
+    mainWrapper: { 
+      display: 'flex', 
+      flexDirection: isMobile ? 'column' : 'row',
+      width: '100%', 
+      maxWidth: '1000px', 
+      height: isMobile ? 'auto' : '85vh', 
+      borderRadius: '30px', 
+      overflow: 'hidden', 
+      backgroundColor: brand.panelBg, 
+      boxShadow: '0 25px 50px rgba(0, 0, 0, 0.12)', 
+      position: 'relative' 
+    },
+    visualSide: { 
+      position: isMobile ? 'relative' : 'absolute', 
+      top: 0, 
+      left: isMobile ? 0 : (authMode === 'login' || authMode === 'forgot' || authMode === 'reset') ? '50%' : '0', 
+      width: isMobile ? '100%' : '50%', 
+      height: isMobile ? '180px' : '100%', 
+      backgroundColor: brand.primary, 
+      color: brand.white, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      transition: 'all 0.6s cubic-bezier(0.65, 0, 0.35, 1)', 
+      zIndex: 10, 
+      padding: isPhone ? '20px' : '40px', 
+      textAlign: 'center' 
+    },
+    scrollArea: { 
+      width: isMobile ? '100%' : '50%', 
+      height: '100%', 
+      padding: isPhone ? '30px 20px' : '40px', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      justifyContent: 'center', 
+      boxSizing: 'border-box', 
+      opacity: isVisible ? 1 : 0, 
+      transition: 'opacity 0.4s ease', 
+      overflowY: 'auto' 
+    },
+    title: { fontSize: isPhone ? '24px' : '28px', fontWeight: '900', color: brand.text, margin: '0 0 8px' },
     subtitle: { fontSize: '14px', color: brand.muted, marginBottom: '25px' },
     label: { display: 'block', marginBottom: '6px', fontSize: '12px', fontWeight: '700', color: brand.primary, textTransform: 'uppercase', letterSpacing: '0.5px' },
     input: { width: '100%', padding: '13px 15px', borderRadius: '12px', border: 'none', backgroundColor: brand.white, fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' },
-    compactGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' },
+    compactGrid: { display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr', gap: '15px' },
     btnSubmit: { width: '100%', padding: '16px', backgroundColor: brand.primary, color: brand.white, border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', marginTop: '10px', boxShadow: '0 4px 12px rgba(35, 74, 74, 0.2)' },
     link: { color: brand.primary, fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', fontSize: '13px' },
     eyeIcon: { position: 'absolute', right: '15px', top: '12px', cursor: 'pointer', color: '#999' }
@@ -141,11 +199,11 @@ export default function Auth({ setUser, setActiveTab }) {
     <main style={styles.container}>
       <div style={styles.mainWrapper}>
         <div style={styles.visualSide}>
-          <h1 style={{ fontSize: '48px', fontWeight: '900', letterSpacing: '-1px' }}>HOMETIC.</h1>
-          <p style={{ opacity: 0.8, marginTop: '10px', fontSize: '16px', fontWeight: '500' }}>Nâng tầm không gian sống.</p>
+          <h1 style={{ fontSize: isPhone ? '32px' : '48px', fontWeight: '900', letterSpacing: '-1px' }}>HOMETIC.</h1>
+          <p style={{ opacity: 0.8, marginTop: '10px', fontSize: isPhone ? '14px' : '16px', fontWeight: '500' }}>Nâng tầm không gian sống.</p>
         </div>
 
-        <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: (authMode === 'register') ? 'flex-end' : 'flex-start' }}>
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: isMobile ? 'flex-start' : (authMode === 'register' ? 'flex-end' : 'flex-start') }}>
           <div style={styles.scrollArea}>
 
             {/* 1. MÀN HÌNH QUÊN MẬT KHẨU */}

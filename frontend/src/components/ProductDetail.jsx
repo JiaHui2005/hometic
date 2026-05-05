@@ -9,6 +9,16 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
   const [quantity, setQuantity] = useState(1);
   const [mainImage, setMainImage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  const isMobile = windowWidth <= 1024;
+  const isPhone = windowWidth <= 768;
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const brand = {
     bg: "#f9f5ed",
@@ -52,39 +62,37 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
   if (!product) return <div style={{ textAlign: 'center', padding: '100px' }}>Không tìm thấy sản phẩm.</div>;
 
   const hasSale = !!product.sale_price;
-  const isMobile = window.innerWidth <= 768;
 
   const specs = product.detail?.specifications
     ? Object.entries(product.detail.specifications).map(([key, value]) => ({ label: key, value }))
     : [];
 
   const styles = {
-    page: { backgroundColor: brand.bg, minHeight: '100vh', padding: isMobile ? '20px' : '60px 10%', color: brand.text, fontFamily: '"Inter", sans-serif' },
-    mainContainer: { display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '60px', marginBottom: '60px', alignItems: 'flex-start' },
-    gallery: { flex: 1, maxWidth: isMobile ? '100%' : '500px' },
-    mainImgBox: { backgroundColor: brand.white, borderRadius: '30px', overflow: 'hidden', border: `1px solid ${brand.border}`, boxShadow: '0 20px 40px rgba(35, 74, 74, 0.05)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' },
-    content: { flex: 1.2, display: 'flex', flexDirection: 'column', gap: '15px' },
+    page: { backgroundColor: brand.bg, minHeight: '100vh', padding: isPhone ? '20px 15px' : isMobile ? '40px' : '60px 10%', color: brand.text, fontFamily: '"Inter", sans-serif' },
+    mainContainer: { display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '30px' : '60px', marginBottom: '60px', alignItems: 'flex-start' },
+    gallery: { flex: 1, width: '100%', maxWidth: isMobile ? '100%' : '500px' },
+    mainImgBox: { backgroundColor: brand.white, borderRadius: '30px', overflow: 'hidden', border: `1px solid ${brand.border}`, boxShadow: '0 20px 40px rgba(35, 74, 74, 0.05)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: isPhone ? '15px' : '20px' },
+    content: { flex: 1.2, display: 'flex', flexDirection: 'column', gap: '15px', width: '100%' },
     badge: { display: 'inline-block', padding: '6px 16px', backgroundColor: brand.text, color: 'white', borderRadius: '10px', fontSize: '12px', fontWeight: '800', width: 'fit-content', textTransform: 'uppercase' },
-    title: { fontSize: isMobile ? '28px' : '36px', fontWeight: '900', margin: '10px 0 0', color: brand.text, lineHeight: '1.2' },
+    title: { fontSize: isPhone ? '26px' : isMobile ? '32px' : '36px', fontWeight: '900', margin: '10px 0 0', color: brand.text, lineHeight: '1.2' },
 
-    // STYLE GIÁ ĐÃ CẬP NHẬT
-    priceSection: { display: 'flex', alignItems: 'center', gap: '15px', margin: '10px 0', color: brand.text },
-    activePrice: { fontSize: '32px', fontWeight: '900', color: brand.text },
+    priceSection: { display: 'flex', alignItems: 'baseline', gap: '15px', margin: '10px 0', color: brand.text, flexWrap: 'wrap' },
+    activePrice: { fontSize: isPhone ? '28px' : '32px', fontWeight: '900', color: brand.text },
     oldPrice: { fontSize: '18px', color: brand.muted, textDecoration: 'line-through', fontWeight: '500' },
 
-    policy: { display: 'flex', gap: '25px', padding: '20px 0', borderTop: `1px solid ${brand.border}`, borderBottom: `1px solid ${brand.border}`, margin: '10px 0' },
+    policy: { display: 'flex', flexDirection: isPhone ? 'column' : 'row', gap: isPhone ? '12px' : '25px', padding: '20px 0', borderTop: `1px solid ${brand.border}`, borderBottom: `1px solid ${brand.border}`, margin: '10px 0' },
     policyItem: { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: '600', color: brand.text },
 
-    qtySelector: { display: 'flex', alignItems: 'center', gap: '20px', margin: '20px 0' },
-    qtyWrapper: { display: 'flex', alignItems: 'center', border: `1px solid ${brand.text}`, borderRadius: '15px', overflow: 'hidden', backgroundColor: 'white', width: '160px', height: '48px' },
+    qtySelector: { display: 'flex', flexDirection: isPhone ? 'column' : 'row', alignItems: isPhone ? 'flex-start' : 'center', gap: isPhone ? '12px' : '20px', margin: '20px 0' },
+    qtyWrapper: { display: 'flex', alignItems: 'center', border: `1px solid ${brand.text}`, borderRadius: '15px', overflow: 'hidden', backgroundColor: 'white', width: isPhone ? '100%' : '160px', height: '48px' },
     qtyBtn: { flex: '1', height: '100%', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', color: brand.text, transition: '0.2s', padding: '0' },
     qtyText: { width: '50px', textAlign: 'center', fontSize: '18px', fontWeight: '800', color: brand.text },
 
-    specsSection: { backgroundColor: brand.white, padding: isMobile ? '25px' : '45px', borderRadius: '30px', border: `1px solid ${brand.border}`, marginBottom: '60px', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' },
+    specsSection: { backgroundColor: brand.white, padding: isPhone ? '20px' : isMobile ? '30px' : '45px', borderRadius: '30px', border: `1px solid ${brand.border}`, marginBottom: '60px', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' },
     table: { width: '100%', borderCollapse: 'collapse' },
     row: { borderBottom: `1px solid #f2f0eb` },
-    label: { padding: '18px', fontWeight: '800', color: brand.text, width: '35%', backgroundColor: '#faf9f6', fontSize: '14px' },
-    val: { padding: '18px', color: brand.text, fontSize: '14px' }
+    label: { padding: isPhone ? '15px 12px' : '18px', fontWeight: '800', color: brand.text, width: isPhone ? '45%' : '35%', backgroundColor: '#faf9f6', fontSize: '14px' },
+    val: { padding: isPhone ? '15px 12px' : '18px', color: brand.text, fontSize: '14px' }
   };
 
   return (
@@ -139,10 +147,10 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', gap: '15px', marginTop: '10px' }}>
             <button
               onClick={() => addToCart({ ...product, quantity })}
-              style={{ flex: 1, padding: '18px', backgroundColor: brand.orange, color: brand.white, borderRadius: '15px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', transition: '0.3s' }}
+              style={{ flex: 1, padding: isPhone ? '15px' : '18px', backgroundColor: brand.orange, color: brand.white, borderRadius: '15px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', transition: '0.3s' }}
               onMouseOver={(e) => { e.currentTarget.style.backgroundColor = brand.primary; e.currentTarget.style.color = 'white'; }}
               onMouseOut={(e) => { e.currentTarget.style.backgroundColor = brand.orange; e.currentTarget.style.color = brand.white; }}
             >
@@ -150,7 +158,7 @@ export default function ProductDetail({ product: initialProduct, addToCart, setA
             </button>
             <button
               onClick={() => { addToCart({ ...product, quantity }); setActiveTab("cart"); }}
-              style={{ flex: 1, padding: '18px', backgroundColor: brand.orange, color: brand.white, border: 'none', borderRadius: '15px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(35, 74, 74, 0.15)' }}
+              style={{ flex: 1, padding: isPhone ? '15px' : '18px', backgroundColor: brand.orange, color: brand.white, border: 'none', borderRadius: '15px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 10px 20px rgba(35, 74, 74, 0.15)' }}
               onMouseOver={(e) => { e.currentTarget.style.backgroundColor = brand.primary; e.currentTarget.style.color = 'white'; }}
               onMouseOut={(e) => { e.currentTarget.style.backgroundColor = brand.orange; e.currentTarget.style.color = brand.white; }}
             >

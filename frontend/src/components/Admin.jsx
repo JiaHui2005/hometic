@@ -26,6 +26,14 @@ export default function Admin({ onLogout }) {
 
   const [customerOrders, setCustomerOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -208,12 +216,20 @@ export default function Admin({ onLogout }) {
     <div style={styles.container}>
       <Sidebar
         activeMenu={activeMenu}
-        setActiveMenu={setActiveMenu}
+        setActiveMenu={(menu) => { setActiveMenu(menu); setShowMobileSidebar(false); }}
         onLogout={onLogout}
+        isVisible={!isMobile || showMobileSidebar}
+        isMobile={isMobile}
+        onClose={() => setShowMobileSidebar(false)}
       />
 
-      <main style={styles.main}>
-        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <main style={{ ...styles.main, padding: isMobile ? '20px' : '40px 50px' }}>
+        <Header 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          isMobile={isMobile}
+          onToggleSidebar={() => setShowMobileSidebar(!showMobileSidebar)}
+        />
 
         {activeMenu === "Tổng quan" ? (
           <Dashboard stats={stats} chartData={chartData} setActiveMenu={setActiveMenu} />

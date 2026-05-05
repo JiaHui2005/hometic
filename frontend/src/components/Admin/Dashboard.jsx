@@ -1,9 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { CreditCard, ShoppingCart, Users, BarChart3, Clock, ArrowUpRight } from "lucide-react";
 import { brand, adminStyles as styles } from "./AdminStyles";
 import { formatVnd } from "../../constants";
 
 export default function Dashboard({ stats, chartData, setActiveMenu }) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+  const [isPhone, setIsPhone] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1024);
+      setIsPhone(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const getOrderStatus = (status) => {
     switch (status) {
       case 'pending': return { bg: '#fff7ed', text: '#c2410c', label: 'Chờ xử lý' };
@@ -25,7 +37,7 @@ export default function Dashboard({ stats, chartData, setActiveMenu }) {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isPhone ? '1fr' : isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isPhone ? '15px' : '30px' }}>
         <div style={{ ...styles.statsCard, border: `1px solid ${brand.border}` }}>
           <div>
             <div style={{ color: brand.muted, fontSize: '12px', fontWeight: '800', letterSpacing: '1px' }}>TỔNG DOANH THU</div>
@@ -58,7 +70,7 @@ export default function Dashboard({ stats, chartData, setActiveMenu }) {
       </div>
 
       {/* Charts Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '30px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.6fr 1fr', gap: '30px' }}>
         <div style={{ ...styles.card, borderRadius: '24px', border: `1px solid ${brand.border}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '35px' }}>
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: brand.sidebar, display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -136,56 +148,106 @@ export default function Dashboard({ stats, chartData, setActiveMenu }) {
         </div>
       </div>
 
-      {/* Recent Orders (Giữ nguyên) */}
-      <div style={{ ...styles.tableWrapper, border: `1px solid ${brand.border}` }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', color: brand.sidebar }}>Đơn hàng mới nhất</h3>
+      {/* Recent Orders */}
+      <div style={{ ...styles.tableWrapper, border: `1px solid ${brand.border}`, padding: isPhone ? '20px' : '35px', overflowX: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: isPhone ? 'column' : 'row', justifyContent: 'space-between', alignItems: isPhone ? 'flex-start' : 'center', gap: '15px', marginBottom: '30px' }}>
+          <h3 style={{ margin: 0, fontSize: isPhone ? '18px' : '20px', fontWeight: '900', color: brand.sidebar }}>Đơn hàng mới nhất</h3>
           <button
             onClick={() => setActiveMenu("Đơn hàng")}
-            style={{ color: brand.primary, background: brand.bg, border: `1px solid ${brand.border}`, padding: '8px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+            style={{ color: brand.primary, background: brand.bg, border: `1px solid ${brand.border}`, padding: '8px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', width: isPhone ? '100%' : 'auto', justifyContent: 'center' }}
           >
             Tất cả đơn hàng <ArrowUpRight size={16} />
           </button>
         </div>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Mã đơn hàng</th>
-              <th style={styles.th}>Khách hàng</th>
-              <th style={styles.th}>Tổng tiền</th>
-              <th style={styles.th}>Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stats?.recent_orders?.length > 0 ? stats.recent_orders.map(order => {
-              const status = getOrderStatus(order.status);
-              return (
-                <tr key={order.id} className="admin-tr" style={{ cursor: 'pointer' }} onClick={() => setActiveMenu("Đơn hàng")}>
-                  <td style={styles.td}>
-                    <div style={{ backgroundColor: brand.primary + '10', padding: '6px 12px', borderRadius: '8px', display: 'inline-block', color: brand.primary, fontWeight: '800', fontSize: '13px' }}>
-                      #{order.order_code}
-                    </div>
-                  </td>
-                  <td style={styles.td}>
-                    <div style={{ fontWeight: '700', color: brand.sidebar }}>{order.recipient_name}</div>
-                    <div style={{ fontSize: '11px', color: brand.muted }}><Clock size={10} style={{ marginRight: '4px' }} /> {new Date(order.created_at).toLocaleTimeString('vi-VN')}</div>
-                  </td>
-                  <td style={styles.td}><strong style={{ fontSize: '15px', color: brand.orange }}>{formatVnd(order.total_amount)}</strong></td>
-                  <td style={styles.td}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', padding: '6px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '800',
-                      backgroundColor: status.bg, color: status.text, border: `1px solid ${status.text}20`
-                    }}>
-                      {status.label?.toUpperCase()}
-                    </span>
-                  </td>
+        <div style={{ width: '100%' }}>
+          {!isPhone ? (
+            <table style={{ ...styles.table, minWidth: isMobile ? '600px' : 'auto' }}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>Mã đơn hàng</th>
+                  <th style={styles.th}>Khách hàng</th>
+                  <th style={styles.th}>Tổng tiền</th>
+                  <th style={styles.th}>Trạng thái</th>
                 </tr>
-              )
-            }) : (
-              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '60px', color: brand.muted }}>Chưa có đơn hàng mới nào.</td></tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {stats?.recent_orders?.length > 0 ? stats.recent_orders.map(order => {
+                  const status = getOrderStatus(order.status);
+                  return (
+                    <tr key={order.id} className="admin-tr" style={{ cursor: 'pointer' }} onClick={() => setActiveMenu("Đơn hàng")}>
+                      <td style={styles.td}>
+                        <div style={{ backgroundColor: brand.primary + '10', padding: '6px 12px', borderRadius: '8px', display: 'inline-block', color: brand.primary, fontWeight: '800', fontSize: '13px' }}>
+                          #{order.order_code}
+                        </div>
+                      </td>
+                      <td style={styles.td}>
+                        <div style={{ fontWeight: '700', color: brand.sidebar }}>{order.recipient_name}</div>
+                        <div style={{ fontSize: '11px', color: brand.muted }}><Clock size={10} style={{ marginRight: '4px' }} /> {new Date(order.created_at).toLocaleTimeString('vi-VN')}</div>
+                      </td>
+                      <td style={styles.td}><strong style={{ fontSize: '15px', color: brand.orange }}>{formatVnd(order.total_amount)}</strong></td>
+                      <td style={styles.td}>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', padding: '6px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '800',
+                          backgroundColor: status.bg, color: status.text, border: `1px solid ${status.text}20`
+                        }}>
+                          {status.label?.toUpperCase()}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                }) : (
+                  <tr><td colSpan="4" style={{ textAlign: 'center', padding: '60px', color: brand.muted }}>Chưa có đơn hàng mới nào.</td></tr>
+                )}
+              </tbody>
+            </table>
+          ) : (
+            /* Card layout for mobile admin dashboard */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              {stats?.recent_orders?.length > 0 ? stats.recent_orders.map(order => {
+                const status = getOrderStatus(order.status);
+                return (
+                  <div 
+                    key={order.id} 
+                    onClick={() => setActiveMenu("Đơn hàng")}
+                    style={{ 
+                      padding: '15px', 
+                      borderRadius: '16px', 
+                      border: `1px solid ${brand.border}`,
+                      backgroundColor: brand.white,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ backgroundColor: brand.primary + '10', padding: '4px 10px', borderRadius: '6px', color: brand.primary, fontWeight: '800', fontSize: '12px' }}>
+                        #{order.order_code}
+                      </div>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', padding: '4px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '800',
+                        backgroundColor: status.bg, color: status.text, border: `1px solid ${status.text}20`
+                      }}>
+                        {status.label?.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                      <div>
+                        <div style={{ fontWeight: '700', color: brand.sidebar, fontSize: '14px' }}>{order.recipient_name}</div>
+                        <div style={{ fontSize: '11px', color: brand.muted, marginTop: '2px' }}>
+                          <Clock size={10} style={{ marginRight: '4px' }} /> {new Date(order.created_at).toLocaleTimeString('vi-VN')}
+                        </div>
+                      </div>
+                      <strong style={{ fontSize: '16px', color: brand.orange }}>{formatVnd(order.total_amount)}</strong>
+                    </div>
+                  </div>
+                )
+              }) : (
+                <div style={{ textAlign: 'center', padding: '40px', color: brand.muted }}>Chưa có đơn hàng mới nào.</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <style>{`

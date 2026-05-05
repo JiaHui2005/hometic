@@ -1,19 +1,29 @@
-import React from "react";
-import { Sparkles, User } from "lucide-react";
+import { Sparkles, User, Menu } from "lucide-react";
 import { brand } from "./AdminStyles";
 
-export default function Header() {
+export default function Header({ isMobile, onToggleSidebar }) {
   return (
     <header style={{
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: '50px',
+      marginBottom: isMobile ? '30px' : '50px',
       flexShrink: 0,
-      animation: 'fadeIn 1s ease-out'
+      animation: 'fadeIn 1s ease-out',
+      gap: '15px'
     }}>
+      {/* Nút Toggle Sidebar cho Mobile */}
+      {isMobile && (
+        <button 
+          onClick={onToggleSidebar}
+          style={{ background: brand.white, border: `1px solid ${brand.border}`, borderRadius: '12px', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+        >
+          <Menu size={24} color={brand.sidebar} />
+        </button>
+      )}
+
       {/* Khu vực Slogan với Animation Chữ */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flex: 1 }}>
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <h2 style={{
@@ -45,45 +55,49 @@ export default function Header() {
               animationDelay: '0.2s, 0s',
               animationIterationCount: '1, infinite'
             }}>Nâng tầm</span>
-            <span style={{ animation: 'textReveal 0.8s 0.3s cubic-bezier(0.77,0,0.175,1) forwards', opacity: 0 }}>không gian</span>
+            <span style={{ animation: 'textReveal 0.8s 0.3s cubic-bezier(0.77,0,0.175,1) forwards', opacity: 0 }}>{isMobile ? "" : "không gian"}</span>
           </h2>
 
-          <p style={{
-            margin: '4px 0 0 0',
-            fontSize: '14px',
-            color: brand.muted,
-            fontWeight: '600',
-            letterSpacing: '0.5px',
-            animation: 'fadeInBlur 1.2s 0.5s forwards',
-            opacity: 0
-          }}>
-            Quản trị thông minh cho ngôi nhà hiện đại
-          </p>
+          {!isMobile && (
+            <p style={{
+              margin: '4px 0 0 0',
+              fontSize: '14px',
+              color: brand.muted,
+              fontWeight: '600',
+              letterSpacing: '0.5px',
+              animation: 'fadeInBlur 1.2s 0.5s forwards',
+              opacity: 0
+            }}>
+              Quản trị thông minh cho ngôi nhà hiện đại
+            </p>
+          )}
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
-        <div style={{ height: '35px', width: '1.5px', backgroundColor: brand.border, opacity: 0.6 }}></div>
+      <div style={{ display: 'flex', gap: isMobile ? '15px' : '30px', alignItems: 'center' }}>
+        {!isMobile && <div style={{ height: '35px', width: '1.5px', backgroundColor: brand.border, opacity: 0.6 }}></div>}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '15px', fontWeight: '800', color: brand.sidebar }}>Hometic Store</div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                backgroundColor: '#10b981',
-                borderRadius: '50%',
-                animation: 'pulseStatus 2s infinite'
-              }}></div>
-              <div style={{ fontSize: '12px', color: brand.muted, fontWeight: '700' }}>Hệ thống ổn định</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '10px' : '15px' }}>
+          {!isMobile && (
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '15px', fontWeight: '800', color: brand.sidebar }}>Hometic Store</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  backgroundColor: '#10b981',
+                  borderRadius: '50%',
+                  animation: 'pulseStatus 2s infinite'
+                }}></div>
+                <div style={{ fontSize: '12px', color: brand.muted, fontWeight: '700' }}>Hệ thống ổn định</div>
+              </div>
             </div>
-          </div>
+          )}
 
           <div style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '16px',
+            width: isMobile ? '40px' : '50px',
+            height: isMobile ? '40px' : '50px',
+            borderRadius: '12px',
             backgroundColor: brand.white,
             display: 'flex',
             justifyContent: 'center',
@@ -95,7 +109,7 @@ export default function Header() {
           }}
             className="admin-avatar"
           >
-            <User size={26} color={brand.sidebar} />
+            <User size={isMobile ? 20 : 26} color={brand.sidebar} />
           </div>
         </div>
       </div>

@@ -1,11 +1,22 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { formatVnd } from "../constants";
 import alertService from "../services/alertService";
-import { Search, Tag, Check, RotateCcw, Package, ArrowRight } from "lucide-react";
+import { Search, Tag, Check, RotateCcw, Package, ArrowRight, Filter } from "lucide-react";
 import { getImgUrl } from "../services/api";
 
 export default function SearchPage({ products, filters, setFilters, addToCart, setActiveTab, setSelectedProduct }) {
   const [hoveredId, setHoveredId] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+
+  const isMobile = windowWidth <= 1024;
+  const isPhone = windowWidth <= 768;
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   
   // States cho bộ lọc
   const [priceRange, setPriceRange] = useState({ min: 0, max: 50000000 });
@@ -62,34 +73,57 @@ export default function SearchPage({ products, filters, setFilters, addToCart, s
     container: {
       backgroundColor: brand.bg,
       minHeight: '100vh',
-      padding: '40px 5% 100px',
+      padding: isPhone ? '20px 15px 100px' : '40px 5% 100px',
       color: brand.text,
       fontFamily: '"Outfit", "Inter", sans-serif'
     },
     header: {
-      marginBottom: '40px'
+      marginBottom: isPhone ? '25px' : '40px',
+      textAlign: isPhone ? 'center' : 'left'
     },
     title: {
-      fontSize: '36px',
+      fontSize: isPhone ? '26px' : '36px',
       fontWeight: '900',
       color: brand.primary,
       margin: '0 0 10px 0',
       letterSpacing: '-1px'
     },
     subtitle: {
-      fontSize: '16px',
+      fontSize: '14px',
       color: brand.muted,
       fontWeight: '500'
     },
     layout: {
       display: 'flex',
-      gap: '40px',
+      flexDirection: isMobile ? 'column' : 'row',
+      gap: isPhone ? '25px' : '40px',
     },
     sidebar: {
-      width: '300px',
+      width: isMobile ? '100%' : '300px',
       flexShrink: 0,
+      display: isMobile && !showFiltersMobile ? 'none' : 'block'
     },
-    content: { flex: 1 },
+    mobileFilterToggle: {
+      display: isMobile ? 'flex' : 'none',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '10px',
+      padding: '15px',
+      backgroundColor: brand.white,
+      borderRadius: '15px',
+      border: `1px solid ${brand.border}`,
+      fontWeight: '800',
+      color: brand.primary,
+      cursor: 'pointer',
+      marginBottom: '20px',
+      width: '100%',
+      boxSizing: 'border-box'
+    },
+    content: { 
+      flex: 1,
+      width: '100%',
+      boxSizing: 'border-box'
+    },
     filterCard: {
       backgroundColor: brand.white,
       borderRadius: '24px',
@@ -147,12 +181,15 @@ export default function SearchPage({ products, filters, setFilters, addToCart, s
       borderRadius: '14px',
       cursor: 'pointer',
       backgroundColor: active ? `${brand.orange}10` : 'transparent',
-      marginBottom: '4px'
+      marginBottom: '4px',
+      fontSize: '14px'
     }),
     grid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: '25px',
+      gridTemplateColumns: isPhone ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))',
+      gap: isPhone ? '25px' : '25px',
+      justifyItems: 'center',
+      width: '100%'
     },
     card: {
       backgroundColor: brand.white,
@@ -164,7 +201,10 @@ export default function SearchPage({ products, filters, setFilters, addToCart, s
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       cursor: 'pointer',
       position: 'relative',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
+      boxShadow: '0 4px 15px rgba(0,0,0,0.02)',
+      width: '100%',
+      maxWidth: isPhone ? '350px' : 'none',
+      margin: isPhone ? '0 auto' : '0'
     },
     cardImage: {
       width: '100%',
@@ -201,18 +241,18 @@ export default function SearchPage({ products, filters, setFilters, addToCart, s
       display: 'flex',
       backgroundColor: brand.white,
       borderRadius: '20px',
-      padding: '10px 20px',
+      padding: isPhone ? '8px 15px' : '10px 20px',
       border: `2px solid ${brand.primary}`,
-      marginBottom: '40px',
+      marginBottom: isPhone ? '25px' : '40px',
       alignItems: 'center',
-      gap: '15px',
+      gap: '12px',
       boxShadow: '0 10px 25px rgba(35, 74, 74, 0.1)'
     },
     searchInput: {
       flex: 1,
       border: 'none',
       outline: 'none',
-      fontSize: '18px',
+      fontSize: isPhone ? '16px' : '18px',
       fontWeight: '600',
       color: brand.primary,
       background: 'transparent'
@@ -230,7 +270,7 @@ export default function SearchPage({ products, filters, setFilters, addToCart, s
             value={filters?.q || ""}
             onChange={(e) => setFilters(prev => ({ ...prev, q: e.target.value }))}
           />
-          {filters?.q && (
+          {filters?.q && !isPhone && (
             <div style={{ color: brand.muted, fontSize: '14px', fontWeight: '700' }}>
               Tìm thấy {filteredProducts.length} kết quả
             </div>
@@ -240,8 +280,17 @@ export default function SearchPage({ products, filters, setFilters, addToCart, s
         <h1 style={styles.title}>
           {filters?.q ? `Kết quả cho "${filters.q}"` : "Tất cả sản phẩm"}
         </h1>
+        {isPhone && filters?.q && (
+           <div style={{ color: brand.muted, fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>
+            Tìm thấy {filteredProducts.length} kết quả
+          </div>
+        )}
         <p style={styles.subtitle}>Khám phá hệ sinh thái thiết bị Hometic cao cấp nhất.</p>
       </header>
+
+      <div style={styles.mobileFilterToggle} onClick={() => setShowFiltersMobile(!showFiltersMobile)}>
+        <Filter size={20} /> {showFiltersMobile ? "ĐÓNG BỘ LỌC" : "LỌC SẢN PHẨM"}
+      </div>
 
       <div style={styles.layout}>
         <aside style={styles.sidebar}>

@@ -18,6 +18,18 @@ export default function DataList({
   handleViewCustomerOrders,
   refreshData
 }) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+  const [isPhone, setIsPhone] = useState(window.innerWidth <= 768);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1024);
+      setIsPhone(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // --- STATE TÌM KIẾM ---
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,24 +137,45 @@ export default function DataList({
   };
 
   return (
-    <div style={styles.tableWrapper}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+    <div style={{ ...styles.tableWrapper, padding: isPhone ? '20px' : '35px' }}>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: isPhone ? 'column' : 'row', 
+        justifyContent: 'space-between', 
+        alignItems: isPhone ? 'flex-start' : 'center', 
+        marginBottom: '30px',
+        gap: '20px'
+      }}>
         <div>
-          <h2 style={{ margin: 0, color: brand.sidebar, fontSize: '28px', fontWeight: '900' }}>Quản lý {activeMenu}</h2>
+          <h2 style={{ margin: 0, color: brand.sidebar, fontSize: isPhone ? '24px' : '28px', fontWeight: '900' }}>Quản lý {activeMenu}</h2>
           <p style={{ color: brand.muted, fontSize: '14px', marginTop: '5px' }}>Hệ thống quản trị Hometic cao cấp.</p>
         </div>
         {activeMenu !== "Khách hàng" && activeMenu !== "Đơn hàng" && (
           <button
             onClick={() => handleAddNew(activeMenu)}
-            style={{ backgroundColor: brand.orange, color: 'white', border: 'none', padding: '15px 30px', borderRadius: '18px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 8px 20px rgba(218, 143, 72, 0.3)', display: 'flex', alignItems: 'center', gap: '10px' }}
+            style={{ 
+              backgroundColor: brand.orange, 
+              color: 'white', 
+              border: 'none', 
+              padding: isPhone ? '12px 20px' : '15px 30px', 
+              borderRadius: '18px', 
+              fontWeight: '900', 
+              cursor: 'pointer', 
+              boxShadow: '0 8px 20px rgba(218, 143, 72, 0.3)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '10px',
+              width: isPhone ? '100%' : 'auto',
+              justifyContent: 'center'
+            }}
           >
-            <Package size={20} /> Thêm {activeMenu} mới
+            <Package size={20} /> {isPhone ? "Thêm mới" : `Thêm ${activeMenu} mới`}
           </button>
         )}
       </div>
 
       {/* --- THANH TÌM KIẾM --- */}
-      <div style={{ position: 'relative', marginBottom: '30px', maxWidth: '400px' }}>
+      <div style={{ position: 'relative', marginBottom: '30px', maxWidth: isPhone ? '100%' : '400px' }}>
         <Search
           size={18}
           style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: brand.muted }}
@@ -170,7 +203,7 @@ export default function DataList({
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '100px' }}><Loader2 className="animate-spin" size={40} color={brand.primary} style={{ margin: '0 auto' }} /></div>
-      ) : (
+      ) : !isPhone ? (
         <table style={styles.table}>
           <thead>
             {activeMenu === "Sản phẩm" && (
@@ -327,27 +360,169 @@ export default function DataList({
             )}
           </tbody>
         </table>
+      ) : (
+        /* Mobile Card View */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {paginatedData.length > 0 ? paginatedData.map((item) => {
+            const orderStatus = activeMenu === "Đơn hàng" ? getOrderStatus(item.status) : null;
+            return (
+              <div key={item.id} style={{
+                backgroundColor: 'white',
+                borderRadius: '20px',
+                padding: '20px',
+                border: `1px solid ${brand.border}`,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '15px'
+              }}>
+                {activeMenu === "Sản phẩm" && (
+                  <>
+                    <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                      <img src={getImgUrl(item.image_url)} style={{ width: '60px', height: '60px', borderRadius: '12px', objectFit: 'cover' }} alt="" />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '800', color: brand.sidebar, fontSize: '16px' }}>{item.name}</div>
+                        <div style={{ fontSize: '12px', color: brand.muted, marginTop: '4px' }}>{item.category?.name || 'Chưa phân loại'}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderTop: `1px dashed ${brand.border}`, borderBottom: `1px dashed ${brand.border}` }}>
+                      <div>
+                        <div style={{ fontSize: '11px', color: brand.muted, fontWeight: '800' }}>GIÁ BÁN / KHO</div>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '4px' }}>
+                          <strong style={{ color: brand.primary, fontSize: '15px' }}>{formatVnd(item.sale_price || item.price)}</strong>
+                          <span style={{ fontSize: '13px', fontWeight: '700' }}>• {item.stock} cái</span>
+                        </div>
+                      </div>
+                      <span style={{
+                        padding: '5px 12px', borderRadius: '20px', fontSize: '10px', fontWeight: '900',
+                        backgroundColor: item.is_active ? '#eafaf1' : '#f4f4f5',
+                        color: item.is_active ? brand.success : brand.muted
+                      }}>{item.is_active ? "ĐANG BÁN" : "NGỪNG BÁN"}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button onClick={() => handleEdit(item, "Sản phẩm")} style={{ ...actionBtnStyle(brand.primary), flex: 1, height: '40px' }}><Edit3 size={18} style={{ marginRight: '8px' }} /> Sửa</button>
+                      {item.is_active ?
+                        <button onClick={() => handleDeleteProduct(item)} style={{ ...actionBtnStyle(brand.danger), flex: 1, height: '40px' }}><Trash2 size={18} style={{ marginRight: '8px' }} /> Ngừng</button> :
+                        <button onClick={() => handleRestoreProduct(item)} style={{ ...actionBtnStyle(brand.success), flex: 1, height: '40px' }}><RotateCcw size={18} style={{ marginRight: '8px' }} /> Bán lại</button>
+                      }
+                    </div>
+                  </>
+                )}
+
+                {activeMenu === "Danh mục" && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: '900', color: brand.sidebar, fontSize: '18px' }}>{item.name}</div>
+                      <div style={{ backgroundColor: '#f4f4f5', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800' }}>#{item.id}</div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <code style={{ color: brand.orange, fontSize: '13px' }}>/{item.slug}</code>
+                      <span style={{
+                        padding: '5px 12px', borderRadius: '20px', fontSize: '10px', fontWeight: '900',
+                        backgroundColor: Boolean(item.is_active) ? '#eafaf1' : '#fef2f2',
+                        color: Boolean(item.is_active) ? brand.success : brand.danger
+                      }}>{Boolean(item.is_active) ? "HOẠT ĐỘNG" : "ĐÃ ẨN"}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                      <button onClick={() => handleEdit(item, "Danh mục")} style={{ ...actionBtnStyle(brand.primary), flex: 1, height: '40px' }}><Edit3 size={18} style={{ marginRight: '8px' }} /> Sửa</button>
+                      {Boolean(item.is_active) ?
+                        <button onClick={() => handleDeleteCategory(item)} style={{ ...actionBtnStyle(brand.danger), flex: 1, height: '40px' }}><XCircle size={18} style={{ marginRight: '8px' }} /> Ẩn</button> :
+                        <button onClick={() => handleRestoreCategory(item)} style={{ ...actionBtnStyle(brand.success), flex: 1, height: '40px' }}><RotateCcw size={18} style={{ marginRight: '8px' }} /> Hiện</button>
+                      }
+                    </div>
+                  </>
+                )}
+
+                {activeMenu === "Đơn hàng" && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ color: brand.primary, fontWeight: '900', fontSize: '16px' }}>#{item.order_code}</div>
+                      <span style={{
+                        padding: '5px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '800',
+                        backgroundColor: orderStatus.bg, color: orderStatus.text
+                      }}>{orderStatus.label}</span>
+                    </div>
+                    <div style={{ padding: '12px 0', borderTop: `1px dashed ${brand.border}`, borderBottom: `1px dashed ${brand.border}` }}>
+                      <div style={{ fontWeight: '800', color: brand.sidebar, fontSize: '15px' }}>{item.recipient_name}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
+                        <div style={{ fontSize: '12px', color: brand.muted }}>{item.recipient_phone} • {new Date(item.created_at).toLocaleDateString('vi-VN')}</div>
+                        <strong style={{ color: brand.orange, fontSize: '16px' }}>{formatVnd(item.total_amount)}</strong>
+                      </div>
+                    </div>
+                    <button onClick={() => handleViewOrder(item)} style={{ ...actionBtnStyle(brand.orange), width: '100%', height: '40px', gap: '8px' }}>
+                      <Eye size={18} /> Xem chi tiết đơn hàng
+                    </button>
+                  </>
+                )}
+
+                {activeMenu === "Khách hàng" && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: '800', color: brand.sidebar, fontSize: '16px' }}>{item.full_name}</div>
+                      <span style={{
+                        padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '900',
+                        backgroundColor: item.role === 'admin' ? brand.primary : '#eee',
+                        color: item.role === 'admin' ? 'white' : brand.muted
+                      }}>{item.role?.toUpperCase()}</span>
+                    </div>
+                    <div style={{ fontSize: '13px', color: brand.muted }}>{item.email}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: `1px solid ${brand.panel}` }}>
+                      <div style={{ fontSize: '12px' }}>Tham gia: {new Date(item.created_at).toLocaleDateString('vi-VN')}</div>
+                      <button onClick={() => handleViewCustomerOrders(item)} style={{ ...actionBtnStyle(brand.primary), padding: '0 15px', width: 'auto', height: '36px', gap: '6px' }}>
+                        <Eye size={16} /> Lịch sử
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          }) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: brand.muted }}>Không tìm thấy dữ liệu.</div>
+          )}
+        </div>
       )}
 
       {/* --- PHÂN TRANG --- */}
       {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '30px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: isPhone ? '15px' : '30px', marginTop: '40px' }}>
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(prev => prev - 1)}
-            style={{ padding: '8px 16px', borderRadius: '10px', border: `1px solid ${brand.border}`, backgroundColor: 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? brand.muted : brand.primary, fontWeight: '700' }}
+            style={{ 
+              padding: isPhone ? '10px' : '8px 16px', 
+              borderRadius: '12px', 
+              border: `1px solid ${brand.border}`, 
+              backgroundColor: 'white', 
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer', 
+              color: currentPage === 1 ? brand.muted : brand.primary, 
+              fontWeight: '800',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
-            Trước
+            {isPhone ? "←" : "Trước"}
           </button>
-          <div style={{ fontSize: '14px', fontWeight: '800', color: brand.sidebar }}>
-            Trang {currentPage} / {totalPages}
+          <div style={{ fontSize: '14px', fontWeight: '900', color: brand.sidebar }}>
+            {currentPage} / {totalPages}
           </div>
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(prev => prev + 1)}
-            style={{ padding: '8px 16px', borderRadius: '10px', border: `1px solid ${brand.border}`, backgroundColor: 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? brand.muted : brand.primary, fontWeight: '700' }}
+            style={{ 
+              padding: isPhone ? '10px' : '8px 16px', 
+              borderRadius: '12px', 
+              border: `1px solid ${brand.border}`, 
+              backgroundColor: 'white', 
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', 
+              color: currentPage === totalPages ? brand.muted : brand.primary, 
+              fontWeight: '800',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
-            Sau
+            {isPhone ? "→" : "Sau"}
           </button>
         </div>
       )}

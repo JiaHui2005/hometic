@@ -61,6 +61,7 @@ export default function AdminModal({
 
   const availableParents = displayCategories.filter(cat => cat.id !== editingItem?.id);
 
+  console.log(formData)
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -177,7 +178,7 @@ export default function AdminModal({
                       <tr key={index} style={{ borderTop: `1px solid ${brand.border}` }}>
                         <td style={{ padding: '12px' }}><strong>{item.product?.name}</strong></td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>{item.quantity}</td>
-                        <td style={{ padding: '12px', textAlign: 'right' }}>{formatVnd(item.price)}</td>
+                        <td style={{ padding: '12px', textAlign: 'right' }}>{formatVnd(item.price_at_purchase)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -249,10 +250,10 @@ export default function AdminModal({
                     <div style={{ ...inputGroupStyle, marginTop: '15px' }}><label style={labelStyle}>NỘI DUNG (HTML)</label><textarea value={formData.detail?.content || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, content: e.target.value } })} style={{ ...inputStyle, minHeight: '180px', resize: 'none' }} placeholder="Nhập mô tả chi tiết, có thể sử dụng các thẻ HTML (b, i, p...)" /></div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                     <div style={inputGroupStyle}><label style={labelStyle}>THÔNG SỐ (JSON)</label><textarea value={typeof formData.detail?.specifications === 'object' ? JSON.stringify(formData.detail?.specifications, null, 2) : formData.detail?.specifications || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, specifications: e.target.value } })} style={{ ...inputStyle, minHeight: '125px', fontFamily: 'monospace', fontSize: '12px' }} placeholder='Ví dụ: {"Dung tích": "5L", "Công suất": "1500W"}' /></div>
+                    <div style={inputGroupStyle}><label style={labelStyle}>THÔNG SỐ (JSON)</label><textarea value={typeof formData.detail?.specifications === 'object' ? JSON.stringify(formData.detail?.specifications, null, 2) : formData.detail?.specifications || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, specifications: e.target.value } })} style={{ ...inputStyle, minHeight: '125px', fontFamily: 'monospace', fontSize: '12px' }} placeholder='Ví dụ: {"Dung tích": "5L", "Công suất": "1500W"}' /></div>
                     <div style={rowStyle}>
-                       <div style={inputGroupStyle}><label style={labelStyle}>BẢO HÀNH</label><input type="text" value={formData.detail?.warranty_info || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, warranty_info: e.target.value } })} style={inputStyle} placeholder="Ví dụ: 12 tháng" /></div>
-                       <div style={inputGroupStyle}><label style={labelStyle}>XUẤT XỨ</label><input type="text" value={formData.detail?.origin || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, origin: e.target.value } })} style={inputStyle} placeholder="Ví dụ: Việt Nam" /></div>
+                      <div style={inputGroupStyle}><label style={labelStyle}>BẢO HÀNH</label><input type="text" value={formData.detail?.warranty_info || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, warranty_info: e.target.value } })} style={inputStyle} placeholder="Ví dụ: 12 tháng" /></div>
+                      <div style={inputGroupStyle}><label style={labelStyle}>XUẤT XỨ</label><input type="text" value={formData.detail?.origin || ""} onChange={(e) => setFormData({ ...formData, detail: { ...formData.detail, origin: e.target.value } })} style={inputStyle} placeholder="Ví dụ: Việt Nam" /></div>
                     </div>
                   </div>
                 </div>

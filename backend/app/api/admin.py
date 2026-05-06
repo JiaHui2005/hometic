@@ -165,4 +165,4 @@ async def upload_file(file: UploadFile = File(...), _=Depends(require_admin)):
     with file_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    return {"url": f"/static/uploads/{file_path.name}"}
+    return {"url": f"static/uploads/{file_path.name}"}

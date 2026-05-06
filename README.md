@@ -102,7 +102,28 @@ scripts\start.bat
 
 ---
 
-### Cách 2: Cài đặt thủ công (A-Z)
+### Cách 2: Chạy bằng Docker Compose (Đơn giản nhất)
+Nếu máy bạn đã cài sẵn **Docker** và **Docker Desktop**, bạn có thể khởi chạy toàn bộ hệ thống (Frontend, Backend, Database) chỉ với 1 lệnh duy nhất tại thư mục gốc của dự án:
+
+```bash
+docker compose up -d --build
+```
+
+**Sau khi Docker chạy xong, bạn có thể truy cập ngay:**
+- **Giao diện Web:** http://localhost:5173
+- **Backend API:** http://localhost:8000
+- **API Docs (Swagger):** http://localhost:8000/docs
+
+*Lưu ý: Database MySQL tự động seed dữ liệu mẫu qua file `database/init.sql` và backend sẽ tự khởi tạo `init_db.py`.*
+
+Để tắt toàn bộ hệ thống, chạy lệnh:
+```bash
+docker compose down
+```
+
+---
+
+### Cách 3: Cài đặt thủ công (A-Z)
 Dành cho trường hợp bạn muốn kiểm soát từng bước hoặc script gặp lỗi môi trường.
 
 #### Bước 1: Thiết lập Cơ sở dữ liệu (Database)

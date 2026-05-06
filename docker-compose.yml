@@ -30,6 +30,9 @@ services:
       - MYSQL_USER=root
       - MYSQL_PASSWORD=
       - MYSQL_DATABASE=hometic_db
+      - SMTP_USER=vogiahuypro9@gmail.com
+      - SMTP_PASSWORD=rygh qahr qjwf xnxw
+      - SMTP_FROM=Hometic Support <vogiahuypro9@gmail.com>
     depends_on:
       mysql:
         condition: service_healthy

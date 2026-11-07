@@ -1,0 +1,123 @@
+.site-footer {
+  background: var(--olive-900);
+  color: rgba(250, 246, 236, 0.72);
+  padding: clamp(32px, 4vw, 48px) 0 20px;
+  margin-top: auto;
+  /* đường cong nhẹ phía trên, gợi mái vòm */
+  border-radius: 28px 28px 0 0;
+}
+
+.site-footer__top {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, 1fr);
+  gap: 24px 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(250, 246, 236, 0.12);
+}
+
+.site-footer__brand p {
+  max-width: 30ch;
+  margin: 8px 0 12px;
+  font-size: var(--text-sm);
+}
+
+.site-footer__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cream-50);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.site-footer__logo img {
+  width: 32px;
+  height: 32px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--cream-100);
+  object-fit: contain;
+}
+
+.site-footer__social {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-footer__social a {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(250, 246, 236, 0.2);
+  color: var(--cream-100);
+  overflow: hidden;
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.site-footer__social a:hover { background: rgba(250, 246, 236, 0.1); border-color: rgba(250, 246, 236, 0.4); }
+.site-footer__social img { width: 20px; height: 20px; object-fit: contain; border-radius: 6px; }
+
+.site-footer__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.site-footer__col h4 {
+  color: var(--cream-50);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.site-footer__col button {
+  color: rgba(250, 246, 236, 0.72);
+  font-size: var(--text-sm);
+  text-align: left;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.site-footer__col button:hover { color: var(--sage-300); }
+
+.site-footer__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 24px;
+  padding-top: 16px;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: rgba(250, 246, 236, 0.55);
+}
+
+.site-footer__bottom p { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+.site-footer__bottom strong { color: rgba(250, 246, 236, 0.8); font-weight: 600; }
+.site-footer__bottom a { color: rgba(250, 246, 236, 0.8); }
+.site-footer__bottom a:hover { color: var(--sage-300); }
+
+@media (max-width: 900px) {
+  .site-footer__top { grid-template-columns: repeat(3, 1fr); }
+  /* logo, câu giới thiệu và mạng xã hội gom thành một hàng */
+  .site-footer__brand {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+  }
+  .site-footer__brand p { margin: 0; flex: 1; min-width: 200px; }
+}
+
+@media (max-width: 520px) {
+  .site-footer { border-radius: 20px 20px 0 0; padding-top: 28px; }
+  .site-footer__top { grid-template-columns: 1fr 1fr; gap: 20px 16px; }
+  .site-footer__brand p { display: none; }
+  .site-footer__social { margin-left: auto; }
+  .site-footer__col button { font-size: 13px; }
+  .site-footer__bottom { flex-direction: column; }
+}

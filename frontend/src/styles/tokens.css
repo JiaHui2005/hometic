@@ -1,0 +1,60 @@
+/* Sage / Olive / Cream — nguồn màu duy nhất của toàn bộ giao diện */
+:root {
+  --cream-50: #FFFDF8;
+  --cream-100: #FAF6EC;
+  --cream-200: #F2ECDD;
+  --cream-300: #E6DECA;
+  --sage-100: #E3E9DA;
+  --sage-200: #D3DCC7;
+  --sage-300: #BCC8AE;
+  --sage-500: #8FA07F;
+  --sage-700: #5E7350;
+  --olive-500: #7D8248;
+  --olive-600: #686D3B;
+  --olive-700: #52562E;
+  --olive-900: #353822;
+  --ink: #2A2C1E;
+  --ink-muted: #6B6A58;
+  --ink-soft: #8C8A75;
+  --success: #5E7F4E;
+  --success-bg: #E3E9DA;
+  --danger: #A9523C;
+  --danger-bg: #F6E7E0;
+  --warning: #9A7B2F;
+  --warning-bg: #F5EDD3;
+  --info: #56707A;
+  --info-bg: #E4EBEA;
+
+  --bg: var(--cream-100);
+  --surface: var(--cream-50);
+  --line: var(--cream-300);
+  --line-strong: #D6CCB3;
+
+  --font: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  --text-3xl: clamp(2rem, 1.4rem + 2.4vw, 3rem);
+  --text-display: clamp(2.5rem, 1.6rem + 4vw, 4.5rem);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-arch: 999px 999px 22px 22px;
+
+  --shadow-soft: 0 1px 2px rgba(53, 56, 34, 0.04), 0 8px 24px -12px rgba(53, 56, 34, 0.16);
+  --shadow-lift: 0 18px 40px -18px rgba(53, 56, 34, 0.28);
+
+  --container: 1240px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --header-h: 72px;
+
+  /* Chuyển động: ngắn, êm, không nảy */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 160ms;
+  --dur: 260ms;
+  --dur-slow: 520ms;
+}

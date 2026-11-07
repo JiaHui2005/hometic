@@ -1,0 +1,252 @@
+import React, { useState, useEffect } from "react";
+import alertService from "../services/alertService";
+import { adminService, catalogService, orderService, api } from "../services/api";
+import Sidebar from "../components/admin/Sidebar";
+import AdminHeader from "../components/admin/AdminHeader";
+import "../components/admin/Admin.css";
+import Dashboard from "../components/admin/Dashboard";
+import DataList from "../components/admin/DataList";
+import AdminModal from "../components/admin/AdminModal";
+
+export default function Admin({ onLogout }) {
+  const [activeMenu, setActiveMenu] = useState("Tổng quan");
+  const [data, setData] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [chartData, setChartData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [allCategories, setAllCategories] = useState([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [editingItem, setEditingItem] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [modalTab, setModalTab] = useState("Cơ bản");
+
+  const [customerOrders, setCustomerOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+    catalogService.getCategories().then(setAllCategories).catch(() => { });
+  }, [activeMenu]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setData([]);
+    try {
+      if (activeMenu === "Tổng quan") {
+        const [dashRes, chartRes] = await Promise.all([
+          adminService.getDashboard().catch(e => ({ error: e })),
+          adminService.getCharts().catch(e => ({ error: e }))
+        ]);
+        if (!dashRes.error) setStats(dashRes);
+        if (!chartRes.error) setChartData(chartRes);
+      } else if (activeMenu === "Sản phẩm") {
+        const res = await catalogService.getProducts();
+        setData(res || []);
+      } else if (activeMenu === "Danh mục") {
+        const res = await catalogService.getCategories();
+        setData(res || []);
+      } else if (activeMenu === "Đơn hàng") {
+        const res = await orderService.getAllOrders();
+        setData(res || []);
+      } else if (activeMenu === "Khách hàng") {
+        const res = await adminService.getUsers();
+        setData(res || []);
+      }
+    } catch (err) {
+      console.error("Lỗi API Admin:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewCustomerOrders = async (customer) => {
+    setModalType("Khách hàng");
+    setEditingItem(customer);
+    setIsModalOpen(true);
+    setLoadingOrders(true);
+
+    try {
+      const response = await api(`/admin/users/${customer.id}/orders`);
+      setCustomerOrders(response || []);
+    } catch (error) {
+      alertService.error("Lỗi!", "Không thể lấy lịch sử đơn hàng: " + error.message);
+      setIsModalOpen(false);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  const handleEdit = async (item, type) => {
+    setModalType(type);
+    setEditingItem(item);
+    setIsModalOpen(true);
+    setModalTab("Cơ bản");
+    setLoading(true);
+    try {
+      let detail;
+      if (type === "Sản phẩm") {
+        detail = await catalogService.getProduct(item.id);
+        if (!detail.detail) detail.detail = { warranty_info: "12 tháng", origin: "Việt Nam" };
+      } else if (type === "Danh mục") {
+        detail = await catalogService.getCategory(item.id);
+      } else if (type === "Đơn hàng") {
+        detail = await orderService.getAdminOrderDetail(item.id);
+      } else {
+        detail = item;
+      }
+      setFormData(detail);
+    } catch (err) {
+      console.error("Lỗi lấy chi tiết:", err);
+      setFormData(item);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddNew = (type) => {
+    setModalType(type);
+    setEditingItem(null);
+    setModalTab("Cơ bản");
+    setFormData(type === "Sản phẩm" ? {
+      is_active: true,
+      detail: { warranty_info: "12 tháng", origin: "Việt Nam", specifications: {}, gallery_urls: [] }
+    } : { is_active: true });
+    setIsModalOpen(true);
+  };
+
+  const handleImageUpload = async (e, fieldPath) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const res = await adminService.uploadImage(file);
+      const newFormData = { ...formData };
+      if (fieldPath.includes('.')) {
+        const [parent, child] = fieldPath.split('.');
+        newFormData[parent] = { ...newFormData[parent], [child]: res.url };
+      } else {
+        newFormData[fieldPath] = res.url;
+      }
+      setFormData(newFormData);
+    } catch (err) {
+      alertService.error("Lỗi upload!", err.message);
+    }
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const submitData = { ...formData };
+
+      if (modalType === "Sản phẩm") {
+        // Clean up extra fields
+        delete submitData.description;
+        
+        // Ensure numeric fields are numbers
+        if (submitData.price !== undefined) submitData.price = Number(submitData.price);
+        if (submitData.sale_price !== undefined && submitData.sale_price !== null) submitData.sale_price = Number(submitData.sale_price);
+        if (submitData.stock !== undefined) submitData.stock = Number(submitData.stock);
+        if (submitData.category_id !== undefined) submitData.category_id = Number(submitData.category_id);
+
+        // Parse JSON fields safely
+        if (submitData.detail) {
+          if (typeof submitData.detail.specifications === 'string') {
+            try { submitData.detail.specifications = JSON.parse(submitData.detail.specifications); }
+            catch (e) { submitData.detail.specifications = {}; }
+          }
+          if (typeof submitData.detail.gallery_urls === 'string') {
+            try { submitData.detail.gallery_urls = JSON.parse(submitData.detail.gallery_urls); }
+            catch (e) { submitData.detail.gallery_urls = []; }
+          }
+        }
+
+        if (editingItem) {
+          await catalogService.updateProduct(editingItem.id, submitData);
+          alertService.success("Thành công!", "Cập nhật sản phẩm thành công.");
+        } else {
+          await catalogService.createProduct(submitData);
+          alertService.success("Thành công!", "Tạo sản phẩm mới thành công.");
+        }
+      } else if (modalType === "Danh mục") {
+        if (editingItem) {
+          await catalogService.updateCategory(editingItem.id, submitData);
+          alertService.success("Thành công!", "Cập nhật danh mục thành công.");
+        } else {
+          await catalogService.createCategory(submitData);
+          alertService.success("Thành công!", "Tạo danh mục mới thành công.");
+        }
+      } else if (modalType === "Đơn hàng") {
+        // Chỉ cập nhật trạng thái
+        await orderService.updateOrderStatus(editingItem.id, submitData.status);
+        alertService.success("Thành công!", "Cập nhật trạng thái đơn hàng thành công.");
+      }
+      setIsModalOpen(false);
+      fetchData();
+    } catch (err) {
+      alertService.error("Lỗi!", err.response?.data?.detail || err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="admin">
+      <Sidebar
+        activeMenu={activeMenu}
+        setActiveMenu={(menu) => { setActiveMenu(menu); setSearchQuery(""); setShowMobileSidebar(false); }}
+        onLogout={onLogout}
+        isOpen={showMobileSidebar}
+        onClose={() => setShowMobileSidebar(false)}
+      />
+
+      <main className="admin__main">
+        <AdminHeader
+          title={activeMenu}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          showSearch={activeMenu !== "Tổng quan"}
+          onToggleSidebar={() => setShowMobileSidebar(!showMobileSidebar)}
+        />
+
+        <div key={activeMenu} className="admin__content">
+          {activeMenu === "Tổng quan" ? (
+            <Dashboard stats={stats} chartData={chartData} setActiveMenu={setActiveMenu} />
+          ) : (
+            <DataList
+              activeMenu={activeMenu}
+              data={data}
+              searchTerm={searchQuery}
+              loading={loading}
+              handleAddNew={handleAddNew}
+              handleEdit={handleEdit}
+              refreshData={fetchData}
+              handleViewCustomerOrders={handleViewCustomerOrders}
+            />
+          )}
+        </div>
+      </main>
+
+      <AdminModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        modalType={modalType}
+        editingItem={editingItem}
+        formData={formData}
+        setFormData={setFormData}
+        modalTab={modalTab}
+        setModalTab={setModalTab}
+        submitting={submitting}
+        handleSave={handleSave}
+        handleImageUpload={handleImageUpload}
+        categories={allCategories}
+        customerOrders={customerOrders}
+        loadingOrders={loadingOrders}
+      />
+    </div>
+  );
+}

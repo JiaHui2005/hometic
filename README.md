@@ -30,10 +30,14 @@ Dự án được xây dựng theo kiến trúc **Decoupled Architecture** (Tác
 - **API Design:** RESTful API chuẩn hóa, tài liệu tự động qua Swagger UI.
 
 ### 2. Frontend (The Interface)
-- **Library:** React.js + Vite - Tốc độ tải trang cực nhanh và trải nghiệm mượt mà.
-- **Styling:** Vanilla CSS + Modern Design Patterns (Glassmorphism, Vibrant Colors).
-- **Icons:** Lucide React - Bộ icon hiện đại, đồng nhất.
-- **State Management:** React Hooks (useState, useEffect, useMemo).
+- **Library:** React 18 + Vite 6, không dùng thêm thư viện UI.
+- **Styling:** CSS thuần chia theo component (`Header.css`, `Cart.css`…) + design tokens dùng chung trong `src/styles/tokens.css`.
+- **Bảng màu:** Sage / Olive / Cream — nền kem ấm, xanh sage cho điểm nhấn, xanh ô liu cho nút hành động, ô liu đậm cho footer và sidebar quản trị.
+- **Typography:** Be Vietnam Pro (Google Fonts) — hiển thị dấu tiếng Việt chuẩn.
+- **Ngôn ngữ thiết kế:** hình "cửa vòm" (arch) cho ảnh hero, danh mục, ảnh sản phẩm — gợi hình ảnh ngôi nhà.
+- **Chuyển động:** ngắn (160–520ms), easing êm, không nảy: trang mới hiện dần, menu/drawer trượt nhẹ, ảnh sản phẩm phóng nhẹ khi rê chuột. Tự tắt khi hệ điều hành bật *Reduce motion*.
+- **Icons:** Lucide React.
+- **State Management:** React Hooks (`useState`, `useEffect`, `useMemo`) + custom hook `useProductFilters`.
 
 ### 3. Database Schema
 Hệ thống quản lý các thực thể chính:
@@ -60,12 +64,23 @@ hometic/
 │   │   └── main.py         # Điểm khởi chạy ứng dụng
 │   ├── static/             # Chứa ảnh upload (uploads/...)
 │   └── requirements.txt    # Danh sách thư viện Python
-├── frontend/               # Nguồn mã nguồn Frontend (React)
+├── frontend/               # Nguồn mã nguồn Frontend (React + Vite)
 │   ├── src/
-│   │   ├── components/     # Các UI Components (Admin, Shop, Cart, Profile...)
-│   │   ├── services/       # API Client và Alert Service
-│   │   ├── main.jsx        # Điểm khởi chạy React
-│   │   └── styles.css      # Toàn bộ mã CSS (Modern UI)
+│   │   ├── main.jsx        # Điểm khởi chạy: nạp CSS nền, mount <App /> trong ErrorBoundary
+│   │   ├── App.jsx         # State toàn cục (user, giỏ hàng, bộ lọc) + điều hướng theo tab
+│   │   ├── pages/          # Mỗi trang một file JSX + CSS đi kèm:
+│   │   │                   #   Shop (trang chủ), CategoryDetail, SearchPage, ProductDetail,
+│   │   │                   #   Cart, Auth, Profile, StaticPages, Admin
+│   │   ├── components/
+│   │   │   ├── layout/     # Header, Footer
+│   │   │   ├── product/    # ProductCard, ProductStrip, ProductFilters (dùng chung)
+│   │   │   ├── common/     # Modal, Alert (toast), StatusBadge, Reviews, ErrorBoundary
+│   │   │   └── admin/      # Sidebar, AdminHeader, Dashboard, DataList, AdminModal, Admin.css
+│   │   ├── hooks/          # useProductFilters — lọc theo giá & thương hiệu
+│   │   ├── services/       # API client (api.js) và alertService
+│   │   ├── styles/         # tokens.css (màu, chữ, khoảng cách, motion), base.css, motion.css
+│   │   ├── utils/          # Hàm tiện ích (formatVnd)
+│   │   └── constants/      # Dữ liệu demo khi backend chưa chạy
 │   ├── public/             # Tài nguyên tĩnh (Logo, Banners)
 │   └── package.json        # Cấu hình dự án Node.js
 ├── database/               # Scripts khởi tạo cơ sở dữ liệu
@@ -180,6 +195,16 @@ Dành cho trường hợp bạn muốn kiểm soát từng bước hoặc script
    npm run dev
    ```
    *Ứng dụng sẽ chạy tại: http://localhost:5173*
+4. (Tuỳ chọn) Đổi địa chỉ API bằng biến `VITE_API_URL` trong `frontend/.env` (mẫu: `frontend/.env.example`). Nếu backend chưa chạy, trang chủ sẽ hiển thị dữ liệu demo.
+5. Build bản production:
+   ```bash
+   npm run build
+   ```
+
+#### Tuỳ chỉnh giao diện
+- **Đổi màu, cỡ chữ, bo góc:** sửa biến trong `src/styles/tokens.css` — toàn bộ giao diện (kể cả trang quản trị) dùng chung các biến này.
+- **Đổi tốc độ chuyển động:** biến `--dur-fast`, `--dur`, `--dur-slow`, `--ease` trong cùng file.
+- **Thành phần dùng chung:** nút (`.btn`, `.btn-primary`…), ô nhập (`.input`, `.field`), thẻ trạng thái (`.tag`) nằm trong `src/styles/base.css`.
 
 ---
 
@@ -216,4 +241,4 @@ Hệ thống sẽ tự động seed dữ liệu mẫu khi Backend khởi chạy 
 Tài liệu API đầy đủ có thể truy cập tại: `http://localhost:8000/docs` (Swagger UI).
 
 ---
-*Phát triển bởi Nhóm Tú Linh - 2026*
+*Phát triển bởi Nhóm Tứ Linh - 2026*

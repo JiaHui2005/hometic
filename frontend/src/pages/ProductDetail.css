@@ -1,0 +1,114 @@
+.pd {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+
+.pd__gallery { position: sticky; top: calc(var(--header-h) + 24px); }
+
+.pd__image {
+  aspect-ratio: 1;
+  border-radius: var(--radius-arch);
+  background: var(--sage-100);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.pd__image img { width: 100%; height: 100%; object-fit: cover; }
+
+.pd__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding-top: 8px;
+}
+
+.pd__title {
+  font-size: var(--text-3xl);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.pd__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  font-size: var(--text-sm);
+}
+
+.pd__meta div { display: flex; gap: 6px; }
+.pd__meta dt { color: var(--ink-muted); }
+.pd__meta dd { color: var(--olive-900); font-weight: 500; }
+
+.pd__price {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.pd__price .price { font-size: var(--text-2xl); }
+.pd__price s { color: var(--ink-soft); }
+
+.pd__desc { color: var(--ink-muted); max-width: 56ch; }
+
+.pd__buy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  padding-top: 20px;
+  margin-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.pd__buy-now { flex: 1; min-width: 140px; }
+
+.pd__policy {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}
+
+.pd__policy li { display: flex; align-items: center; gap: 8px; }
+.pd__policy svg { color: var(--sage-700); }
+
+.pd__specs {
+  margin-top: clamp(48px, 8vw, 96px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 24px;
+}
+
+.pd__specs h2 { font-size: var(--text-2xl); }
+
+.spec-list { border-top: 1px solid var(--line); }
+
+.spec-list__row {
+  display: grid;
+  grid-template-columns: minmax(120px, 2fr) 3fr;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+
+.spec-list dt { color: var(--ink-muted); }
+.spec-list dd { color: var(--ink); }
+
+.pd__reviews {
+  margin-top: clamp(48px, 8vw, 96px);
+  max-width: 820px;
+}
+
+@media (max-width: 900px) {
+  .pd { grid-template-columns: 1fr; }
+  .pd__gallery { position: static; max-width: 520px; width: 100%; justify-self: center; }
+  .pd__specs { grid-template-columns: 1fr; }
+}

@@ -3,8 +3,6 @@
   color: rgba(250, 246, 236, 0.72);
   padding: clamp(32px, 4vw, 48px) 0 20px;
   margin-top: auto;
-  /* đường cong nhẹ phía trên, gợi mái vòm */
-  border-radius: 28px 28px 0 0;
 }
 
 .site-footer__top {
@@ -35,7 +33,7 @@
   width: 32px;
   height: 32px;
   padding: 3px;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--cream-100);
   object-fit: contain;
 }
@@ -51,7 +49,7 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  border-radius: 50%;
+  border-radius: var(--radius);
   border: 1px solid rgba(250, 246, 236, 0.2);
   color: var(--cream-100);
   overflow: hidden;
@@ -114,7 +112,7 @@
 }
 
 @media (max-width: 520px) {
-  .site-footer { border-radius: 20px 20px 0 0; padding-top: 28px; }
+  .site-footer { padding-top: 28px; }
   .site-footer__top { grid-template-columns: 1fr 1fr; gap: 20px 16px; }
   .site-footer__brand p { display: none; }
   .site-footer__social { margin-left: auto; }

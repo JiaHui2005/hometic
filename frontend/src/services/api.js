@@ -89,7 +89,9 @@ export async function api(path, options = {}) {
 
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(data?.detail || "Có lỗi xảy ra");
+    const error = new Error(data?.detail || "Có lỗi xảy ra");
+    error.status = response.status; // để nơi gọi phân biệt lỗi (vd. 403 = chưa sở hữu mã giảm giá)
+    throw error;
   }
   return data;
 }
@@ -99,7 +101,6 @@ export async function api(path, options = {}) {
 export const authService = {
   login: (credentials) => api("/auth/login", { method: "POST", body: JSON.stringify(credentials) }),
   register: (userData) => api("/auth/register", { method: "POST", body: JSON.stringify(userData) }),
-  getMe: () => api("/auth/me"),
   updateMe: (data) => api("/auth/me", { method: "PUT", body: JSON.stringify(data) }),
   uploadAvatar: async (formData) => {
     const accessToken = localStorage.getItem("hometic_access_token");
@@ -173,17 +174,13 @@ export const orderService = {
 export const reviewService = {
   getProductReviews: (productId) => api(`/products/${productId}/reviews`),
   createReview: (data) => api("/reviews", { method: "POST", body: JSON.stringify(data) }),
-  deleteReview: (id) => api(`/reviews/${id}`, { method: "DELETE" }),
 };
 
 export const adminService = {
   getDashboard: () => api("/admin/dashboard"),
   getCharts: () => api("/admin/charts"),
   getUsers: () => api("/admin/users"),
-  searchUsers: (query) => api(`/admin/users/search?q=${encodeURIComponent(query)}`),
   getUserOrders: (userId) => api(`/admin/users/${userId}/orders`),
-  updateUser: (id, data) => api(`/admin/users/${id}`, { method: "PUT", body: JSON.stringify(data) }),
-  deleteUser: (id) => api(`/admin/users/${id}`, { method: "DELETE" }),
   uploadImage: async (file) => {
     const accessToken = localStorage.getItem("hometic_access_token");
     // Sử dụng API_URL toàn cục

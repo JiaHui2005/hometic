@@ -32,12 +32,20 @@ Dự án được xây dựng theo kiến trúc **Decoupled Architecture** (Tác
 ### 2. Frontend (The Interface)
 - **Library:** React 18 + Vite 6, không dùng thêm thư viện UI.
 - **Styling:** CSS thuần chia theo component (`Header.css`, `Cart.css`…) + design tokens dùng chung trong `src/styles/tokens.css`.
-- **Bảng màu:** Sage / Olive / Cream — nền kem ấm, xanh sage cho điểm nhấn, xanh ô liu cho nút hành động, ô liu đậm cho footer và sidebar quản trị.
-- **Typography:** Be Vietnam Pro (Google Fonts) — hiển thị dấu tiếng Việt chuẩn.
-- **Ngôn ngữ thiết kế:** hình "cửa vòm" (arch) cho ảnh hero, danh mục, ảnh sản phẩm — gợi hình ảnh ngôi nhà.
-- **Chuyển động:** ngắn (160–520ms), easing êm, không nảy: trang mới hiện dần, menu/drawer trượt nhẹ, ảnh sản phẩm phóng nhẹ khi rê chuột. Tự tắt khi hệ điều hành bật *Reduce motion*.
+- **Bảng màu:** Sage / Olive / Cream — nền ngà `#F6F3EC`, bề mặt trắng ấm, ô liu đậm `#384A2E` cho nút chính, sage `#4F6543` cho liên kết, đất nung `#A84E2C` chỉ dùng cho giảm giá.
+- **Typography:** Bricolage Grotesque cho tiêu đề và giá, Be Vietnam Pro cho nội dung — cả hai hỗ trợ đầy đủ tiếng Việt.
+- **Bo góc tiết chế:** nút và ô nhập 8px, thẻ sản phẩm 10px, khối lớn và hộp thoại 12px; không dùng nút dạng viên thuốc.
+- **Chuyển động:** ngắn (140–420ms), chỉ có một màn mở đầu ở trang chủ; còn lại chỉ phản hồi thao tác (mở menu, hộp thoại, đổi bước). Tự tắt khi hệ điều hành bật *Reduce motion*.
+- **Tính năng mua sắm:**
+  - Tìm kiếm có gợi ý (danh mục, sản phẩm, tìm gần đây), không phân biệt dấu, điều hướng bằng bàn phím.
+  - Trang danh mục: lọc theo giá, thương hiệu, còn hàng; sắp xếp; bộ lọc dạng bottom sheet trên điện thoại.
+  - So sánh tối đa 3 sản phẩm, đánh dấu giá trị tốt nhất theo từng thông số.
+  - "Tìm sản phẩm phù hợp": lọc theo nhóm, ngân sách, nhu cầu và giải thích lý do bằng dữ liệu thật (giá, thông số, tồn kho).
+  - Trang chi tiết: "Vì sao nên chọn mẫu này" và các lựa chọn thay thế (tiết kiệm hơn, cùng tầm giá, nâng cấp).
+  - Đặt hàng theo 3 bước: giỏ hàng, thông tin giao hàng, hoàn tất.
+  - Mã giảm giá: nhập mã ở giỏ hàng (tự lưu vào tài khoản nếu chưa có), ví mã trong trang Hồ sơ, tiền giảm tính đúng mức tối đa và đơn tối thiểu.
 - **Icons:** Lucide React.
-- **State Management:** React Hooks (`useState`, `useEffect`, `useMemo`) + custom hook `useProductFilters`.
+- **State Management:** React Hooks + `StoreContext` (catalog, giỏ hàng, so sánh, điều hướng) + custom hook `useProductFilters`.
 
 ### 3. Database Schema
 Hệ thống quản lý các thực thể chính:
@@ -67,22 +75,23 @@ hometic/
 ├── frontend/               # Nguồn mã nguồn Frontend (React + Vite)
 │   ├── src/
 │   │   ├── main.jsx        # Điểm khởi chạy: nạp CSS nền, mount <App /> trong ErrorBoundary
-│   │   ├── App.jsx         # State toàn cục (user, giỏ hàng, bộ lọc) + điều hướng theo tab
+│   │   ├── App.jsx         # State toàn cục + StoreContext.Provider + điều hướng theo tab
+│   │   ├── context/        # StoreContext — catalog, giỏ hàng, so sánh, điều hướng
 │   │   ├── pages/          # Mỗi trang một file JSX + CSS đi kèm:
 │   │   │                   #   Shop (trang chủ), CategoryDetail, SearchPage, ProductDetail,
-│   │   │                   #   Cart, Auth, Profile, StaticPages, Admin
+│   │   │                   #   Compare, Finder, Cart (gồm đặt hàng), Auth, Profile, StaticPages, Admin
 │   │   ├── components/
-│   │   │   ├── layout/     # Header, Footer
-│   │   │   ├── product/    # ProductCard, ProductStrip, ProductFilters (dùng chung)
+│   │   │   ├── layout/     # Header, SearchBox (gợi ý tìm kiếm), Footer
+│   │   │   ├── product/    # ProductCard, ProductStrip, ProductFilters, CatalogView, CompareTray
 │   │   │   ├── common/     # Modal, Alert (toast), StatusBadge, Reviews, ErrorBoundary
 │   │   │   └── admin/      # Sidebar, AdminHeader, Dashboard, DataList, AdminModal, Admin.css
-│   │   ├── hooks/          # useProductFilters — lọc theo giá & thương hiệu
+│   │   ├── hooks/          # useProductFilters — lọc theo giá, thương hiệu, còn hàng + sắp xếp
 │   │   ├── services/       # API client (api.js) và alertService
-│   │   ├── styles/         # tokens.css (màu, chữ, khoảng cách, motion), base.css, motion.css
-│   │   ├── utils/          # Hàm tiện ích (formatVnd)
+│   │   ├── styles/         # tokens.css (màu, chữ, bo góc, motion), base.css, motion.css
+│   │   ├── utils/          # format.js, product.js (giá, thông số, tìm kiếm), guidance.js (gợi ý)
 │   │   └── constants/      # Dữ liệu demo khi backend chưa chạy
 │   ├── public/             # Tài nguyên tĩnh (Logo, Banners)
-│   └── package.json        # Cấu hình dự án Node.js
+│   └── package.json        # Scripts: dev, build, preview, check
 ├── database/               # Scripts khởi tạo cơ sở dữ liệu
 │   ├── schema.sql          # Cấu trúc bảng
 │   └── seed_product.sql    # Dữ liệu mẫu
@@ -113,7 +122,17 @@ chmod +x scripts/start.sh
 ```bat
 scripts\start.bat
 ```
-*Script sẽ tự động: Cài đặt môi trường ảo Python, cài đặt thư viện Backend, cài đặt Node packages Frontend và khởi chạy cả 2 server cùng lúc.*
+Trên macOS/Linux, một lệnh `./scripts/start.sh` chạy **toàn bộ hệ thống** theo thứ tự:
+
+1. Kiểm tra Docker, Python 3.10+, Node 18+ và các cổng 8000, 5173 còn trống.
+2. Bật Docker Desktop nếu chưa chạy (macOS), khởi động MySQL trong Docker và chờ nạp xong dữ liệu mẫu.
+3. Tạo `backend/.env`, môi trường ảo `.venv`, cài thư viện Python (chỉ cài lại khi `requirements.txt` đổi), tạo tài khoản thử nghiệm.
+4. Tạo `frontend/.env`, cài thư viện Node (chỉ khi `package-lock.json` đổi).
+5. Chạy Backend và Frontend, chờ cả hai trả lời rồi in địa chỉ truy cập và tài khoản. Log hiển thị kèm tiền tố `[api]` / `[web]`.
+
+Nhấn **Ctrl+C** để dừng Backend và Frontend. MySQL vẫn chạy để giữ dữ liệu; dùng `./scripts/start.sh --stop-db` nếu muốn dừng luôn MySQL khi thoát, hoặc `docker compose stop mysql` để dừng riêng.
+
+*Lưu ý: `scripts/start.bat` (Windows) hiện chưa tự bật MySQL — hãy chạy `docker compose up -d mysql` trước.*
 
 ---
 
@@ -204,18 +223,19 @@ Dành cho trường hợp bạn muốn kiểm soát từng bước hoặc script
 #### Tuỳ chỉnh giao diện
 - **Đổi màu, cỡ chữ, bo góc:** sửa biến trong `src/styles/tokens.css` — toàn bộ giao diện (kể cả trang quản trị) dùng chung các biến này.
 - **Đổi tốc độ chuyển động:** biến `--dur-fast`, `--dur`, `--dur-slow`, `--ease` trong cùng file.
-- **Thành phần dùng chung:** nút (`.btn`, `.btn-primary`…), ô nhập (`.input`, `.field`), thẻ trạng thái (`.tag`) nằm trong `src/styles/base.css`.
+- **Thành phần dùng chung:** nút (`.btn`, `.btn-primary`…), ô nhập (`.input`, `.field`), thẻ trạng thái (`.tag`), chip lọc (`.chip`) nằm trong `src/styles/base.css`.
+- **Kiểm tra logic gợi ý:** chạy `npm run check` trong thư mục `frontend` để tự kiểm tra các hàm tính giá, so sánh thông số và xếp hạng gợi ý.
 
 ---
 
 ## 🛠️ Tài Khoản Thử Nghiệm
 
-Hệ thống sẽ tự động seed dữ liệu mẫu khi Backend khởi chạy lần đầu:
+Dữ liệu mẫu (`database/seed_product.sql`) và `scripts/start.sh` tạo sẵn các tài khoản:
 
 | Vai trò | Email | Mật khẩu |
 | :--- | :--- | :--- |
-| **Quản trị viên (Admin)** | `admin@hometic.vn` | `123456` |
-| **Khách hàng (User)** | `user@hometic.vn` | `123456` |
+| **Quản trị viên (Admin)** | `admin@hometic.com` | `123456` |
+| **Khách hàng (User)** | `user@hometic.com` | `123456` |
 
 ---
 
@@ -233,7 +253,7 @@ Hệ thống sẽ tự động seed dữ liệu mẫu khi Backend khởi chạy 
 - **Quản lý Sản phẩm:** CRUD sản phẩm, upload ảnh, quản lý kho hàng.
 - **Quản lý Danh mục:** Tổ chức cây danh mục linh hoạt.
 - **Quản lý Đơn hàng:** Tiếp nhận, xử lý và cập nhật trạng thái đơn hàng (Chờ xử lý -> Đang giao -> Hoàn thành).
-- **Quản lý Mã giảm giá:** Tạo mới và theo dõi các chương trình khuyến mãi.
+- **Quản lý Mã giảm giá:** Tạo mã (theo % hoặc số tiền, mức giảm tối đa, đơn tối thiểu, số lượt, thời hạn), theo dõi lượt dùng, xoá hoặc ngưng mã đã dùng.
 
 ---
 

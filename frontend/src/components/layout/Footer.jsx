@@ -1,4 +1,5 @@
 import React from "react";
+import { useStore } from "../../context/StoreContext";
 import "./Footer.css";
 
 const LINK_GROUPS = [
@@ -16,18 +17,15 @@ const LINK_GROUPS = [
   },
 ];
 
-export default function Footer({ setActiveTab, setStaticPage }) {
-  const handlePageClick = (key) => {
-    setStaticPage(key);
-    setActiveTab("static_page");
-  };
+export default function Footer() {
+  const { go, openStaticPage: handlePageClick } = useStore();
 
   return (
     <footer className="site-footer">
       <div className="container">
         <div className="site-footer__top">
           <div className="site-footer__brand">
-            <button className="site-footer__logo" onClick={() => setActiveTab("shop")} aria-label="Về trang chủ Hometic">
+            <button className="site-footer__logo" onClick={() => go("shop")} aria-label="Về trang chủ Hometic">
               <img src="/logo1.png" alt="" />
               <span>Hometic</span>
             </button>
@@ -62,11 +60,11 @@ export default function Footer({ setActiveTab, setStaticPage }) {
         <div className="site-footer__bottom">
           <p>
             <strong>Công ty TNHH Hometic Retail (Việt Nam)</strong>
-            <span>Tầng 9, Bitexco Financial Tower, Quận 1, TP. Hồ Chí Minh</span>
+            <span>Quận 7, TP. Hồ Chí Minh</span>
           </p>
           <p>
-            <span>CSKH <a href="tel:1900255579">1900 2555 79</a></span>
-            <span>Văn phòng <a href="tel:02871088388">028 7108 8388</a></span>
+            <span>CSKH <a href="tel:1900255579">035 258 2180</a></span>
+            <span>Văn phòng <a href="tel:02871088388">035 258 2180</a></span>
             <span>© 2026 Hometic</span>
           </p>
         </div>

@@ -1,0 +1,91 @@
+.compare-note {
+  margin-top: 4px;
+  font-size: var(--text-sm);
+  color: var(--warning);
+}
+
+.compare-scroll {
+  margin-top: 24px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.compare {
+  width: 100%;
+  min-width: calc(160px + var(--cols) * 220px);
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: var(--text-sm);
+}
+
+.compare th,
+.compare td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.compare tbody th {
+  width: 160px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+
+.compare thead th:first-child { width: 160px; position: sticky; left: 0; background: var(--surface); z-index: 1; }
+.compare tbody tr:last-child th,
+.compare tbody tr:last-child td { border-bottom: 0; }
+
+.compare td { font-variant-numeric: tabular-nums; }
+.compare td.is-best { background: var(--sage-100); }
+
+.compare__product { position: relative; font-weight: 500; }
+
+.compare__remove { position: absolute; top: 8px; right: 8px; color: var(--ink-soft); background: var(--surface); }
+
+.compare__media {
+  display: block;
+  width: 100%;
+  max-width: 180px;
+  aspect-ratio: 1;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--cream-200);
+  margin-bottom: 10px;
+}
+
+.compare__media img { width: 100%; height: 100%; object-fit: cover; }
+
+.compare__name { text-align: left; font-weight: 600; color: var(--ink); line-height: 1.35; }
+.compare__name:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.compare .price { font-size: var(--text-lg); }
+
+.compare__badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  background: var(--sage-700);
+  color: var(--cream-50);
+  font-size: 11px;
+  font-weight: 600;
+  vertical-align: 2px;
+}
+
+.compare__sub { margin-top: 2px; font-size: var(--text-xs); }
+
+@media (max-width: 640px) {
+  .compare { min-width: calc(112px + var(--cols) * 168px); font-size: var(--text-xs); }
+  .compare tbody th,
+  .compare thead th:first-child { width: 112px; }
+  .compare th, .compare td { padding: 10px; }
+  .compare .price { font-size: var(--text-md); }
+  .compare__badge { display: block; width: fit-content; margin: 4px 0 0; }
+}

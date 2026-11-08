@@ -63,25 +63,3 @@ def create_review(payload: ReviewCreate, db: Session = Depends(get_db), current_
     db.refresh(new_review)
 
     return new_review
-
-@router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_review(review_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    """Xoá đánh giá (chỉ người tạo hoặc admin mới có quyền)"""
-    review = db.query(Review).filter(Review.id == review_id).first()
-    
-    if not review:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Không tìm thấy đánh giá này"
-        )
-    
-    if review.user_id != current_user.id and current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bạn không có quyền xoá đánh giá của người khác"
-        )
-    
-    db.delete(review)
-    db.commit()
-    
-    return None

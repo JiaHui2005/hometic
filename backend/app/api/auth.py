@@ -101,11 +101,6 @@ def refresh(payload: RefreshTokenIn, db: Session = Depends(get_db)):
         "user": user
     }
 
-@router.get("/me", response_model=UserOut)
-def get_me(current_user: User = Depends(get_current_user)):
-    """Lấy thông tin tài khoản hiện tại"""
-    return current_user
-
 @router.put("/me", response_model=UserOut)
 def update_me(payload: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Cập nhật thông tin cá nhân (Hồ sơ cá nhân)"""

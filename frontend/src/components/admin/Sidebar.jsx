@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutDashboard, Package, ListTree, ShoppingCart, Users, LogOut, X } from "lucide-react";
+import { LayoutDashboard, Package, ListTree, ShoppingCart, Users, LogOut, X, TicketPercent } from "lucide-react";
 
 const MENU = [
   ["Tổng quan", LayoutDashboard],
@@ -7,6 +7,7 @@ const MENU = [
   ["Danh mục", ListTree],
   ["Đơn hàng", ShoppingCart],
   ["Khách hàng", Users],
+  ["Mã giảm giá", TicketPercent],
 ];
 
 export default function Sidebar({ activeMenu, setActiveMenu, onLogout, isOpen, onClose }) {

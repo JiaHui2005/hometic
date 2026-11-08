@@ -3,6 +3,8 @@ export { default as Shop } from "./Shop";
 export { default as CategoryDetail } from "./CategoryDetail";
 export { default as ProductDetail } from "./ProductDetail";
 export { default as SearchPage } from "./SearchPage";
+export { default as Compare } from "./Compare";
+export { default as Finder } from "./Finder";
 export { default as Cart } from "./Cart";
 export { default as Auth } from "./Auth";
 export { default as Profile } from "./Profile";

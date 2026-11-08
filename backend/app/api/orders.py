@@ -43,11 +43,11 @@ def create_order(payload: CheckoutIn, db: Session = Depends(get_db), current_use
     now = datetime.now()
     if payload.coupon_code:
 
+        # Hạn dùng được kiểm tra ngay bên dưới (cho phép start/end_date để trống);
+        # lọc ngày trong SQL sẽ loại mọi mã có ngày NULL vì NULL <= now không bao giờ đúng
         coupon = db.query(Coupon).filter(
-            Coupon.code == payload.coupon_code, 
+            Coupon.code == payload.coupon_code,
             Coupon.is_active == True,
-            Coupon.start_date <= datetime.now(),
-            Coupon.end_date >= datetime.now()
         ).first()
 
         if coupon is None:

@@ -131,7 +131,7 @@
 .admin-header__title h1 { font-size: var(--text-2xl); letter-spacing: -0.03em; }
 .admin-header__title p { font-size: var(--text-sm); color: var(--ink-muted); }
 .admin-header__search { width: min(320px, 40vw); }
-.admin-header__search .input { border-radius: 999px; min-height: 42px; }
+.admin-header__search .input { min-height: 42px; }
 
 /* ---------- Thẻ thống kê, panel ---------- */
 
@@ -489,3 +489,23 @@
   .admin-form__grid,
   .info-list { grid-template-columns: 1fr; }
 }
+
+/* ---------- Mã giảm giá ---------- */
+
+.coupon-code { letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+.coupon-code-input { text-transform: uppercase; letter-spacing: 0.04em; }
+.coupon-code-input::placeholder { text-transform: none; letter-spacing: 0; }
+
+.usage { display: flex; flex-direction: column; gap: 4px; min-width: 72px; font-variant-numeric: tabular-nums; }
+.usage__bar { display: block; height: 4px; border-radius: 2px; background: var(--cream-200); overflow: hidden; }
+.usage__bar span { display: block; height: 100%; background: var(--sage-700); }
+
+/* Nút chọn 2 lựa chọn (radio dạng phân đoạn) */
+.seg { display: inline-grid; grid-auto-flow: column; padding: 3px; border-radius: var(--radius); background: var(--cream-200); width: fit-content; }
+.seg label { position: relative; padding: 7px 14px; border-radius: var(--radius-sm); font-size: var(--text-sm); color: var(--ink-muted); cursor: pointer; transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
+.seg input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.seg label.is-active { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: var(--shadow-soft); }
+.seg label:focus-within { outline: 2px solid var(--sage-700); outline-offset: 1px; }
+
+.coupon-preview { padding: 10px 12px; border-radius: var(--radius); background: var(--sage-100); font-size: var(--text-sm); color: var(--ink-muted); }
+.coupon-preview strong { color: var(--ink); letter-spacing: 0.04em; }

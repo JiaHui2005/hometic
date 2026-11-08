@@ -1,73 +1,80 @@
 import React from "react";
-import { Check, RotateCcw } from "lucide-react";
 import "./Product.css";
 
-const QUICK_MAX = [5000000, 15000000, 30000000];
+const PRICE_PRESETS = [
+  ["Dưới 1 triệu", "", 1000000],
+  ["1 – 5 triệu", 1000000, 5000000],
+  ["5 – 15 triệu", 5000000, 15000000],
+  ["Trên 15 triệu", 15000000, ""],
+];
 
-// Bảng lọc giá / thương hiệu, nhận state từ hook useProductFilters
-export default function ProductFilters({ priceRange, setPriceRange, availableBrands, selectedBrands, toggleBrand, resetFilters, onDone }) {
-  const setBound = (key) => (e) =>
-    setPriceRange(prev => ({ ...prev, [key]: e.target.value === "" ? "" : Number(e.target.value) }));
+// Bảng lọc: khoảng giá, thương hiệu, còn hàng. Nhận state từ useProductFilters.
+export default function ProductFilters({
+  priceRange, setPriceRange, brandCounts, selectedBrands, toggleBrand,
+  inStockOnly, setInStockOnly, resetFilters, activeCount, onDone, resultCount,
+}) {
+  const setBound = (key) => (e) => setPriceRange(prev => ({ ...prev, [key]: e.target.value }));
+  const isPreset = (min, max) => String(priceRange.min) === String(min) && String(priceRange.max) === String(max);
 
   return (
     <div className="filters">
-      <section className="filters__group">
-        <h3 className="filters__title">Khoảng giá</h3>
-        <div className="filters__range">
-          <label className="filters__price">
-            <span>Từ</span>
-            <input type="number" min="0" value={priceRange.min} onChange={setBound("min")} />
-            <span>đ</span>
-          </label>
-          <label className="filters__price">
-            <span>Đến</span>
-            <input type="number" min="0" value={priceRange.max} onChange={setBound("max")} />
-            <span>đ</span>
-          </label>
-        </div>
-        <div className="filters__quick">
-          {QUICK_MAX.map(val => (
+      <fieldset className="filters__group">
+        <legend className="filters__title">Khoảng giá</legend>
+        <div className="filters__presets">
+          {PRICE_PRESETS.map(([label, min, max]) => (
             <button
-              key={val}
-              className={`chip${priceRange.min === 0 && priceRange.max === val ? " is-active" : ""}`}
-              onClick={() => setPriceRange({ min: 0, max: val })}
+              key={label}
+              type="button"
+              className="chip"
+              aria-pressed={isPreset(min, max)}
+              onClick={() => setPriceRange(isPreset(min, max) ? { min: "", max: "" } : { min, max })}
             >
-              Dưới {val / 1000000} triệu
+              {label}
             </button>
           ))}
         </div>
-      </section>
+        <div className="filters__range">
+          <label className="filters__price">
+            <span className="sr-only">Giá từ</span>
+            <input type="number" min="0" step="100000" placeholder="Từ" value={priceRange.min} onChange={setBound("min")} />
+          </label>
+          <span aria-hidden="true">–</span>
+          <label className="filters__price">
+            <span className="sr-only">Giá đến</span>
+            <input type="number" min="0" step="100000" placeholder="Đến" value={priceRange.max} onChange={setBound("max")} />
+          </label>
+        </div>
+      </fieldset>
 
-      {availableBrands.length > 0 && (
-        <section className="filters__group">
-          <h3 className="filters__title">Thương hiệu</h3>
+      {brandCounts.length > 1 && (
+        <fieldset className="filters__group">
+          <legend className="filters__title">Thương hiệu</legend>
           <div className="filters__brands">
-            {availableBrands.map(b => {
-              const checked = selectedBrands.includes(b);
-              return (
-                <button
-                  key={b}
-                  className={`filters__brand${checked ? " is-checked" : ""}`}
-                  onClick={() => toggleBrand(b)}
-                  role="checkbox"
-                  aria-checked={checked}
-                >
-                  <span className="filters__box">{checked && <Check size={13} strokeWidth={3} />}</span>
-                  {b}
-                </button>
-              );
-            })}
+            {brandCounts.map(([b, count]) => (
+              <label key={b} className="filters__check">
+                <input type="checkbox" checked={selectedBrands.includes(b)} onChange={() => toggleBrand(b)} />
+                <span>{b}</span>
+                <span className="filters__count">{count}</span>
+              </label>
+            ))}
           </div>
-        </section>
+        </fieldset>
       )}
 
+      <fieldset className="filters__group">
+        <legend className="filters__title">Tình trạng</legend>
+        <label className="filters__check">
+          <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} />
+          <span>Chỉ hiện hàng còn</span>
+        </label>
+      </fieldset>
+
       <div className="filters__actions">
-        <button className="btn btn-ghost btn-sm" onClick={resetFilters}>
-          <RotateCcw size={15} />
-          Xoá bộ lọc
-        </button>
+        {activeCount > 0 && <button type="button" className="btn btn-ghost btn-sm" onClick={resetFilters}>Xoá bộ lọc ({activeCount})</button>}
         {onDone && (
-          <button className="btn btn-primary btn-sm" onClick={onDone}>Xem kết quả</button>
+          <button type="button" className="btn btn-primary btn-sm filters__done" onClick={onDone}>
+            Xem {resultCount} sản phẩm
+          </button>
         )}
       </div>
     </div>

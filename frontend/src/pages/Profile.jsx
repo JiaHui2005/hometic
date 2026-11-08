@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { User, Package, KeyRound, Pencil, Camera, ArrowLeft, Ticket, ChevronRight } from "lucide-react";
+import { User, Package, KeyRound, Pencil, Camera, ArrowLeft, Ticket, TicketPercent, ChevronRight } from "lucide-react";
 import { formatVnd } from "../utils/format";
 import alertService from "../services/alertService";
 import { orderService, authService, getImgUrl } from "../services/api";
 import { Reviews, StatusBadge } from "../components/common";
+import CouponWallet from "../components/account/CouponWallet";
 import "./Profile.css";
 
 const DEFAULT_AVATAR = "https://www.w3schools.com/howto/img_avatar.png";
@@ -175,11 +176,24 @@ export default function Profile({ user, setUser, setActiveTab }) {
             <button className={activeSubTab === "orders" ? "is-active" : ""} onClick={() => openTab("orders")}>
               <Package size={18} /> Đơn hàng của tôi
             </button>
+            <button className={activeSubTab === "coupons" ? "is-active" : ""} onClick={() => openTab("coupons")}>
+              <TicketPercent size={18} /> Mã giảm giá
+            </button>
           </nav>
         </aside>
 
         <section className="profile__main" key={activeSubTab + (selectedOrder ? "-detail" : "")}>
-          {activeSubTab === "profile" ? (
+          {activeSubTab === "coupons" ? (
+            <>
+              <header className="profile__head">
+                <div>
+                  <h1>Mã giảm giá</h1>
+                  <p>Lưu mã nhận được để dùng khi đặt hàng.</p>
+                </div>
+              </header>
+              <CouponWallet onShop={() => setActiveTab("shop")} />
+            </>
+          ) : activeSubTab === "profile" ? (
             <>
               <header className="profile__head">
                 <div>

@@ -7,6 +7,7 @@ import "../components/admin/Admin.css";
 import Dashboard from "../components/admin/Dashboard";
 import DataList from "../components/admin/DataList";
 import AdminModal from "../components/admin/AdminModal";
+import CouponManager from "../components/admin/CouponManager";
 
 export default function Admin({ onLogout }) {
   const [activeMenu, setActiveMenu] = useState("Tổng quan");
@@ -216,6 +217,8 @@ export default function Admin({ onLogout }) {
         <div key={activeMenu} className="admin__content">
           {activeMenu === "Tổng quan" ? (
             <Dashboard stats={stats} chartData={chartData} setActiveMenu={setActiveMenu} />
+          ) : activeMenu === "Mã giảm giá" ? (
+            <CouponManager searchTerm={searchQuery} />
           ) : (
             <DataList
               activeMenu={activeMenu}

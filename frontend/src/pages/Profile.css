@@ -35,7 +35,7 @@
 .profile__avatar img {
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-arch);
+  border-radius: 50%;
   object-fit: cover;
   border: 4px solid var(--surface);
 }
@@ -215,10 +215,10 @@
   .profile__nav {
     flex-direction: row;
     padding: 4px;
-    border-radius: 999px;
+    border-radius: var(--radius);
     background: var(--cream-200);
   }
-  .profile__nav button { flex: 1; justify-content: center; white-space: nowrap; border-radius: 999px; padding: 10px 12px; }
+  .profile__nav button { flex: 1; justify-content: center; white-space: nowrap; border-radius: var(--radius-sm); padding: 10px 8px; font-size: var(--text-xs); gap: 6px; }
   .profile__nav button.is-active { box-shadow: 0 1px 3px rgba(53, 56, 34, 0.12); }
 }
 

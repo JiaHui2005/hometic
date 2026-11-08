@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-height: 640px;
-  border-radius: 28px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -25,9 +25,8 @@
 .auth__arch {
   width: min(78%, 340px);
   aspect-ratio: 3 / 4;
-  border-radius: var(--radius-arch);
+  border-radius: var(--radius);
   overflow: hidden;
-  border: 10px solid rgba(250, 246, 236, 0.16);
 }
 
 .auth__arch img { width: 100%; height: 100%; object-fit: cover; }
@@ -103,13 +102,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   padding: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius);
   background: var(--cream-200);
 }
 
 .segmented button {
   height: 38px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--ink-muted);

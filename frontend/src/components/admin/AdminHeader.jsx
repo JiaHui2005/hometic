@@ -7,6 +7,7 @@ const SUBTITLES = {
   "Danh mục": "Sắp xếp sản phẩm theo nhóm",
   "Đơn hàng": "Theo dõi và cập nhật trạng thái đơn",
   "Khách hàng": "Danh sách tài khoản và lịch sử mua hàng",
+  "Mã giảm giá": "Tạo mã khuyến mãi và theo dõi lượt dùng",
 };
 
 export default function AdminHeader({ title, searchQuery, setSearchQuery, showSearch, onToggleSidebar }) {

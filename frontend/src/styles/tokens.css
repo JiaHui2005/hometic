@@ -1,60 +1,79 @@
-/* Sage / Olive / Cream — nguồn màu duy nhất của toàn bộ giao diện */
+/* Hometic design tokens — Sage / Olive / Cream, nguồn màu duy nhất của giao diện */
 :root {
-  --cream-50: #FFFDF8;
-  --cream-100: #FAF6EC;
-  --cream-200: #F2ECDD;
-  --cream-300: #E6DECA;
-  --sage-100: #E3E9DA;
+  /* Nền & bề mặt */
+  --cream-50: #FFFEFB;   /* bề mặt: thẻ, ô nhập, hộp thoại */
+  --cream-100: #F6F3EC;  /* nền trang */
+  --cream-200: #EEEAE0;  /* nền phụ: khối thông tin, ô ảnh sản phẩm */
+  --cream-300: #E3DED2;  /* đường kẻ */
+
+  /* Sage — điểm nhấn dịu, liên kết, trạng thái tích cực */
+  --sage-100: #E5EADD;
   --sage-200: #D3DCC7;
-  --sage-300: #BCC8AE;
+  --sage-300: #B9C6AB;
   --sage-500: #8FA07F;
-  --sage-700: #5E7350;
-  --olive-500: #7D8248;
-  --olive-600: #686D3B;
-  --olive-700: #52562E;
-  --olive-900: #353822;
-  --ink: #2A2C1E;
-  --ink-muted: #6B6A58;
-  --ink-soft: #8C8A75;
-  --success: #5E7F4E;
-  --success-bg: #E3E9DA;
-  --danger: #A9523C;
-  --danger-bg: #F6E7E0;
-  --warning: #9A7B2F;
-  --warning-bg: #F5EDD3;
-  --info: #56707A;
-  --info-bg: #E4EBEA;
+  --sage-700: #4F6543;
+
+  /* Olive — hành động chính, khối nền đậm */
+  --olive-500: #6F7A45;
+  --olive-600: #384A2E;  /* nút chính */
+  --olive-700: #2B3A23;  /* hover nút chính */
+  --olive-900: #262C1E;  /* footer, sidebar quản trị */
+
+  /* Chữ (độ tương phản trên nền #F6F3EC: ink 14:1, muted 6.3:1, soft 4.6:1) */
+  --ink: #22261E;
+  --ink-muted: #5A5C4F;
+  --ink-soft: #6E6E62;
+
+  /* Đất nung — CHỈ dùng cho giảm giá */
+  --accent: #A84E2C;
+  --accent-bg: #F5E6DE;
+
+  /* Trạng thái */
+  --success: #4E6E3F;
+  --success-bg: #E5EADD;
+  --danger: #A33F2C;
+  --danger-bg: #F6E4DE;
+  --warning: #8A6A1F;
+  --warning-bg: #F4EBD2;
+  --info: #45606B;
+  --info-bg: #E2E9EA;
 
   --bg: var(--cream-100);
   --surface: var(--cream-50);
   --line: var(--cream-300);
-  --line-strong: #D6CCB3;
+  --line-strong: #CEC7B6;
 
+  /* Chữ: Bricolage Grotesque cho tiêu đề & giá, Be Vietnam Pro cho nội dung */
   --font: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-md: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.375rem;
-  --text-2xl: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
-  --text-3xl: clamp(2rem, 1.4rem + 2.4vw, 3rem);
-  --text-display: clamp(2.5rem, 1.6rem + 4vw, 4.5rem);
+  --font-display: 'Bricolage Grotesque', 'Be Vietnam Pro', system-ui, sans-serif;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
-  --radius-arch: 999px 999px 22px 22px;
+  --text-xs: 0.75rem;     /* 12 — metadata */
+  --text-sm: 0.875rem;    /* 14 — phụ */
+  --text-md: 1rem;        /* 16 — nội dung */
+  --text-lg: 1.125rem;    /* 18 */
+  --text-xl: 1.375rem;    /* 22 */
+  --text-2xl: clamp(1.5rem, 1.25rem + 1vw, 1.875rem);   /* 24 → 30 */
+  --text-3xl: clamp(1.875rem, 1.4rem + 1.8vw, 2.5rem);  /* 30 → 40 */
+  --text-display: clamp(2.125rem, 1.5rem + 2.6vw, 3.25rem); /* 34 → 52 */
 
-  --shadow-soft: 0 1px 2px rgba(53, 56, 34, 0.04), 0 8px 24px -12px rgba(53, 56, 34, 0.16);
-  --shadow-lift: 0 18px 40px -18px rgba(53, 56, 34, 0.28);
+  /* Bo góc tiết chế: nút/ô nhập 8, thẻ 10, khối lớn & hộp thoại 12 */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-arch: 12px; /* giữ tên cũ cho tương thích, không còn hình vòm */
 
-  --container: 1240px;
-  --gutter: clamp(16px, 4vw, 40px);
-  --header-h: 72px;
+  --shadow-soft: 0 1px 2px rgba(34, 38, 30, 0.06);
+  --shadow-lift: 0 14px 36px -14px rgba(34, 38, 30, 0.28);
 
-  /* Chuyển động: ngắn, êm, không nảy */
+  --container: 1280px;
+  --gutter: clamp(16px, 3.5vw, 40px);
+  --header-h: 64px;
+
+  /* Chuyển động: ngắn, êm */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --dur-fast: 160ms;
-  --dur: 260ms;
-  --dur-slow: 520ms;
+  --dur-fast: 140ms;
+  --dur: 220ms;
+  --dur-slow: 420ms;
 }

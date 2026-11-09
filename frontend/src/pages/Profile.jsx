@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { User, Package, KeyRound, Pencil, Camera, ArrowLeft, Ticket, TicketPercent, ChevronRight } from "lucide-react";
 import { formatVnd } from "../utils/format";
 import alertService from "../services/alertService";
-import { orderService, authService, getImgUrl } from "../services/api";
+import { orderService, authService, getImgUrl, setSession } from "../services/api";
 import { Reviews, StatusBadge } from "../components/common";
 import CouponWallet from "../components/account/CouponWallet";
 import "./Profile.css";
@@ -15,7 +15,7 @@ const PASSWORD_FIELDS = [
   ["confirm_password", "Nhập lại mật khẩu mới", "new-password"],
 ];
 
-const genderLabel = (g) => (g === "Male" || g === "Nam" ? "Nam" : g === "Female" || g === "Nữ" ? "Nữ" : "Khác");
+const genderLabel = (g) => g || "Chưa cập nhật";
 
 export default function Profile({ user, setUser, setActiveTab }) {
   const [activeSubTab, setActiveSubTab] = useState("profile");
@@ -37,7 +37,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
     full_name: "",
     phone: "",
     birthday: "",
-    gender: "Other",
+    gender: "",
     avatar_url: ""
   });
 
@@ -48,7 +48,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
         full_name: user.full_name || "",
         phone: user.phone || "",
         birthday: user.birthday || "",
-        gender: user.gender || "Other",
+        gender: user.gender || "",
         avatar_url: user.avatar_url || ""
       });
     }
@@ -111,11 +111,13 @@ export default function Profile({ user, setUser, setActiveTab }) {
     }
     try {
       setLoading(true);
-      await authService.changePassword({
+      // Đổi mật khẩu đăng xuất mọi phiên cũ; lưu token mới để phiên này vẫn đăng nhập
+      const session = await authService.changePassword({
         old_password: passwordForm.old_password,
         new_password: passwordForm.new_password
       });
-      alertService.success("Thành công!", "Đổi mật khẩu thành công!");
+      setSession(session, session.user);
+      alertService.success("Thành công!", "Đã đổi mật khẩu. Các thiết bị khác cần đăng nhập lại.");
       setIsChangingPassword(false);
       setPasswordForm({ old_password: "", new_password: "", confirm_password: "" });
     } catch (error) {
@@ -198,7 +200,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
               <header className="profile__head">
                 <div>
                   <h1>{isChangingPassword ? "Đổi mật khẩu" : isEditing ? "Sửa thông tin" : "Thông tin tài khoản"}</h1>
-                  <p>{isChangingPassword ? "Dùng mật khẩu có ít nhất 6 ký tự." : "Thông tin này dùng để giao hàng và liên hệ với bạn."}</p>
+                  <p>{isChangingPassword ? "Dùng mật khẩu có ít nhất 8 ký tự." : "Thông tin này dùng để giao hàng và liên hệ với bạn."}</p>
                 </div>
                 {!isEditing && !isChangingPassword && (
                   <div className="profile__head-actions">
@@ -259,6 +261,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
                     <div className="field">
                       <label htmlFor="pf-gender">Giới tính</label>
                       <select id="pf-gender" className="select" value={editForm.gender} onChange={e => setEditForm({ ...editForm, gender: e.target.value })}>
+                        <option value="">Chưa chọn</option>
                         <option value="Nam">Nam</option>
                         <option value="Nữ">Nữ</option>
                         <option value="Khác">Khác</option>
@@ -319,7 +322,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
                   <li key={idx} className="order-item">
                     <img src={getImgUrl(item.product?.image_url)} alt="" />
                     <div className="order-item__info">
-                      <strong>{item.product?.name}</strong>
+                      <strong>{item.product_name || item.product?.name}</strong>
                       <span>Số lượng: {item.quantity}</span>
                       {selectedOrder.status === "delivered" && (
                         <button className="order-item__review" onClick={() => setViewingProductId(item.product?.id)}>

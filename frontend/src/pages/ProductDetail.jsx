@@ -7,13 +7,12 @@ import { finalPrice, discountPercent, savings, specEntries, stockStatus, keySpec
 import { productHighlights, alternatives } from "../utils/guidance";
 import { ProductCard } from "../components/product";
 import Reviews from "../components/common/Reviews";
+import RichText from "../components/common/RichText";
 import "./ProductDetail.css";
 
 // Ảnh trong gallery_urls có thể là tên file mẫu không tồn tại — chỉ nhận đường dẫn thật
 const isRealImage = (u) => typeof u === "string" && (u.startsWith("http") || u.startsWith("static/") || u.startsWith("/"));
 
-// Nội dung chi tiết do admin nhập dạng HTML: chỉ lấy chữ, không chèn HTML thô vào trang
-const toPlainText = (html = "") => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
 export default function ProductDetail({ product: initialProduct }) {
   const { catalog, categories, addToCart, go, openCategory, search, toggleCompare, isComparing } = useStore();
@@ -89,7 +88,7 @@ export default function ProductDetail({ product: initialProduct }) {
   const specs = specEntries(product);
   const warranty = product.detail?.warranty_info;
   const origin = product.detail?.origin;
-  const about = toPlainText(product.detail?.content);
+  const about = product.detail?.content;
   const comparing = isComparing(product.id);
 
   const handleAdd = () => addToCart({ ...product, quantity });
@@ -115,7 +114,7 @@ export default function ProductDetail({ product: initialProduct }) {
           {/* Ảnh */}
           <div className="pd__gallery">
             <div className="pd__image">
-              <img src={getImgUrl(images[activeImage])} alt={product.name} />
+              <img key={activeImage} className="pd__image-current" src={getImgUrl(images[activeImage])} alt={product.name} />
               {off >= 5 && <span className="pd__off">−{off}%</span>}
             </div>
             {images.length > 1 && (
@@ -208,7 +207,7 @@ export default function ProductDetail({ product: initialProduct }) {
             <section aria-labelledby="pd-about">
               <h2 id="pd-about">Giới thiệu</h2>
               {product.detail?.description && <p className="pd__lede">{product.detail.description}</p>}
-              {about && <p className="pd__about">{about}</p>}
+              {about && <RichText className="pd__about" html={about} />}
             </section>
           )}
         </div>

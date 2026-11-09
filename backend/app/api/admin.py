@@ -5,10 +5,8 @@ from app.api.deps import require_admin
 from app.db.session import get_db
 from app.schemas.dto import DashboardOut, UserOut, AdminChartsOut, ChartDataPoint
 from app.models.entities import User, Product, Order, Category, OrderItem
-import os
-import shutil
 from fastapi import File, UploadFile
-from pathlib import Path
+from app.utils.uploads import save_image
 
 router = APIRouter(tags=["admin"])
 
@@ -91,18 +89,7 @@ def get_chart_data(db: Session = Depends(get_db), _=Depends(require_admin)):
     }
 
 @router.post("/upload")
-async def upload_file(file: UploadFile = File(...), _=Depends(require_admin)):
-    """[Admin] Upload file ảnh lên server"""
-    upload_dir = Path("static/uploads")
-    upload_dir.mkdir(parents=True, exist_ok=True)
-    
-    file_path = upload_dir / file.filename
-    
-    if file_path.exists():
-        import time
-        file_path = upload_dir / f"{int(time.time())}_{file.filename}"
-
-    with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
-    return {"url": f"static/uploads/{file_path.name}"}
+def upload_file(file: UploadFile = File(...), _=Depends(require_admin)):
+    """[Admin] Upload ảnh sản phẩm / danh mục"""
+    name = save_image(file, "product")
+    return {"url": f"static/uploads/{name}"}

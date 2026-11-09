@@ -43,6 +43,34 @@ const SPEC_LABELS = {
   runtime: "Thời gian sử dụng",
   size: "Kích thước màn hình",
   channels: "Kênh âm thanh",
+  programs: "Chế độ nấu",
+  control: "Điều khiển",
+  connectivity: "Kết nối",
+  filter: "Bộ lọc",
+  timer: "Hẹn giờ",
+  temperature: "Nhiệt độ",
+  night_vision: "Nhìn đêm",
+  waterproof: "Chống nước",
+  unlock_time: "Thời gian mở khoá",
+  door_type: "Loại cửa",
+  handle: "Tay nắm",
+  socket: "Đui đèn",
+  extendable: "Nối dài",
+  door: "Kiểu tủ",
+  energy: "Tiết kiệm điện",
+  foldable: "Gập gọn",
+  cool_shot: "Gió mát",
+  metrics: "Chỉ số đo",
+  users: "Số người dùng",
+  basket: "Rổ chiên",
+  mount: "Lắp đặt",
+  os: "Hệ điều hành",
+  hdr: "HDR",
+  navigation: "Định vị",
+  dock: "Trạm sạc",
+  safety: "An toàn",
+  display: "Màn hình",
+  charging: "Sạc",
 };
 
 export const specLabel = (key) =>
@@ -74,8 +102,13 @@ export function comparable(a, b) {
   return x && y && x.unit === y.unit ? [x.n, y.n] : null;
 }
 
-// Tóm tắt 2 thông số đầu để đặt dưới tên sản phẩm: "6L, 1500W"
-export const keySpecs = (p, n = 2) => specEntries(p).slice(0, n).map(s => s.value).join(", ");
+// Tóm tắt thông số đặt dưới tên sản phẩm: "6L, 1500W". Ưu tiên giá trị ngắn có số; mô tả dạng chữ để ở bảng thông số
+const isFigure = (v) => /\d/.test(v) && v.length <= 14;
+export const keySpecs = (p, n = 2) => {
+  const values = specEntries(p).map(s => s.value);
+  const figures = values.filter(isFigure);
+  return (figures.length ? figures : values).slice(0, n).join(", ");
+};
 
 // Bỏ dấu tiếng Việt để tìm "noi chien" vẫn ra "Nồi chiên"
 export const normalize = (s = "") =>

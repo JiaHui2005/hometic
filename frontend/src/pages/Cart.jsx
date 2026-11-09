@@ -363,6 +363,8 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
     <div className="container page">
       <Steps current={step} />
 
+      {/* key theo bước: mỗi lần sang bước mới nội dung hiện dần, thấy rõ đã chuyển bước */}
+      <div key={step} className="step-enter">
       {step === 0 ? (
         <>
           <header className="cart-head">
@@ -521,6 +523,7 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
           </div>
         </>
       )}
+      </div>
 
       {/* Mã giảm giá của tôi */}
       <Modal

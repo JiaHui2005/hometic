@@ -66,8 +66,8 @@ export default function Auth({ setUser, setActiveTab }) {
     setLoading(true);
     setError("");
     try {
-      await authService.forgotPassword({ email: form.email });
-      alertService.success("Gửi email thành công!", "Mã OTP khôi phục đã được gửi đến Email của bạn.");
+      const res = await authService.forgotPassword({ email: form.email });
+      alertService.success("Kiểm tra hộp thư", res.message);
       setAuthMode("reset");
     } catch (err) {
       alertService.error("Lỗi!", err.message || "Email không tồn tại trong hệ thống.");
@@ -87,6 +87,7 @@ export default function Auth({ setUser, setActiveTab }) {
     setLoading(true);
     try {
       await authService.resetPassword({
+        email: form.email,
         token: form.otp,
         new_password: form.newPassword
       });
@@ -94,8 +95,9 @@ export default function Auth({ setUser, setActiveTab }) {
       setAuthMode("login");
       setForm({ ...form, password: "", otp: "", newPassword: "", confirmPassword: "" });
     } catch (err) {
-      alertService.error("Lỗi!", "Mã OTP không hợp lệ hoặc đã hết hạn.");
-      setError("Mã OTP không hợp lệ hoặc đã hết hạn.");
+      const message = err.status === 429 ? err.message : "Mã OTP không đúng hoặc đã hết hạn. Nhập sai 5 lần thì cần xin mã mới.";
+      alertService.error("Lỗi!", message);
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -185,7 +187,7 @@ export default function Auth({ setUser, setActiveTab }) {
                   <label htmlFor="rs-otp">Mã OTP</label>
                   <input id="rs-otp" className="input auth__otp" type="text" inputMode="numeric" placeholder="6 chữ số" required value={form.otp} onChange={set("otp")} />
                 </div>
-                <PasswordField id="rs-new" label="Mật khẩu mới" placeholder="Tối thiểu 6 ký tự" autoComplete="new-password" value={form.newPassword} onChange={set("newPassword")} />
+                <PasswordField id="rs-new" label="Mật khẩu mới" placeholder="Tối thiểu 8 ký tự" autoComplete="new-password" value={form.newPassword} onChange={set("newPassword")} />
                 <PasswordField id="rs-confirm" label="Nhập lại mật khẩu mới" autoComplete="new-password" value={form.confirmPassword} onChange={set("confirmPassword")} />
                 {error && <p className="auth__error" role="alert">{error}</p>}
                 <button type="submit" disabled={loading} className="btn btn-primary btn-lg btn-block">
@@ -225,7 +227,7 @@ export default function Auth({ setUser, setActiveTab }) {
                 <PasswordField
                   id="au-password"
                   label="Mật khẩu"
-                  placeholder="••••••••"
+                  placeholder={isLogin ? "••••••••" : "Tối thiểu 8 ký tự"}
                   autoComplete={isLogin ? "current-password" : "new-password"}
                   value={form.password}
                   onChange={set("password")}
@@ -247,6 +249,7 @@ export default function Auth({ setUser, setActiveTab }) {
                         <option value="">Chọn</option>
                         <option value="Nam">Nam</option>
                         <option value="Nữ">Nữ</option>
+                        <option value="Khác">Khác</option>
                       </select>
                     </div>
                   </div>

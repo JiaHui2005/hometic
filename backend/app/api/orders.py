@@ -6,8 +6,11 @@ from app.db.session import get_db
 from app.models.entities import User
 from app.schemas.dto import CheckoutIn, OrderOut, OrderStatusUpdate, CouponBase, CouponOut
 from app.models.entities import Product, Coupon, Order, OrderItem, UserCoupon
+from app.utils.commerce import merge_cart_lines, unit_price, coupon_in_window, compute_discount
 from datetime import datetime
+import logging
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["orders"])
 
 # --- Orders (Customer) ---
@@ -15,53 +18,58 @@ router = APIRouter(tags=["orders"])
 @router.post("/checkout", response_model=OrderOut)
 def create_order(payload: CheckoutIn, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Đặt hàng mới (Lưu thông tin từ CheckoutIn vào database)"""
+    # Gộp dòng trùng rồi lấy mọi sản phẩm trong 1 truy vấn (thay vì N truy vấn), tra cứu O(1) bằng dict.
+    # FOR UPDATE khoá các dòng tồn kho tới khi commit để 2 đơn đồng thời không bán quá số lượng.
+    quantities = merge_cart_lines(payload.items)
+    if not quantities:
+        raise HTTPException(status_code=400, detail="Giỏ hàng đang trống")
+    products = {
+        p.id: p
+        for p in db.query(Product)
+        .filter(Product.id.in_(quantities), Product.is_active == True)
+        .with_for_update()
+        .all()
+    }
+
     subtotal = 0
     order_items_to_create = []
-    
-    for item in payload.items:
-        product = db.query(Product).filter(Product.id == item.product_id, Product.is_active == True).first()
-        
+    for product_id, quantity in quantities.items():
+        product = products.get(product_id)
         if not product:
-            raise HTTPException(status_code=404, detail=f"Sản phẩm ID {item.product_id} không tồn tại hoặc đã ngừng bán")
-        
-        if product.stock < item.quantity:
+            raise HTTPException(status_code=404, detail=f"Sản phẩm ID {product_id} không tồn tại hoặc đã ngừng bán")
+        if product.stock < quantity:
             raise HTTPException(status_code=400, detail=f"Sản phẩm {product.name} không đủ hàng (Còn lại: {product.stock})")
-        
-        current_price = product.sale_price if product.sale_price else product.price
-        item_total = current_price * item.quantity
-        subtotal += item_total
-        
+
+        current_price = unit_price(product)
+        subtotal += current_price * quantity
         order_items_to_create.append({
             "product_id": product.id,
-            "quantity": item.quantity,
+            "product_name": product.name,
+            "quantity": quantity,
             "price_at_purchase": current_price,
-            "product_obj": product 
+            "product_obj": product
         })
 
     discount_amount = 0
     coupon_id = None
     now = datetime.now()
     if payload.coupon_code:
-
-        # Hạn dùng được kiểm tra ngay bên dưới (cho phép start/end_date để trống);
-        # lọc ngày trong SQL sẽ loại mọi mã có ngày NULL vì NULL <= now không bao giờ đúng
+        # Hạn dùng kiểm tra trong Python vì lọc ngày trong SQL sẽ loại mọi mã có ngày NULL
+        # Khoá dòng mã để 2 đơn đồng thời không vượt usage_limit
         coupon = db.query(Coupon).filter(
             Coupon.code == payload.coupon_code,
             Coupon.is_active == True,
-        ).first()
+        ).with_for_update().first()
 
         if coupon is None:
             raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail="Mã giảm giá không tồn tại")
 
-        is_started = True if not coupon.start_date else (coupon.start_date <= now)
-        is_not_expired = True if not coupon.end_date else (coupon.end_date >= now)
-
-        if not (is_started and is_not_expired):
+        if not coupon_in_window(coupon, now):
             raise HTTPException(status_code=400, detail="Mã giảm giá đã hết hạn hoặc chưa đến thời gian sử dụng")
-        
-        if not coupon or coupon.used_count >= coupon.usage_limit:
+
+        if coupon.used_count >= coupon.usage_limit:
             raise HTTPException(status_code=400, detail="Mã giảm giá không hợp lệ hoặc đã hết lượt dùng")
-        
+
         # Kiểm tra xem user có sở hữu mã này không
         user_coupon = db.query(UserCoupon).filter(
             UserCoupon.user_id == current_user.id,
@@ -70,24 +78,18 @@ def create_order(payload: CheckoutIn, db: Session = Depends(get_db), current_use
 
         if not user_coupon:
             raise HTTPException(status_code=400, detail="Bạn không sở hữu mã giảm giá này")
-            
+
         if user_coupon.is_used:
             raise HTTPException(status_code=400, detail="Bạn đã sử dụng mã giảm giá này rồi")
 
         if subtotal < coupon.min_order_value:
             raise HTTPException(status_code=400, detail=f"Đơn hàng chưa đạt giá trị tối thiểu ({coupon.min_order_value}) để dùng mã này")
-        
-        if coupon.discount_type == 'percent':
-            discount_amount = (subtotal * coupon.discount_value) / 100
-            if coupon.max_discount_value:
-                discount_amount = min(discount_amount, coupon.max_discount_value)
-        else:
-            discount_amount = coupon.discount_value
-            
+
+        discount_amount = compute_discount(coupon, subtotal)
         coupon_id = coupon.id
         # Đánh dấu đã sử dụng
         user_coupon.is_used = True
-        user_coupon.used_at = datetime.now()
+        user_coupon.used_at = now
 
     total_amount = max(subtotal - discount_amount, 0)
     
@@ -116,6 +118,7 @@ def create_order(payload: CheckoutIn, db: Session = Depends(get_db), current_use
         new_item = OrderItem(
             order_id=new_order.id,
             product_id=item_data["product_id"],
+            product_name=item_data["product_name"],
             quantity=item_data["quantity"],
             price_at_purchase=item_data["price_at_purchase"]
         )
@@ -129,10 +132,13 @@ def create_order(payload: CheckoutIn, db: Session = Depends(get_db), current_use
     try:
         db.commit()
         db.refresh(new_order)
-    except Exception as e:
+    except Exception:
         db.rollback()
+        logger.exception("Tạo đơn thất bại: user=%s", current_user.id)
         raise HTTPException(status_code=500, detail="Lỗi hệ thống khi tạo đơn hàng")
 
+    logger.info("Đơn mới %s: user=%s, %d sản phẩm, tổng %.0f, giảm %.0f, coupon=%s",
+                order_code, current_user.id, len(order_items_to_create), total_amount, discount_amount, payload.coupon_code)
     return new_order
 
 @router.get("/my-orders", response_model=list[OrderOut])
@@ -258,10 +264,12 @@ def update_order_status(order_id: int, payload: OrderStatusUpdate, db: Session =
     try:
         db.commit()
         db.refresh(order)
-    except Exception as e:
+    except Exception:
         db.rollback()
+        logger.exception("Cập nhật trạng thái đơn %s thất bại", order_id)
         raise HTTPException(status_code=500, detail="Lỗi khi cập nhật trạng thái đơn hàng")
 
+    logger.info("Đơn %s: %s -> %s", order.order_code, old_status.value, new_status.value)
     return order
 
 # --- Coupons (Admin) ---
@@ -301,13 +309,15 @@ def create_coupon(payload: CouponBase, db: Session = Depends(get_db), _=Depends(
         db.add(new_coupon)
         db.commit()
         db.refresh(new_coupon)
-    except Exception as e:
+    except Exception:
         db.rollback()
+        logger.exception("Tạo mã giảm giá %s thất bại", coupon_code)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Lỗi khi lưu mã giảm giá vào cơ sở dữ liệu"
         )
 
+    logger.info("Admin tạo mã giảm giá %s", coupon_code)
     return new_coupon
 
 @router.delete("/admin/coupons/{coupon_id}")

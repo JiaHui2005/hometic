@@ -129,7 +129,7 @@ export default function AdminModal({
               <tbody>
                 {formData?.items?.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.product?.name}</td>
+                    <td>{item.product_name || item.product?.name}</td>
                     <td style={{ textAlign: "center" }}>{item.quantity}</td>
                     <td className="price" style={{ textAlign: "right" }}>{formatVnd(item.price_at_purchase)}</td>
                   </tr>

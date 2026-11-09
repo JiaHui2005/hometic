@@ -145,7 +145,7 @@ trap 'cleanup; exit 0' INT TERM
 trap cleanup EXIT
 
 cd "$BACKEND_DIR"
-uvicorn app.main:app --reload --host 0.0.0.0 --port "$API_PORT" > >(sed -l "s/^/${DIM}[api]${RESET} /") 2>&1 &
+uvicorn app.main:app --reload --no-access-log --host 0.0.0.0 --port "$API_PORT" > >(sed -l "s/^/${DIM}[api]${RESET} /") 2>&1 &
 API_PID=$!
 
 cd "$FRONTEND_DIR"

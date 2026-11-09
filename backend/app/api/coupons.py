@@ -6,6 +6,11 @@ from app.models.entities import User, UserCoupon, Coupon
 from app.schemas.dto import UserCouponOut
 from datetime import datetime
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
+from app.utils.commerce import coupon_in_window
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/coupons", tags=["coupons"])
 
@@ -36,9 +41,7 @@ def check_coupon(code: str, db: Session = Depends(get_db), current_user: User = 
     if not coupon:
         raise HTTPException(status_code=404, detail="Mã giảm giá không tồn tại hoặc đã hết hạn")
     
-    # Kiểm tra thời gian
-    now = datetime.now()
-    if (coupon.start_date and coupon.start_date > now) or (coupon.end_date and coupon.end_date < now):
+    if not coupon_in_window(coupon, datetime.now()):
         raise HTTPException(status_code=400, detail="Mã giảm giá chưa đến hạn hoặc đã hết hạn")
 
     # Kiểm tra xem user có sở hữu mã này không (nếu là mã riêng biệt)
@@ -62,9 +65,8 @@ def claim_coupon(code: str, db: Session = Depends(get_db), current_user: User = 
     
     if not coupon:
         raise HTTPException(status_code=404, detail="Mã giảm giá không tồn tại")
-        
-    now = datetime.now()
-    if (coupon.start_date and coupon.start_date > now) or (coupon.end_date and coupon.end_date < now):
+
+    if not coupon_in_window(coupon, datetime.now()):
         raise HTTPException(status_code=400, detail="Mã giảm giá chưa đến hạn hoặc đã hết hạn")
         
     if coupon.used_count >= coupon.usage_limit:
@@ -85,7 +87,12 @@ def claim_coupon(code: str, db: Session = Depends(get_db), current_user: User = 
     )
     
     db.add(new_user_coupon)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # 2 request "Lưu mã" cùng lúc: UNIQUE(user_id, coupon_id) chặn bản ghi thứ hai
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Bạn đã sở hữu mã giảm giá này rồi")
     db.refresh(new_user_coupon)
-    
+    logger.info("User %s lưu mã %s", current_user.id, coupon.code)
     return new_user_coupon

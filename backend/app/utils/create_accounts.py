@@ -5,10 +5,15 @@ from app.db.session import SessionLocal, engine
 from app.db.init_db import Base
 from app.models.entities import User, UserRole
 from app.core.security import hash_password
+from app.core.config import get_settings
 
 
 def create_test_accounts():
     """Create admin and user test accounts"""
+    # Mật khẩu 123456 công khai trong README: không bao giờ tạo trên môi trường thật
+    if get_settings().app_env == "production":
+        print("Bỏ qua tạo tài khoản thử nghiệm vì APP_ENV=production")
+        return
     
     Base.metadata.create_all(bind=engine)
     

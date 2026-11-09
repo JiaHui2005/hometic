@@ -154,6 +154,10 @@
 
 .pd__lede { font-size: var(--text-lg); color: var(--ink); max-width: 56ch; }
 .pd__about { margin-top: 10px; color: var(--ink-muted); max-width: 64ch; }
+.pd__about > * + * { margin-top: 10px; }
+.pd__about h3 { margin-top: 22px; font-size: var(--text-base); color: var(--ink); }
+.pd__about ul { padding-left: 20px; display: grid; gap: 6px; }
+.pd__about li::marker { color: var(--sage-500); }
 
 /* ---------- Lựa chọn thay thế ---------- */
 

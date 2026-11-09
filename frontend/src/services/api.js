@@ -89,7 +89,9 @@ export async function api(path, options = {}) {
 
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    const error = new Error(data?.detail || "Có lỗi xảy ra");
+    // Lỗi validate (422) trả detail là mảng [{ loc, msg }]: lấy câu đầu tiên
+    const detail = Array.isArray(data?.detail) ? data.detail[0]?.msg?.replace(/^Value error, /, "") : data?.detail;
+    const error = new Error(detail || "Có lỗi xảy ra");
     error.status = response.status; // để nơi gọi phân biệt lỗi (vd. 403 = chưa sở hữu mã giảm giá)
     throw error;
   }

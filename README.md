@@ -1,264 +1,145 @@
-# Hometic - Nâng Tầm Không Gian Sống Thông Minh
+# Hometic — Sắm đủ, sống vui
 
-Hometic là nền tảng thương mại điện tử chuyên biệt về thiết bị gia dụng và giải pháp nhà thông minh, được phát triển cho **CÔNG TY TNHH DỊCH VỤ POPO (POPO Services)**. Với slogan **"Sắm đủ, sống vui"**, dự án hướng tới việc mang lại trải nghiệm mua sắm hiện đại, tiện lợi và cao cấp cho người tiêu dùng Việt Nam.
+## 1. Giới thiệu
 
----
+Hometic là website thương mại điện tử bán đồ gia dụng và thiết bị nhà thông minh: nồi chiên, máy lọc không khí, robot hút bụi, khoá vân tay, tivi… Dự án là đồ án cá nhân mô phỏng cửa hàng của POPO Services, gồm:
 
-## 🏢 Tổng Quan Doanh Nghiệp & Mô Hình Kinh Doanh
-
-### 1. Doanh nghiệp chủ quản
-- **Tên công ty:** CÔNG TY TNHH DỊCH VỤ POPO (POPO Services).
-- **Lĩnh vực hoạt động:** Bán lẻ và phân phối thiết bị gia dụng cao cấp, giải pháp nhà thông minh (Smart Home).
-- **Tầm nhìn:** Trở thành đơn vị dẫn đầu trong việc cung cấp các thiết bị công nghệ hỗ trợ cuộc sống hàng ngày tại Việt Nam.
-
-### 2. Mô hình kinh doanh (B2C - Business to Consumer)
-Hometic vận hành theo mô hình B2C trực tiếp, kết nối doanh nghiệp với khách hàng cá nhân thông qua nền tảng số:
-- **Sản phẩm:** Đa dạng từ đồ gia dụng truyền thống đến các thiết bị IoT (Robot hút bụi, nồi chiên không dầu thông minh, cảm biến nhà ở...).
-- **Giá trị cốt lõi:** Chất lượng sản phẩm chọn lọc, dịch vụ hậu mãi chu đáo và trải nghiệm người dùng tối ưu trên nền tảng web.
-- **Kênh phân phối:** Website TMĐT tập trung, tối ưu hóa cho cả thiết bị di động và máy tính.
+- **Frontend:** React 18 + Vite, giao diện tông Sage / Olive / Cream, dùng tốt trên điện thoại.
+- **Backend:** FastAPI (Python) cung cấp REST API, tài liệu tự sinh tại `/docs`.
+- **Database:** MySQL 8 chạy trong Docker, có sẵn 50 sản phẩm mẫu với mô tả và thông số chi tiết.
 
 ---
 
-## 🏗️ Kiến Trúc Hệ Thống
+## 2. Tính năng cốt lõi
 
-Dự án được xây dựng theo kiến trúc **Decoupled Architecture** (Tách biệt Frontend và Backend) giúp tăng khả năng mở rộng và bảo trì.
+### Khách hàng
+- **Tìm kiếm có gợi ý:** gõ không dấu vẫn ra kết quả ("noi chien" → "Nồi chiên"), gợi ý danh mục, sản phẩm và các lần tìm gần đây, điều hướng được bằng bàn phím.
+- **Danh mục nhiều cấp:** lọc theo giá, thương hiệu, còn hàng; sắp xếp theo giá, giảm giá, mới nhất. Trên điện thoại, bộ lọc mở dạng bảng trượt từ dưới lên.
+- **Trang sản phẩm:** ảnh, giá và mức tiết kiệm, tồn kho, bảng thông số, phần giới thiệu chia mục, mục "Vì sao nên chọn mẫu này" và các mẫu thay thế (rẻ hơn, cùng tầm giá, nâng cấp).
+- **So sánh** tối đa 3 sản phẩm, đánh dấu giá trị tốt nhất của từng thông số.
+- **Tìm sản phẩm phù hợp:** chọn nhóm hàng, ngân sách, nhu cầu; hệ thống xếp hạng và giải thích lý do bằng dữ liệu thật (giá, thông số, tồn kho).
+- **Giỏ hàng và đặt hàng 3 bước:** giỏ hàng → thông tin giao hàng → hoàn tất, có mã đơn để tra cứu.
+- **Mã giảm giá:** nhập mã ở giỏ hàng hoặc lưu sẵn trong ví mã ở trang Hồ sơ. Hệ thống tự kiểm tra hạn dùng, đơn tối thiểu và mức giảm tối đa.
+- **Tài khoản:** đăng ký, đăng nhập, quên mật khẩu bằng OTP gửi qua email, đổi mật khẩu, ảnh đại diện, lịch sử đơn hàng, đánh giá sản phẩm.
 
-### 1. Backend (The Engine)
-- **Framework:** [FastAPI](https://fastapi.tiangolo.com/) - Hiệu năng cực cao dựa trên Python 3.10+.
-- **ORM:** SQLAlchemy với MySQL 8 - Quản lý quan hệ dữ liệu chặt chẽ.
-- **Authentication:** JWT (JSON Web Tokens) - Đảm bảo bảo mật phiên đăng nhập.
-- **API Design:** RESTful API chuẩn hóa, tài liệu tự động qua Swagger UI.
-
-### 2. Frontend (The Interface)
-- **Library:** React 18 + Vite 6, không dùng thêm thư viện UI.
-- **Styling:** CSS thuần chia theo component (`Header.css`, `Cart.css`…) + design tokens dùng chung trong `src/styles/tokens.css`.
-- **Bảng màu:** Sage / Olive / Cream — nền ngà `#F6F3EC`, bề mặt trắng ấm, ô liu đậm `#384A2E` cho nút chính, sage `#4F6543` cho liên kết, đất nung `#A84E2C` chỉ dùng cho giảm giá.
-- **Typography:** Bricolage Grotesque cho tiêu đề và giá, Be Vietnam Pro cho nội dung — cả hai hỗ trợ đầy đủ tiếng Việt.
-- **Bo góc tiết chế:** nút và ô nhập 8px, thẻ sản phẩm 10px, khối lớn và hộp thoại 12px; không dùng nút dạng viên thuốc.
-- **Chuyển động:** ngắn (140–420ms), chỉ có một màn mở đầu ở trang chủ; còn lại chỉ phản hồi thao tác (mở menu, hộp thoại, đổi bước). Tự tắt khi hệ điều hành bật *Reduce motion*.
-- **Tính năng mua sắm:**
-  - Tìm kiếm có gợi ý (danh mục, sản phẩm, tìm gần đây), không phân biệt dấu, điều hướng bằng bàn phím.
-  - Trang danh mục: lọc theo giá, thương hiệu, còn hàng; sắp xếp; bộ lọc dạng bottom sheet trên điện thoại.
-  - So sánh tối đa 3 sản phẩm, đánh dấu giá trị tốt nhất theo từng thông số.
-  - "Tìm sản phẩm phù hợp": lọc theo nhóm, ngân sách, nhu cầu và giải thích lý do bằng dữ liệu thật (giá, thông số, tồn kho).
-  - Trang chi tiết: "Vì sao nên chọn mẫu này" và các lựa chọn thay thế (tiết kiệm hơn, cùng tầm giá, nâng cấp).
-  - Đặt hàng theo 3 bước: giỏ hàng, thông tin giao hàng, hoàn tất.
-  - Mã giảm giá: nhập mã ở giỏ hàng (tự lưu vào tài khoản nếu chưa có), ví mã trong trang Hồ sơ, tiền giảm tính đúng mức tối đa và đơn tối thiểu.
-- **Icons:** Lucide React.
-- **State Management:** React Hooks + `StoreContext` (catalog, giỏ hàng, so sánh, điều hướng) + custom hook `useProductFilters`.
-
-### 3. Database Schema
-Hệ thống quản lý các thực thể chính:
-- `User`: Quản lý tài khoản (Admin/Customer), hồ sơ người dùng.
-- `Category`: Phân loại sản phẩm đa cấp.
-- `Product`: Thông tin chi tiết sản phẩm, giá bán, kho hàng, thông số kỹ thuật (JSON).
-- `Order & OrderItem`: Luồng đặt hàng, trạng thái vận chuyển và lịch sử giao dịch.
-- `Review`: Đánh giá và phản hồi từ khách hàng.
-- `Coupon`: Hệ thống mã giảm giá cho khách hàng.
+### Quản trị viên
+- **Dashboard:** doanh thu, số đơn, khách hàng, biểu đồ doanh thu theo ngày và theo danh mục.
+- **Quản lý sản phẩm và danh mục:** thêm, sửa, ẩn hoặc khôi phục, upload ảnh, quản lý tồn kho.
+- **Quản lý đơn hàng:** cập nhật trạng thái chờ xử lý → đang xử lý → đang giao → đã giao / huỷ. Huỷ đơn thì tồn kho tự hoàn lại.
+- **Quản lý mã giảm giá:** tạo mã theo % hoặc số tiền, đặt mức giảm tối đa, đơn tối thiểu, số lượt và thời hạn, theo dõi lượt đã dùng.
 
 ---
 
-## 📁 Cấu Trúc Dự Án
+## 3. Giá trị sử dụng
 
-```text
-hometic/
-├── backend/                # Nguồn mã nguồn Backend (FastAPI)
-│   ├── app/
-│   │   ├── api/            # Các endpoint API (auth, admin, catalog, orders...)
-│   │   ├── core/           # Cấu hình hệ thống, bảo mật (config, security)
-│   │   ├── db/             # Kết nối DB và khởi tạo dữ liệu (session, init_db)
-│   │   ├── models/         # Định nghĩa các thực thể SQLAlchemy
-│   │   ├── schemas/        # Pydantic models (DTOs) để validate dữ liệu
-│   │   └── main.py         # Điểm khởi chạy ứng dụng
-│   ├── static/             # Chứa ảnh upload (uploads/...)
-│   └── requirements.txt    # Danh sách thư viện Python
-├── frontend/               # Nguồn mã nguồn Frontend (React + Vite)
-│   ├── src/
-│   │   ├── main.jsx        # Điểm khởi chạy: nạp CSS nền, mount <App /> trong ErrorBoundary
-│   │   ├── App.jsx         # State toàn cục + StoreContext.Provider + điều hướng theo tab
-│   │   ├── context/        # StoreContext — catalog, giỏ hàng, so sánh, điều hướng
-│   │   ├── pages/          # Mỗi trang một file JSX + CSS đi kèm:
-│   │   │                   #   Shop (trang chủ), CategoryDetail, SearchPage, ProductDetail,
-│   │   │                   #   Compare, Finder, Cart (gồm đặt hàng), Auth, Profile, StaticPages, Admin
-│   │   ├── components/
-│   │   │   ├── layout/     # Header, SearchBox (gợi ý tìm kiếm), Footer
-│   │   │   ├── product/    # ProductCard, ProductStrip, ProductFilters, CatalogView, CompareTray
-│   │   │   ├── common/     # Modal, Alert (toast), StatusBadge, Reviews, ErrorBoundary
-│   │   │   └── admin/      # Sidebar, AdminHeader, Dashboard, DataList, AdminModal, Admin.css
-│   │   ├── hooks/          # useProductFilters — lọc theo giá, thương hiệu, còn hàng + sắp xếp
-│   │   ├── services/       # API client (api.js) và alertService
-│   │   ├── styles/         # tokens.css (màu, chữ, bo góc, motion), base.css, motion.css
-│   │   ├── utils/          # format.js, product.js (giá, thông số, tìm kiếm), guidance.js (gợi ý)
-│   │   └── constants/      # Dữ liệu demo khi backend chưa chạy
-│   ├── public/             # Tài nguyên tĩnh (Logo, Banners)
-│   └── package.json        # Scripts: dev, build, preview, check
-├── database/               # Scripts khởi tạo cơ sở dữ liệu
-│   ├── schema.sql          # Cấu trúc bảng
-│   └── seed_product.sql    # Dữ liệu mẫu
-├── scripts/                # Các script tự động hóa (.sh cho Mac/Linux, .bat cho Win)
-└── docker-compose.yml      # Cấu hình chạy Docker cho MySQL
-```
+### Với người mua
+- **Chọn đúng món nhanh hơn.** Thay vì mở hàng chục tab, người mua nhập ngân sách và nhu cầu ở mục "Tìm sản phẩm phù hợp" là có danh sách xếp hạng kèm lý do. Ví dụ: "Lưu lượng lọc (CADR) cao nhất trong nhóm", "Rẻ hơn mức giá phổ biến của nhóm".
+- **Hiểu sản phẩm trước khi mua.** Mỗi sản phẩm có mô tả nói rõ dùng để làm gì, điểm nổi bật bằng con số cụ thể và hợp với ai, nên người không rành kỹ thuật vẫn tự quyết định được.
+- **So sánh minh bạch.** Đặt tối đa 3 mẫu cạnh nhau, thông số tốt nhất được đánh dấu sẵn, không phải tự dò từng dòng.
+- **Biết rõ mình được giảm bao nhiêu.** Giá gốc, giá bán, số tiền tiết kiệm và mức giảm từ mã khuyến mãi đều hiện trước khi đặt; mã không đủ điều kiện sẽ báo lý do (ví dụ còn thiếu bao nhiêu để đạt đơn tối thiểu).
+- **Đặt hàng gọn trong 3 bước,** dùng thoải mái trên điện thoại. Sau khi đặt có mã đơn để theo dõi trong trang Hồ sơ.
+- **Tài khoản an toàn.** Mật khẩu được mã hoá, khôi phục bằng mã OTP qua email, đổi mật khẩu là các thiết bị khác tự đăng xuất.
+
+### Với chủ cửa hàng
+- **Nắm tình hình kinh doanh trong một màn hình:** doanh thu, số đơn, khách hàng, doanh thu theo ngày và theo nhóm hàng.
+- **Vận hành không cần kỹ thuật:** thêm sửa sản phẩm, đăng ảnh, cập nhật tồn kho, xử lý đơn và tạo mã giảm giá ngay trên trang quản trị.
+- **Không bán quá số hàng đang có.** Tồn kho tự trừ khi khách đặt và tự hoàn lại khi đơn bị huỷ, kể cả khi nhiều khách đặt cùng lúc.
+- **Chủ động khuyến mãi** với mã giảm theo % hoặc số tiền, kèm mức giảm tối đa, đơn tối thiểu, số lượt dùng và thời hạn; xem được mã nào đang được dùng nhiều.
+- **Dữ liệu được giữ gìn.** Lịch sử đơn hàng không mất khi sửa hay ngừng bán sản phẩm, nên số liệu doanh thu luôn đúng.
+- **Dễ mở rộng:** frontend, backend và database tách riêng, có sẵn bộ kiểm thử tự động và log theo dõi, nên thêm tính năng hay đưa lên server không phải làm lại từ đầu.
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt & Khởi Chạy (Từ A-Z)
+## 4. Cách chạy
 
-### Bước 1: Chuẩn bị môi trường
-Yêu cầu máy tính đã cài đặt:
-- **Python 3.10+**
-- **Node.js 18+** (kèm npm)
-- **MySQL 8** (hoặc Docker Desktop)
+### Yêu cầu
+- Docker Desktop
+- Python 3.10+
+- Node.js 18+
 
-### Cách 1: Chạy nhanh bằng Script (Khuyên dùng)
-Hệ thống đã cung cấp sẵn script để tự động hóa việc cài đặt và khởi chạy:
+### Cách 1: một lệnh chạy tất cả (macOS / Linux, khuyên dùng)
 
-**Trên macOS/Linux:**
 ```bash
-chmod +x scripts/start.sh
 ./scripts/start.sh
 ```
 
-**Trên Windows:**
-```bat
-scripts\start.bat
-```
-Trên macOS/Linux, một lệnh `./scripts/start.sh` chạy **toàn bộ hệ thống** theo thứ tự:
+Script tự làm lần lượt:
+1. Kiểm tra công cụ và các cổng 8000, 5173.
+2. Mở Docker Desktop nếu chưa chạy, bật MySQL và chờ nạp xong dữ liệu mẫu.
+3. Tạo `backend/.env` và `.venv`, cài thư viện Python, tạo tài khoản thử nghiệm.
+4. Tạo `frontend/.env`, cài thư viện Node.
+5. Chạy backend và frontend, in địa chỉ truy cập khi cả hai đã sẵn sàng.
 
-1. Kiểm tra Docker, Python 3.10+, Node 18+ và các cổng 8000, 5173 còn trống.
-2. Bật Docker Desktop nếu chưa chạy (macOS), khởi động MySQL trong Docker và chờ nạp xong dữ liệu mẫu.
-3. Tạo `backend/.env`, môi trường ảo `.venv`, cài thư viện Python (chỉ cài lại khi `requirements.txt` đổi), tạo tài khoản thử nghiệm.
-4. Tạo `frontend/.env`, cài thư viện Node (chỉ khi `package-lock.json` đổi).
-5. Chạy Backend và Frontend, chờ cả hai trả lời rồi in địa chỉ truy cập và tài khoản. Log hiển thị kèm tiền tố `[api]` / `[web]`.
+Thư viện chỉ được cài lại khi `requirements.txt` hoặc `package-lock.json` thay đổi.
 
-Nhấn **Ctrl+C** để dừng Backend và Frontend. MySQL vẫn chạy để giữ dữ liệu; dùng `./scripts/start.sh --stop-db` nếu muốn dừng luôn MySQL khi thoát, hoặc `docker compose stop mysql` để dừng riêng.
+Nhấn **Ctrl+C** để dừng backend và frontend. MySQL vẫn chạy để giữ dữ liệu; muốn tắt luôn MySQL thì chạy `./scripts/start.sh --stop-db`.
 
-*Lưu ý: `scripts/start.bat` (Windows) hiện chưa tự bật MySQL — hãy chạy `docker compose up -d mysql` trước.*
+| Địa chỉ | |
+| :--- | :--- |
+| Website | http://localhost:5173 |
+| API | http://localhost:8000/api |
+| Tài liệu API (Swagger) | http://localhost:8000/docs |
 
----
-
-### Cách 2: Chạy bằng Docker Compose (Đơn giản nhất)
-Nếu máy bạn đã cài sẵn **Docker** và **Docker Desktop**, bạn có thể khởi chạy toàn bộ hệ thống (Frontend, Backend, Database) chỉ với 1 lệnh duy nhất tại thư mục gốc của dự án:
+### Cách 2: Docker Compose
 
 ```bash
+cp backend/.env.example backend/.env
 docker compose up -d --build
 ```
 
-**Sau khi Docker chạy xong, bạn có thể truy cập ngay:**
-- **Giao diện Web:** http://localhost:5173
-- **Backend API:** http://localhost:8000
-- **API Docs (Swagger):** http://localhost:8000/docs
+Điền `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` trong `backend/.env` nếu muốn gửi được email OTP. Tắt hệ thống bằng `docker compose down`.
 
-*Lưu ý: Database MySQL tự động seed dữ liệu mẫu qua file `database/init.sql` và backend sẽ tự khởi tạo `init_db.py`.*
+### Cách 3: Windows
 
-Để tắt toàn bộ hệ thống, chạy lệnh:
-```bash
-docker compose down
+```bat
+docker compose up -d mysql
+scripts\start.bat
 ```
 
----
+`start.bat` chưa tự bật MySQL nên cần chạy lệnh `docker compose` trước.
 
-### Cách 3: Cài đặt thủ công (A-Z)
-Dành cho trường hợp bạn muốn kiểm soát từng bước hoặc script gặp lỗi môi trường.
-
-#### Bước 1: Thiết lập Cơ sở dữ liệu (Database)
-1. Khởi động MySQL Server.
-2. Tạo database tên là `hometic_db`.
-3. Nếu dùng Docker, chỉ cần chạy:
-   ```bash
-   docker compose up -d mysql
-   ```
-4. Nếu chạy thủ công, hãy import file:
-   ```bash
-   mysql -u root -p hometic_db < database/schema.sql
-   ```
-
-### Bước 3: Cấu hình và chạy Backend
-1. Truy cập thư mục backend:
-   ```bash
-   cd backend
-   ```
-2. Tạo môi trường ảo và cài đặt thư viện:
-   ```bash
-   python -m venv .venv
-   # Mac/Linux:
-   source .venv/bin/activate
-   # Windows:
-   .venv\Scripts\activate
-   
-   pip install -r requirements.txt
-   ```
-3. Tạo file `.env` từ `.env.example` và điều chỉnh thông tin kết nối MySQL:
-   ```env
-   MYSQL_HOST=localhost
-   MYSQL_USER=root
-   MYSQL_PASSWORD=your_password
-   MYSQL_DATABASE=hometic_db
-   ```
-4. Chạy server:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-   *Server sẽ chạy tại: http://localhost:8000*
-
-### Bước 4: Cấu hình và chạy Frontend
-1. Mở terminal mới, truy cập thư mục frontend:
-   ```bash
-   cd frontend
-   ```
-2. Cài đặt các package:
-   ```bash
-   npm install
-   ```
-3. Chạy ứng dụng ở chế độ development:
-   ```bash
-   npm run dev
-   ```
-   *Ứng dụng sẽ chạy tại: http://localhost:5173*
-4. (Tuỳ chọn) Đổi địa chỉ API bằng biến `VITE_API_URL` trong `frontend/.env` (mẫu: `frontend/.env.example`). Nếu backend chưa chạy, trang chủ sẽ hiển thị dữ liệu demo.
-5. Build bản production:
-   ```bash
-   npm run build
-   ```
-
-#### Tuỳ chỉnh giao diện
-- **Đổi màu, cỡ chữ, bo góc:** sửa biến trong `src/styles/tokens.css` — toàn bộ giao diện (kể cả trang quản trị) dùng chung các biến này.
-- **Đổi tốc độ chuyển động:** biến `--dur-fast`, `--dur`, `--dur-slow`, `--ease` trong cùng file.
-- **Thành phần dùng chung:** nút (`.btn`, `.btn-primary`…), ô nhập (`.input`, `.field`), thẻ trạng thái (`.tag`), chip lọc (`.chip`) nằm trong `src/styles/base.css`.
-- **Kiểm tra logic gợi ý:** chạy `npm run check` trong thư mục `frontend` để tự kiểm tra các hàm tính giá, so sánh thông số và xếp hạng gợi ý.
-
----
-
-## 🛠️ Tài Khoản Thử Nghiệm
-
-Dữ liệu mẫu (`database/seed_product.sql`) và `scripts/start.sh` tạo sẵn các tài khoản:
+### Tài khoản thử nghiệm
 
 | Vai trò | Email | Mật khẩu |
 | :--- | :--- | :--- |
-| **Quản trị viên (Admin)** | `admin@hometic.com` | `123456` |
-| **Khách hàng (User)** | `user@hometic.com` | `123456` |
+| Quản trị viên | `admin@hometic.com` | `123456` |
+| Khách hàng | `user@hometic.com` | `123456` |
+
+### Chạy test
+
+Backend (chạy trong thư mục `backend`, dùng môi trường ảo `.venv` mà script đã tạo):
+
+```bash
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m pytest
+```
+
+Frontend (chạy trong thư mục `frontend`):
+
+```bash
+npm run check
+```
+
+### Cập nhật database đã tạo từ phiên bản cũ
+
+Database tạo mới đã có đủ cấu trúc. Nếu volume MySQL được tạo từ phiên bản trước, chạy các migration theo thứ tự:
+
+```bash
+docker exec -i hometic_db mysql -uroot --default-character-set=utf8mb4 hometic_db < database/migrations/001_ecommerce_hardening.sql
+docker exec -i hometic_db mysql -uroot --default-character-set=utf8mb4 hometic_db < database/migrations/002_auth_hardening.sql
+docker exec -i hometic_db mysql -uroot --default-character-set=utf8mb4 hometic_db < database/product-content.sql
+```
+
+### Khi deploy thật
+1. Đặt `APP_ENV=production` và tạo `SECRET_KEY` mới:
+   ```bash
+   python -c "import secrets; print(secrets.token_urlsafe(48))"
+   ```
+   Backend từ chối khởi động nếu khoá ngắn hơn 32 ký tự, và không tạo tài khoản thử nghiệm.
+2. Xoá hoặc đổi mật khẩu các tài khoản mẫu.
+3. Đặt mật khẩu cho MySQL và điền `MYSQL_PASSWORD` trong `backend/.env`.
+4. Chạy backend sau Nginx/HTTPS với `uvicorn --proxy-headers`.
 
 ---
 
-## 🌟 Các Tính Năng Chính
-
-### 🛒 Dành cho Khách hàng
-- **Khám phá sản phẩm:** Giao diện hiện đại, phân loại theo danh mục thông minh.
-- **Tìm kiếm & Lọc:** Lọc theo khoảng giá, thương hiệu, sắp xếp theo nhu cầu.
-- **Giỏ hàng & Thanh toán:** Quy trình đặt hàng tối giản, quản lý giỏ hàng real-time.
-- **Hồ sơ cá nhân:** Cập nhật thông tin, thay đổi ảnh đại diện, theo dõi lịch sử đơn hàng.
-- **Đánh giá & Mã giảm giá:** Gửi feedback về sản phẩm và áp dụng coupon ưu đãi.
-
-### ⚙️ Dành cho Quản trị viên (Admin)
-- **Dashboard:** Thống kê doanh thu, đơn hàng, khách hàng qua biểu đồ trực quan.
-- **Quản lý Sản phẩm:** CRUD sản phẩm, upload ảnh, quản lý kho hàng.
-- **Quản lý Danh mục:** Tổ chức cây danh mục linh hoạt.
-- **Quản lý Đơn hàng:** Tiếp nhận, xử lý và cập nhật trạng thái đơn hàng (Chờ xử lý -> Đang giao -> Hoàn thành).
-- **Quản lý Mã giảm giá:** Tạo mã (theo % hoặc số tiền, mức giảm tối đa, đơn tối thiểu, số lượt, thời hạn), theo dõi lượt dùng, xoá hoặc ngưng mã đã dùng.
-
----
-
-## 📈 API Reference
-Tài liệu API đầy đủ có thể truy cập tại: `http://localhost:8000/docs` (Swagger UI).
-
----
-*Phát triển bởi Nhóm Tứ Linh - 2026*
+*Phát triển bởi Nhóm Tứ Linh — 2026*

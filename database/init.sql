@@ -12,3 +12,4 @@ SOURCE /database/schema.sql;
 SOURCE /database/seed_product.sql;
 SOURCE /database/product-1.sql;
 SOURCE /database/product-2.sql;
+SOURCE /database/product-content.sql;

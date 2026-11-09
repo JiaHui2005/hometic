@@ -19,4 +19,6 @@ ENV MYSQL_DATABASE=hometic_db
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Không --reload khi deploy (nó theo dõi file và chỉ chạy 1 tiến trình); 2 worker xử lý song song.
+# Log truy cập do middleware của app ghi (kèm thời gian xử lý) nên tắt access log của uvicorn.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--no-access-log"]

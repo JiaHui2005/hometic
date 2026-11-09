@@ -7,6 +7,10 @@ from app.db.session import get_db
 from sqlalchemy import or_
 from app.schemas.dto import CategoryBase, CategoryOut, ProductCreate, ProductOut, ProductUpdate
 from app.models.entities import Category, Product, ProductDetail, User
+from app.utils.commerce import descendant_ids
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["catalog"])
 
@@ -264,15 +268,8 @@ def get_products_by_category(
     if not category:
         raise HTTPException(status_code=404, detail="Danh mục không tồn tại")
 
-    category_ids = [category.id]
-    
-    sub_categories = db.query(Category.id).filter(Category.parent_id == category.id).all()
-    sub_ids = [c.id for c in sub_categories]
-    category_ids.extend(sub_ids)
-    
-    if sub_ids:
-        grandchild_categories = db.query(Category.id).filter(Category.parent_id.in_(sub_ids)).all()
-        category_ids.extend([c.id for c in grandchild_categories])
+    # 1 truy vấn lấy cả cây (id, parent_id) rồi BFS: mọi độ sâu, thay cho 2 truy vấn chỉ tới cấp cháu
+    category_ids = descendant_ids(db.query(Category.id, Category.parent_id).all(), category.id)
 
     query = db.query(Product).options(
         joinedload(Product.category),
@@ -322,11 +319,12 @@ def create_product(payload: ProductCreate, db: Session = Depends(get_db), _=Depe
         db.commit()
         db.refresh(new_product)
         
-    except Exception as e:
+    except Exception:
         db.rollback()
+        logger.exception("Tạo sản phẩm %s thất bại", payload.slug)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Lỗi hệ thống khi tạo sản phẩm: " + str(e)
+            detail="Lỗi hệ thống khi tạo sản phẩm"
         )
 
     return new_product
@@ -364,11 +362,12 @@ def update_product(product_id: int, payload: ProductUpdate, db: Session = Depend
     try:
         db.commit()
         db.refresh(product)
-    except Exception as e:
+    except Exception:
         db.rollback()
+        logger.exception("Cập nhật sản phẩm %s thất bại", product_id)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail=f"Lỗi khi cập nhật sản phẩm: {str(e)}"
+            detail="Lỗi khi cập nhật sản phẩm"
         )
 
     return product

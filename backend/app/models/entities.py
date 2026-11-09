@@ -1,11 +1,18 @@
 from datetime import datetime, date
 from enum import Enum
 
-from sqlalchemy import DateTime, Date, Enum as SqlEnum, Float, ForeignKey, Integer, String, Text, func, JSON, Boolean, Column
+from sqlalchemy import (
+    Boolean, CheckConstraint, Column, Date, DateTime, Enum as SqlEnum, ForeignKey, Index, Integer, JSON,
+    Numeric, String, Text, UniqueConstraint, func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from decimal import Decimal
 from typing import List
+
+# Tiền lưu DECIMAL(15,2) như schema.sql; Python nhận Decimal, không làm tròn sai như float
+Money = Numeric(15, 2)
 
 
 class UserRole(str, Enum):
@@ -41,8 +48,11 @@ class User(Base):
     avatar_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
-    reset_otp = Column(String(6), nullable=True)
+    reset_otp = Column(String(64), nullable=True)  # HMAC-SHA256 của OTP, không lưu mã gốc
     otp_expiry = Column(DateTime, nullable=True)
+    otp_attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    # Token phát hành trước mốc này bị từ chối (đổi / đặt lại mật khẩu là đăng xuất mọi phiên cũ)
+    password_changed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     orders: Mapped[list["Order"]] = relationship(back_populates="user")
     reviews: Mapped[list["Review"]] = relationship(back_populates="user")
@@ -79,14 +89,21 @@ class Category(Base):
     
 class Product(Base):
     __tablename__ = "products"
+    __table_args__ = (
+        CheckConstraint("price >= 0", name="chk_products_price"),
+        CheckConstraint("sale_price IS NULL OR (sale_price >= 0 AND sale_price <= price)", name="chk_products_sale_price"),
+        CheckConstraint("stock >= 0", name="chk_products_stock"),
+        Index("idx_products_active_created", "is_active", "created_at"),
+        Index("idx_products_category_active", "category_id", "is_active"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id", ondelete="RESTRICT"))
     name: Mapped[str] = mapped_column(String(255), index=True)
     slug: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     brand: Mapped[str] = mapped_column(String(100), default="Hometic")
-    price: Mapped[float] = mapped_column(Float, default=0)
-    sale_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    price: Mapped[Decimal] = mapped_column(Money, default=0)
+    sale_price: Mapped[Decimal | None] = mapped_column(Money, nullable=True)
     stock: Mapped[int] = mapped_column(Integer, default=0)
     image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -115,9 +132,10 @@ class ProductDetail(Base):
 
 class UserCoupon(Base):
     __tablename__ = "user_coupons"
+    __table_args__ = (UniqueConstraint("user_id", "coupon_id", name="uq_user_coupon"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     coupon_id: Mapped[int] = mapped_column(Integer, ForeignKey("coupons.id", ondelete="CASCADE"), index=True)
     
     # Trạng thái riêng của từng user đối với mã này
@@ -131,13 +149,17 @@ class UserCoupon(Base):
 
 class Coupon(Base):
     __tablename__ = "coupons"
+    __table_args__ = (
+        CheckConstraint("discount_value > 0 AND (discount_type <> 'percent' OR discount_value <= 100)", name="chk_coupons_value"),
+        CheckConstraint("used_count >= 0 AND used_count <= usage_limit", name="chk_coupons_usage"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     code: Mapped[str] = mapped_column(String(50), unique=True)
     discount_type: Mapped[DiscountType] = mapped_column(SqlEnum(DiscountType), default=DiscountType.percent)
-    discount_value: Mapped[float] = mapped_column(Float)
-    min_order_value: Mapped[float] = mapped_column(Float, default=0)
-    max_discount_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    discount_value: Mapped[Decimal] = mapped_column(Money)
+    min_order_value: Mapped[Decimal] = mapped_column(Money, default=0)
+    max_discount_value: Mapped[Decimal | None] = mapped_column(Money, nullable=True)
     start_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     end_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     usage_limit: Mapped[int] = mapped_column(Integer, default=100)
@@ -148,14 +170,19 @@ class Coupon(Base):
 
 class Order(Base):
     __tablename__ = "orders"
+    __table_args__ = (
+        CheckConstraint("subtotal >= 0 AND discount_amount >= 0 AND total_amount >= 0", name="chk_orders_amounts"),
+        Index("idx_orders_user_created", "user_id", "created_at"),
+        Index("idx_orders_created", "created_at"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     order_code: Mapped[str] = mapped_column(String(50), unique=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    coupon_id: Mapped[int | None] = mapped_column(ForeignKey("coupons.id"), nullable=True)
-    subtotal: Mapped[float] = mapped_column(Float)
-    discount_amount: Mapped[float] = mapped_column(Float, default=0)
-    total_amount: Mapped[float] = mapped_column(Float)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
+    coupon_id: Mapped[int | None] = mapped_column(ForeignKey("coupons.id", ondelete="SET NULL"), nullable=True)
+    subtotal: Mapped[Decimal] = mapped_column(Money)
+    discount_amount: Mapped[Decimal] = mapped_column(Money, default=0)
+    total_amount: Mapped[Decimal] = mapped_column(Money)
     status: Mapped[OrderStatus] = mapped_column(SqlEnum(OrderStatus), default=OrderStatus.pending)
     payment_method: Mapped[str] = mapped_column(String(50), default="cod")
     payment_status: Mapped[str] = mapped_column(String(20), default="pending")
@@ -172,12 +199,17 @@ class Order(Base):
 
 class OrderItem(Base):
     __tablename__ = "order_items"
+    __table_args__ = (
+        CheckConstraint("quantity > 0", name="chk_order_items_quantity"),
+        CheckConstraint("price_at_purchase >= 0", name="chk_order_items_price"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="RESTRICT"))
+    product_name: Mapped[str | None] = mapped_column(String(255), nullable=True)  # tên lúc mua
     quantity: Mapped[int] = mapped_column(Integer)
-    price_at_purchase: Mapped[float] = mapped_column(Float)
+    price_at_purchase: Mapped[Decimal] = mapped_column(Money)
 
     order: Mapped["Order"] = relationship(back_populates="items")
     product: Mapped["Product"] = relationship(back_populates="order_items")
@@ -185,6 +217,11 @@ class OrderItem(Base):
 
 class Review(Base):
     __tablename__ = "reviews"
+    __table_args__ = (
+        UniqueConstraint("user_id", "product_id", name="uq_review_user_product"),
+        CheckConstraint("rating >= 1 AND rating <= 5", name="reviews_chk_1"),
+        Index("idx_reviews_product_created", "product_id", "created_at"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

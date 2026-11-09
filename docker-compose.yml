@@ -6,8 +6,9 @@ services:
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: hometic_db
+    # Chỉ mở cho chính máy này: root không mật khẩu chỉ chấp nhận được khi không ai khác kết nối tới được
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     volumes:
       - hometic_mysql_data:/var/lib/mysql
       - ./database:/database:ro
@@ -22,17 +23,19 @@ services:
     build: ./backend
     container_name: hometic_backend
     restart: unless-stopped
+    # Compose dùng cho dev (mount mã nguồn) nên bật --reload; image deploy chạy theo CMD trong Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --no-access-log
     ports:
       - "8000:8000"
+    # Bí mật (SMTP_*, SECRET_KEY...) lấy từ backend/.env, không ghi vào file này vì nó được commit.
+    # Các biến trong environment bên dưới ghi đè .env để trỏ tới container MySQL.
+    env_file: ./backend/.env
     environment:
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
       - MYSQL_USER=root
       - MYSQL_PASSWORD=
       - MYSQL_DATABASE=hometic_db
-      - SMTP_USER=vogiahuypro9@gmail.com
-      - SMTP_PASSWORD=rygh qahr qjwf xnxw
-      - SMTP_FROM=Hometic Support <vogiahuypro9@gmail.com>
     depends_on:
       mysql:
         condition: service_healthy

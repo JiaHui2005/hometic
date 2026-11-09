@@ -6,6 +6,7 @@ from app.models.entities import User
 from app.schemas.dto import ReviewCreate, ReviewOut
 from app.models.entities import Product, Review
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter(tags=["reviews"])
 
@@ -59,7 +60,12 @@ def create_review(payload: ReviewCreate, db: Session = Depends(get_db), current_
     )
 
     db.add(new_review)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # UNIQUE(user_id, product_id) chặn đánh giá trùng khi gửi 2 lần cùng lúc
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Bạn đã đánh giá sản phẩm này rồi")
     db.refresh(new_review)
 
     return new_review

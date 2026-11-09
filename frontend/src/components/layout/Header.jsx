@@ -98,7 +98,7 @@ export default function Header({ activeTab, onLogout }) {
             <button className="header-action" onClick={() => nav("cart")} aria-label={`Giỏ hàng, ${cartCount} sản phẩm`}>
               <span className="header-cart-icon">
                 <ShoppingBag size={20} aria-hidden="true" />
-                {cartCount > 0 && <span className="count-badge">{cartCount}</span>}
+                {cartCount > 0 && <span key={cartCount} className="count-badge count-badge--bump">{cartCount}</span>}
               </span>
               <span className="header-label">Giỏ hàng</span>
             </button>

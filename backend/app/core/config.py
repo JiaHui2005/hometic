@@ -8,7 +8,8 @@ class Settings(BaseSettings):
     app_name: str = "Hometic API"
     app_env: str = "development"
     secret_key: str = "change-this-in-production"
-    access_token_expire_minutes: int = 1440
+    access_token_expire_minutes: int = 60
+    log_level: str = "INFO"
 
     mysql_host: str = "localhost"
     mysql_port: int = 3306
@@ -30,6 +31,10 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
+
+    @property
+    def secret_key_is_weak(self) -> bool:
+        return len(self.secret_key) < 32 or self.secret_key.startswith("change-this")
 
     @property
     def database_url(self) -> str:

@@ -164,8 +164,11 @@ p { text-wrap: pretty; }
   font-weight: 600;
   white-space: nowrap;
   transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
-    border-color var(--dur-fast) var(--ease);
+    border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
 }
+
+/* Nhấn nút lún nhẹ: phản hồi tức thì là đã bấm */
+.btn:active:not(:disabled) { transform: scale(0.97); }
 
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 

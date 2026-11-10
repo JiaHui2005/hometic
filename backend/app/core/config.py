@@ -1,7 +1,8 @@
+import json
 from functools import lru_cache
-from typing import List, Union
+from typing import Annotated, List, Union
 from pydantic import field_validator, AnyHttpUrl
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -17,7 +18,11 @@ class Settings(BaseSettings):
     mysql_password: str = ""
     mysql_database: str = "hometic_db"
 
-    backend_cors_origins: List[str] = ["http://localhost:5173"]
+    mysql_ssl: bool = False  # bắt buộc với MySQL trên cloud (TiDB Cloud, Aiven…)
+    mysql_ssl_ca: str = ""  # file CA riêng của nhà cung cấp; bỏ trống thì dùng bộ CA công khai (certifi)
+
+    # NoDecode: nhận cả "https://a.com,https://b.com" lẫn dạng JSON ["https://a.com"]
+    backend_cors_origins: Annotated[List[str], NoDecode] = ["http://localhost:5173"]
 
     storage_backend: str = "local"
     cloudinary_cloud_name: str = ""
@@ -27,15 +32,18 @@ class Settings(BaseSettings):
 
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
-    smtp_user: str
-    smtp_password: str
-    smtp_from: str
+    # Để trống thì bỏ qua gửi email (vd. host chặn cổng SMTP), các chức năng khác vẫn chạy
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
 
     @field_validator("backend_cors_origins", mode="before")
     @classmethod
     def split_cors(cls, value: Union[str, List[str]]) -> List[str]:
         if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
+            if value.strip().startswith("["):
+                return json.loads(value)
+            return [origin.strip().rstrip("/") for origin in value.split(",") if origin.strip()]
         return value
 
     @property
@@ -51,10 +59,15 @@ class Settings(BaseSettings):
         if encoded_password:
             auth = f"{auth}:{encoded_password}"
             
-        return (
+        url = (
             f"mysql+pymysql://{auth}@{self.mysql_host}:{self.mysql_port}/"
             f"{self.mysql_database}?charset=utf8mb4"
         )
+        if self.mysql_ssl:
+            import certifi
+            ca = self.mysql_ssl_ca or certifi.where()
+            url += f"&ssl_ca={urllib.parse.quote(ca)}&ssl_check_hostname=true"
+        return url
 
     model_config = SettingsConfigDict(
         env_file=".env",

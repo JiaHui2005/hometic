@@ -152,15 +152,27 @@ docker exec -i hometic_db mysql -uroot --default-character-set=utf8mb4 hometic_d
 docker exec -i hometic_db mysql -uroot --default-character-set=utf8mb4 hometic_db < database/product-content.sql
 ```
 
-### Khi deploy thật
-1. Đặt `APP_ENV=production` và tạo `SECRET_KEY` mới:
+### Deploy miễn phí (TiDB Cloud + Render + Vercel)
+
+| Phần | Dịch vụ | Ghi chú |
+| :--- | :--- | :--- |
+| Database | TiDB Cloud Starter | Tương thích MySQL, gói miễn phí, bắt buộc kết nối TLS |
+| Backend | Render (Free) | Cấu hình sẵn trong `render.yaml`; ngủ khi không có truy cập, lần đầu mở lại chậm khoảng 1 phút |
+| Frontend | Vercel (Hobby) | Build Vite, đặt `VITE_API_URL` |
+| Ảnh | Cloudinary | Dùng chung tài khoản đang có |
+
+1. **Database:** tạo cluster TiDB Cloud Starter, lấy Host, Port (4000), User, Password ở mục *Connect*. Nạp cấu trúc và dữ liệu mẫu (cần Docker, chạy tại thư mục gốc):
    ```bash
-   python -c "import secrets; print(secrets.token_urlsafe(48))"
+   (echo "CREATE DATABASE IF NOT EXISTS hometic_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; USE hometic_db;"; \
+    cat database/schema.sql database/seed_product.sql database/product-1.sql database/product-2.sql database/product-content.sql) | \
+    docker run --rm -i mysql:8.4 mysql -h <HOST> -P 4000 -u '<USER>' -p'<PASSWORD>' --ssl-mode=REQUIRED --default-character-set=utf8mb4
    ```
-   Backend từ chối khởi động nếu khoá ngắn hơn 32 ký tự, và không tạo tài khoản thử nghiệm.
-2. Xoá hoặc đổi mật khẩu các tài khoản mẫu.
-3. Đặt mật khẩu cho MySQL và điền `MYSQL_PASSWORD` trong `backend/.env`.
-4. Chạy backend sau Nginx/HTTPS với `uvicorn --proxy-headers`.
+2. **Backend:** trên Render chọn *New → Blueprint*, trỏ tới repo; Render đọc `render.yaml` và hỏi các biến còn thiếu: `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `CLOUDINARY_*`, `BACKEND_CORS_ORIGINS` (tạm điền `http://localhost:5173`). `SECRET_KEY` được tạo tự động. Kiểm tra `https://<tên-service>.onrender.com/api/health`.
+3. **Frontend:** trên Vercel chọn *Add New → Project*, chọn repo, **Root Directory** là `frontend`, thêm biến `VITE_API_URL=https://<tên-service>.onrender.com/api`, rồi Deploy.
+4. **Nối hai bên:** sửa `BACKEND_CORS_ORIGINS` trên Render thành domain Vercel (vd. `https://hometic.vercel.app`), lưu để Render khởi động lại.
+5. **Sau khi chạy:** đăng nhập `admin@hometic.com` và đổi mật khẩu ngay (vào Hồ sơ → Đổi mật khẩu), làm tương tự với các tài khoản mẫu khác.
+
+Render bản Free chặn cổng SMTP nên email OTP quên mật khẩu không gửi được; các chức năng khác không bị ảnh hưởng.
 
 ---
 

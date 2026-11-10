@@ -1,0 +1,45 @@
+# Render Blueprint cho backend Hometic. Render đọc file này khi tạo "New > Blueprint" từ repo.
+# Các biến sync: false sẽ được hỏi giá trị lúc tạo, không lưu trong repo.
+services:
+  - type: web
+    name: hometic-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # --proxy-headers: lấy IP thật của người dùng sau proxy của Render (cần cho giới hạn số lần đăng nhập)
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*' --no-access-log
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: APP_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: MYSQL_SSL
+        value: "true"
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_PORT
+        value: "4000"
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DATABASE
+        value: hometic_db
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      - key: STORAGE_BACKEND
+        value: cloudinary
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

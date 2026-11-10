@@ -69,8 +69,11 @@ def send_reset_password_email(email_to: str, otp_code: str):
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'html'))
     
+    if not settings.smtp_user:
+        return False
     try:
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
+        # timeout: host chặn cổng SMTP (vd. Render free) thì báo lỗi sau 10 giây thay vì treo request
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10) as server:
             server.starttls()
             server.login(settings.smtp_user, settings.smtp_password)
             server.send_message(msg)

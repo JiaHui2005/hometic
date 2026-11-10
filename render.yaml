@@ -5,6 +5,9 @@ services:
     name: hometic-api
     runtime: python
     plan: free
+    # Cùng region với TiDB (ap-southeast-1) và gần Việt Nam: mỗi truy vấn DB ~1 ms thay vì ~200 ms qua Thái Bình Dương.
+    # Render không đổi region của service đã tạo; service cũ phải xoá rồi tạo lại từ Blueprint.
+    region: singapore
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     # --proxy-headers: lấy IP thật của người dùng sau proxy của Render (cần cho giới hạn số lần đăng nhập)

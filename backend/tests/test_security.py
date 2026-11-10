@@ -186,3 +186,20 @@ def test_cloudinary_rejects_fake_image_with_400(client, seed, user_headers, monk
     monkeypatch.setattr(uploads, "upload_to_cloudinary", reject)
     res = client.post("/api/auth/upload-avatar", headers=user_headers, files={"file": ("a.png", b"<script>", "image/png")})
     assert res.status_code == 400
+
+
+def test_login_rehashes_old_bcrypt_cost(client, db, seed):
+    from passlib.context import CryptContext
+    from app.models.entities import User
+    user = db.query(User).filter_by(email="user@test.com").one()
+    user.password_hash = CryptContext(schemes=["bcrypt"], bcrypt__rounds=12).hash("123456")
+    db.commit()
+    assert client.post("/api/auth/login", json={"email": "user@test.com", "password": "123456"}).status_code == 200
+    db.expire_all()
+    assert db.query(User).filter_by(email="user@test.com").one().password_hash.startswith("$2b$10$")
+
+
+def test_large_json_is_gzipped(client, seed):
+    res = client.get("/api/products", headers={"Accept-Encoding": "gzip"})
+    assert res.status_code == 200 and len(res.json()) == 2
+    assert res.headers.get("content-encoding") == "gzip"

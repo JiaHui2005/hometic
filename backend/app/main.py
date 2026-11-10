@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.api import auth, catalog, orders, reviews, admin, coupons
 from app.core.config import get_settings
@@ -20,6 +21,8 @@ if settings.secret_key_is_weak:
 app = FastAPI(title=settings.app_name)
 
 app.middleware("http")(log_requests)
+# Nén JSON: danh sách sản phẩm ~74 KB còn khoảng 1/5, tải nhanh hơn rõ trên 4G
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 @app.middleware("http")

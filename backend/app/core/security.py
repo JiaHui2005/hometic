@@ -8,7 +8,10 @@ from passlib.context import CryptContext
 from app.core.config import get_settings
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# 10 vòng (2^10): mức tối thiểu OWASP khuyến nghị cho bcrypt. 12 vòng mất ~1,4 s mỗi lần đăng nhập trên
+# CPU 0,1 nhân của Render free; 10 vòng nhanh gấp ~4. Hash cũ 12 vòng vẫn đăng nhập được và được băm lại khi
+# đăng nhập thành công (max_rounds đánh dấu chúng cần cập nhật).
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=10, bcrypt__max_rounds=10)
 settings = get_settings()
 
 
@@ -18,6 +21,13 @@ def hash_password(password: str) -> str:
 
 def verify_password(password: str, hashed_password: str) -> bool:
     return pwd_context.verify(password, hashed_password)
+
+
+def verify_and_upgrade(password: str, hashed_password: str | None) -> tuple[bool, str | None]:
+    """Kiểm tra mật khẩu; nếu đúng mà hash dùng cấu hình cũ thì trả kèm hash mới để lưu lại."""
+    if not hashed_password:
+        return False, None
+    return pwd_context.verify_and_update(password, hashed_password)
 
 
 def create_access_token(subject: str) -> str:

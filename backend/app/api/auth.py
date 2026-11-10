@@ -10,6 +10,7 @@ from app.core.security import (
     otp_matches,
     token_revoked,
     utc_now_seconds,
+    verify_and_upgrade,
     verify_password
 )
 from app.core.rate_limit import client_ip, enforce, login_by_email, login_by_ip, otp_by_email, otp_by_ip
@@ -67,12 +68,16 @@ def login(payload: UserLogin, request: Request, db: Session = Depends(get_db)):
     """Đăng nhập hệ thống"""
     enforce((login_by_ip, client_ip(request)), (login_by_email, payload.email.lower()))
     user = db.query(User).filter(User.email == payload.email).first()
-    if not user or not verify_password(payload.password, user.password_hash):
+    ok, new_hash = verify_and_upgrade(payload.password, user.password_hash) if user else (False, None)
+    if not ok:
         logger.warning("Đăng nhập thất bại: %s", payload.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Sai email hoặc mật khẩu"
         )
+    if new_hash:
+        user.password_hash = new_hash
+        db.commit()
     
     access_token = create_access_token(user.email)
     refresh_token = create_refresh_token(user.email)

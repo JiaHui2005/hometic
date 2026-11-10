@@ -120,8 +120,7 @@ def update_me(payload: UserUpdate, db: Session = Depends(get_db), current_user: 
 
 @router.post("/upload-avatar")
 def upload_avatar(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
-    name = save_image(file, f"avatar_user_{current_user.id}")
-    return {"url": f"/static/uploads/{name}"}
+    return {"url": save_image(file, f"avatar_user_{current_user.id}", folder="avatars")}
 
 @router.put("/change-password", response_model=TokenOut)
 def change_password(

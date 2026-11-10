@@ -111,7 +111,7 @@ export default function DataList({
         <tr key={item.id} className={item.is_active ? "" : "row-muted"}>
           <td>
             <div className="cell-product">
-              <img src={getImgUrl(item.image_url)} alt="" />
+              <img src={getImgUrl(item.image_url, 120)} alt="" />
               <strong>{item.name}</strong>
             </div>
           </td>

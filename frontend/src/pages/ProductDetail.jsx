@@ -114,14 +114,14 @@ export default function ProductDetail({ product: initialProduct }) {
           {/* Ảnh */}
           <div className="pd__gallery">
             <div className="pd__image">
-              <img key={activeImage} className="pd__image-current" src={getImgUrl(images[activeImage])} alt={product.name} />
+              <img key={activeImage} className="pd__image-current" src={getImgUrl(images[activeImage], 1000)} alt={product.name} />
               {off >= 5 && <span className="pd__off">−{off}%</span>}
             </div>
             {images.length > 1 && (
               <div className="pd__thumbs" role="list" aria-label="Ảnh sản phẩm">
                 {images.map((src, i) => (
                   <button key={src + i} role="listitem" className={i === activeImage ? "is-active" : ""} onClick={() => setActiveImage(i)} aria-label={`Ảnh ${i + 1}`}>
-                    <img src={getImgUrl(src)} alt="" />
+                    <img src={getImgUrl(src, 160)} alt="" />
                   </button>
                 ))}
               </div>

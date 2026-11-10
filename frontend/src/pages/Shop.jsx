@@ -110,7 +110,7 @@ export default function Shop() {
             {groups.slice(0, 12).map(({ cat, items }) => (
               <li key={cat.id}>
                 <button className="group-tile" onClick={() => openCategory(cat.slug)}>
-                  <img src={getImgUrl(items[0].image_url || items[0].image)} alt="" loading="lazy" />
+                  <img src={getImgUrl(items[0].image_url || items[0].image, 240)} alt="" loading="lazy" />
                   <span className="group-tile__name">{cat.name}</span>
                   <span className="group-tile__count">{items.length} sản phẩm</span>
                 </button>

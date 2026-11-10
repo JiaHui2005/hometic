@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Star, Send, MessageSquareText } from "lucide-react";
 import alertService from "../../services/alertService";
-import { reviewService } from "../../services/api";
+import { reviewService, getImgUrl } from "../../services/api";
 import "./Reviews.css";
 
 const DEFAULT_AVATAR = "https://www.w3schools.com/howto/img_avatar.png";
@@ -117,7 +117,7 @@ export default function Reviews({ productId, showForm = true }) {
             <li key={r.id} className="review">
               <img
                 className="review__avatar"
-                src={r.user?.avatar_url || DEFAULT_AVATAR}
+                src={getImgUrl(r.user?.avatar_url, 80) || DEFAULT_AVATAR}
                 alt=""
                 onError={(e) => { e.target.src = DEFAULT_AVATAR; }}
               />

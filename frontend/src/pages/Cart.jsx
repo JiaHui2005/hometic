@@ -278,7 +278,7 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
         <ul className="summary-items">
           {cart.map(item => (
             <li key={item.id}>
-              <img src={getImgUrl(item.image_url || item.image)} alt="" />
+              <img src={getImgUrl(item.image_url || item.image, 160)} alt="" />
               <span>{item.name}<small>Số lượng {item.quantity || 1}</small></span>
               <span className="price">{formatVnd((item.sale_price || item.price) * (item.quantity || 1))}</span>
             </li>
@@ -376,7 +376,7 @@ export default function Cart({ cart, user, updateQuantity, removeFromCart, setAc
             <ul className="cart__items">
               {cart.map((item) => (
                 <li key={item.id} className="cart-item">
-                  <img className="cart-item__img" src={getImgUrl(item.image_url || item.image)} alt="" />
+                  <img className="cart-item__img" src={getImgUrl(item.image_url || item.image, 160)} alt="" />
                   <div className="cart-item__info">
                     <h3>{item.name}</h3>
                     <div className="cart-item__price">

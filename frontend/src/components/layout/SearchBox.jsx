@@ -225,7 +225,7 @@ export default function SearchBox({ onDone, autoFocus = false }) {
                 const i = nextIndex();
                 return (
                   <button key={p.id} id={optId(i)} role="option" aria-selected={active === i} className={`searchbox__prod${active === i ? " is-active" : ""}`} onClick={() => choose({ type: "prod", item: p })}>
-                    <img src={getImgUrl(p.image_url || p.image)} alt="" loading="lazy" />
+                    <img src={getImgUrl(p.image_url || p.image, 96)} alt="" loading="lazy" />
                     <span className="searchbox__prod-name">{p.name}</span>
                     <span className="price">{formatVnd(finalPrice(p))}</span>
                   </button>

@@ -151,3 +151,38 @@ def test_security_headers(client):
     headers = client.get("/api/health").headers
     assert headers["X-Content-Type-Options"] == "nosniff"
     assert headers["X-Frame-Options"] == "DENY"
+
+
+def test_upload_goes_to_cloudinary_when_enabled(client, seed, admin_headers, upload_dir, monkeypatch):
+    from app.core.config import get_settings
+    calls = []
+    monkeypatch.setattr(get_settings(), "storage_backend", "cloudinary")
+    monkeypatch.setattr(uploads, "upload_to_cloudinary",
+                        lambda data, public_id, folder: calls.append((len(data), public_id, folder)) or f"https://res.cloudinary.com/demo/image/upload/{public_id}.png")
+    res = client.post("/api/admin/upload", headers=admin_headers, files={"file": ("../a.png", b"\x89PNG", "image/png")})
+    assert res.status_code == 200
+    assert res.json()["url"].startswith("https://res.cloudinary.com/")
+    (size, public_id, folder), = calls
+    assert size == 4 and public_id.startswith("product_") and folder == "products"
+    assert list(upload_dir.iterdir()) == []  # không ghi file ra đĩa
+
+
+def test_cloudinary_failure_returns_502(client, seed, user_headers, monkeypatch):
+    from app.core.config import get_settings
+    monkeypatch.setattr(get_settings(), "storage_backend", "cloudinary")
+    def boom(*a):
+        raise RuntimeError("network down")
+    monkeypatch.setattr(uploads, "upload_to_cloudinary", boom)
+    res = client.post("/api/auth/upload-avatar", headers=user_headers, files={"file": ("a.jpg", b"jpg", "image/jpeg")})
+    assert res.status_code == 502
+
+
+def test_cloudinary_rejects_fake_image_with_400(client, seed, user_headers, monkeypatch):
+    from cloudinary.exceptions import BadRequest
+    from app.core.config import get_settings
+    monkeypatch.setattr(get_settings(), "storage_backend", "cloudinary")
+    def reject(*a):
+        raise BadRequest("Invalid image file")
+    monkeypatch.setattr(uploads, "upload_to_cloudinary", reject)
+    res = client.post("/api/auth/upload-avatar", headers=user_headers, files={"file": ("a.png", b"<script>", "image/png")})
+    assert res.status_code == 400

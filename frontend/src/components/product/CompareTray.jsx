@@ -15,7 +15,7 @@ export default function CompareTray({ raised = false }) {
         <ul className="compare-tray__items">
           {compareList.map(p => (
             <li key={p.id}>
-              <img src={getImgUrl(p.image_url || p.image)} alt="" />
+              <img src={getImgUrl(p.image_url || p.image, 120)} alt="" />
               <span>{p.name}</span>
               <button className="icon-btn icon-btn-sm" onClick={() => toggleCompare(p)} aria-label={`Bỏ ${p.name} khỏi so sánh`}>
                 <X size={14} />

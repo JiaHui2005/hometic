@@ -145,7 +145,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
     );
   }
 
-  const avatarSrc = editForm.avatar_url ? getImgUrl(editForm.avatar_url) : DEFAULT_AVATAR;
+  const avatarSrc = editForm.avatar_url ? getImgUrl(editForm.avatar_url, 192) : DEFAULT_AVATAR;
 
   return (
     <div className="container page">
@@ -320,7 +320,7 @@ export default function Profile({ user, setUser, setActiveTab }) {
               <ul className="order-items">
                 {selectedOrder.items?.map((item, idx) => (
                   <li key={idx} className="order-item">
-                    <img src={getImgUrl(item.product?.image_url)} alt="" />
+                    <img src={getImgUrl(item.product?.image_url, 160)} alt="" />
                     <div className="order-item__info">
                       <strong>{item.product_name || item.product?.name}</strong>
                       <span>Số lượng: {item.quantity}</span>

@@ -18,7 +18,7 @@ export default function ProductCard({ product, note, compact = false }) {
   return (
     <article className={`pcard${compact ? " pcard--compact" : ""}`}>
       <button className="pcard__media" onClick={() => openProduct(product)} tabIndex={-1} aria-hidden="true">
-        <img src={getImgUrl(product.image_url || product.image)} alt="" loading="lazy" />
+        <img src={getImgUrl(product.image_url || product.image, 480)} alt="" loading="lazy" />
         {off >= 5 && <span className="pcard__off">−{off}%</span>}
       </button>
 

@@ -235,7 +235,7 @@ export default function AdminModal({
               <span className="field-label">Ảnh đại diện</span>
               <div className="image-picker">
                 {formData.image_url
-                  ? <img className="image-picker__preview" src={getImgUrl(formData.image_url)} alt="" />
+                  ? <img className="image-picker__preview" src={getImgUrl(formData.image_url, 400)} alt="" />
                   : <span className="image-picker__preview"><ImagePlus size={24} /></span>}
                 <div className="image-picker__body">
                   <input className="input" value={formData.image_url || ""} onChange={setField("image_url")} placeholder="Dán URL ảnh" aria-label="URL ảnh đại diện" />

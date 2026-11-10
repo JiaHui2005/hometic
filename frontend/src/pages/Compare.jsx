@@ -74,7 +74,7 @@ export default function Compare() {
                     <X size={15} />
                   </button>
                   <button className="compare__media" onClick={() => openProduct(p)} tabIndex={-1} aria-hidden="true">
-                    <img src={getImgUrl(p.image_url || p.image)} alt="" />
+                    <img src={getImgUrl(p.image_url || p.image, 400)} alt="" />
                   </button>
                   <button className="compare__name" onClick={() => openProduct(p)}>{p.name}</button>
                 </th>

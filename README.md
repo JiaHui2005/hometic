@@ -7,6 +7,7 @@ Hometic là website thương mại điện tử bán đồ gia dụng và thiế
 - **Frontend:** React 18 + Vite, giao diện tông Sage / Olive / Cream, dùng tốt trên điện thoại.
 - **Backend:** FastAPI (Python) cung cấp REST API, tài liệu tự sinh tại `/docs`.
 - **Database:** MySQL 8 chạy trong Docker, có sẵn 50 sản phẩm mẫu với mô tả và thông số chi tiết.
+- **Ảnh:** lưu trên Cloudinary (gói miễn phí), tự thu nhỏ đúng kích thước hiển thị và chuyển sang WebP/AVIF nên trang tải nhanh.
 
 ---
 
@@ -97,6 +98,27 @@ scripts\start.bat
 ```
 
 `start.bat` chưa tự bật MySQL nên cần chạy lệnh `docker compose` trước.
+
+### Lưu ảnh trên Cloudinary
+
+Mặc định ảnh upload được lưu ở `backend/static/uploads`. Để lưu lên Cloudinary:
+
+1. Tạo tài khoản miễn phí tại https://cloudinary.com, vào **Settings → API Keys** để lấy Cloud name, API Key và API Secret.
+2. Thêm vào `backend/.env`:
+   ```env
+   STORAGE_BACKEND=cloudinary
+   CLOUDINARY_CLOUD_NAME=...
+   CLOUDINARY_API_KEY=...
+   CLOUDINARY_API_SECRET=...
+   ```
+3. (Chỉ cần một lần) Chuyển ảnh cũ trong `static/uploads` lên Cloudinary và đổi URL trong DB lẫn dữ liệu mẫu. Chạy trong thư mục `backend`:
+   ```bash
+   .venv/bin/python -m app.utils.migrate_images_to_cloudinary --dry-run
+   .venv/bin/python -m app.utils.migrate_images_to_cloudinary
+   ```
+   Lệnh đầu chỉ liệt kê; chạy lại nhiều lần vẫn an toàn.
+
+API Secret chỉ để trong `backend/.env` (đã nằm trong `.gitignore`), không đưa vào code frontend.
 
 ### Tài khoản thử nghiệm
 

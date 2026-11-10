@@ -3,6 +3,8 @@ import os
 # Settings bắt buộc có SMTP_*; đặt giá trị giả trước khi import app để test chạy được không cần .env
 for key in ("SMTP_USER", "SMTP_PASSWORD", "SMTP_FROM"):
     os.environ.setdefault(key, "test@example.com")
+# Test không bao giờ gửi ảnh lên Cloudinary thật, dù backend/.env đang bật
+os.environ["STORAGE_BACKEND"] = "local"
 
 import pytest
 from fastapi.testclient import TestClient

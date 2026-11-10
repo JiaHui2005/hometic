@@ -151,7 +151,7 @@ function ResultRow({ r, rank, openProduct, addToCart, toggleCompare, isComparing
   return (
     <li className={`finder__item${rank === 1 ? " is-top" : ""}`}>
       <button className="finder__media" onClick={() => openProduct(p)} tabIndex={-1} aria-hidden="true">
-        <img src={getImgUrl(p.image_url || p.image)} alt="" loading="lazy" />
+        <img src={getImgUrl(p.image_url || p.image, 240)} alt="" loading="lazy" />
       </button>
       <div className="finder__info">
         {rank === 1 && <span className="finder__top">Hợp nhất với yêu cầu</span>}

@@ -19,6 +19,12 @@ class Settings(BaseSettings):
 
     backend_cors_origins: List[str] = ["http://localhost:5173"]
 
+    storage_backend: str = "local"
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
+    cloudinary_folder: str = "hometic"
+
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
     smtp_user: str

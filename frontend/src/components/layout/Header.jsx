@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { LogOut, ShoppingBag, Menu, X, ChevronDown, User, LayoutGrid } from "lucide-react";
 import { useStore } from "../../context/StoreContext";
 import SearchBox from "./SearchBox";
+import { getImgUrl } from "../../services/api";
 import "./Header.css";
 
 const DEFAULT_AVATAR = "https://www.w3schools.com/howto/img_avatar.png";
@@ -78,7 +79,7 @@ export default function Header({ activeTab, onLogout }) {
               <div className="header-account">
                 <button className="header-account__btn" onClick={() => nav("profile")}>
                   <img
-                    src={user.avatar_url || DEFAULT_AVATAR}
+                    src={getImgUrl(user.avatar_url, 64) || DEFAULT_AVATAR}
                     alt=""
                     onError={(e) => { e.target.src = DEFAULT_AVATAR; }}
                   />

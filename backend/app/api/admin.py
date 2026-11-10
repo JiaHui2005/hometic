@@ -91,5 +91,4 @@ def get_chart_data(db: Session = Depends(get_db), _=Depends(require_admin)):
 @router.post("/upload")
 def upload_file(file: UploadFile = File(...), _=Depends(require_admin)):
     """[Admin] Upload ảnh sản phẩm / danh mục"""
-    name = save_image(file, "product")
-    return {"url": f"static/uploads/{name}"}
+    return {"url": save_image(file, "product", folder="products")}

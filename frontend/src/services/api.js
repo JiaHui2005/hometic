@@ -1,8 +1,10 @@
+import { CLOUDINARY_UPLOAD, withCloudinaryTransform } from "../utils/image.js";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 const BASE_URL = API_URL.replace("/api", "");
 
-export const getImgUrl = (path) => {
+export const getImgUrl = (path, width) => {
   if (!path) return "";
+  if (path.includes(CLOUDINARY_UPLOAD)) return withCloudinaryTransform(path, width);
 
   // Nếu là URL tuyệt đối nhưng trỏ về localhost, ta thay thế nó bằng BASE_URL hiện tại
   if (path.startsWith("http://localhost:8000") || path.startsWith("http://127.0.0.1:8000")) {

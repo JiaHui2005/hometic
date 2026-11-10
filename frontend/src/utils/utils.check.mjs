@@ -29,4 +29,10 @@ assert.equal(C.couponDiscount(kitchen, 400000), 0);        // chưa đạt đơn
 assert.ok(C.couponProblem(kitchen, 400000).includes("100.000"));
 assert.equal(C.couponProblem(kitchen, 600000), null);
 assert.equal(C.couponDiscount({ discount_type: "fixed", discount_value: 50000, min_order_value: 0 }, 30000), 30000);
+const I = await import("./image.js");
+const CL = "https://res.cloudinary.com/demo/image/upload/v1794279217/hometic/legacy/a.jpg";
+assert.equal(I.withCloudinaryTransform(CL, 480), "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,c_limit,w_480/v1794279217/hometic/legacy/a.jpg");
+assert.equal(I.withCloudinaryTransform(CL), "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto/v1794279217/hometic/legacy/a.jpg");
+const done = I.withCloudinaryTransform(CL, 480);
+assert.equal(I.withCloudinaryTransform(done, 96), done); // đã có tham số thì không chèn lần nữa
 console.log("utils ok");

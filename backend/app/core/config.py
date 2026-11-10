@@ -72,7 +72,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        case_sensitive=False 
+        case_sensitive=False,
+        # .env có thể chứa biến cho công cụ khác (vd. TIDB_* để nạp dữ liệu); bỏ qua thay vì báo lỗi khởi động
+        extra="ignore",
     )
 
 
